@@ -124,29 +124,53 @@ export default function Inbox() {
     });
 
     try {
-      // Remove #inbox, add #macro:ProjectName
-      const updatedTags = item.tags
-        .filter(t => t.toLowerCase() !== "#inbox")
-        .concat([`#macro:${projectName.replace(/\s+/g, "_")}`]);
+      // Remove #inbox tag
+      let updatedTags = item.tags.filter(t => t.toLowerCase() !== "#inbox");
+      
+      // If converting to project, set project-specific fields
+      if (newType === "project") {
+        await updateItem({
+          id: itemId,
+          type: "project",
+          project_id: null,
+          tags: updatedTags,
+          project_status: "active",
+          progress_mode: "auto",
+          progress: 0,
+        });
 
-      await updateItem({
-        id: itemId,
-        type: newType,
-        project_id: projectId,
-        tags: updatedTags,
-      });
+        addLog("MacroPicker", "item_converted_to_project", { 
+          item_id: itemId, 
+          title: item.title 
+        });
 
-      addLog("MacroPicker", "item_promoted", { 
-        item_id: itemId, 
-        project_id: projectId,
-        project_name: projectName,
-        new_type: newType 
-      });
+        toast({
+          title: "Convertido!",
+          description: `"${item.title}" agora é um Projeto.`,
+        });
+      } else {
+        // Add #macro:ProjectName tag
+        updatedTags = [...updatedTags, `#macro:${projectName.replace(/\s+/g, "_")}`];
 
-      toast({
-        title: "Promovido!",
-        description: `Item movido para "${projectName}".`,
-      });
+        await updateItem({
+          id: itemId,
+          type: newType,
+          project_id: projectId,
+          tags: updatedTags,
+        });
+
+        addLog("MacroPicker", "item_promoted", { 
+          item_id: itemId, 
+          project_id: projectId,
+          project_name: projectName,
+          new_type: newType 
+        });
+
+        toast({
+          title: "Promovido!",
+          description: `Item movido para "${projectName}".`,
+        });
+      }
 
       setIsPickerOpen(false);
       setSelectedItem(null);
