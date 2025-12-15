@@ -1,7 +1,7 @@
 // Project Journal Pane - Reflections scoped to a project
 // Displays project-specific reflections with contextual creation
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useAtomItems } from "@/hooks/useAtomItems";
 import { AtomItem } from "@/types/atom-engine";
 import { format, isToday, isYesterday, parseISO } from "date-fns";
@@ -9,8 +9,9 @@ import { ptBR } from "date-fns/locale";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Feather, Plus } from "lucide-react";
+import { Feather, Plus, Search, X } from "lucide-react";
 import { toast } from "sonner";
 
 function formatReflectionDate(dateString: string): string {
@@ -27,16 +28,37 @@ function formatReflectionDate(dateString: string): string {
   return format(date, "d 'de' MMMM, HH:mm", { locale: ptBR });
 }
 
+// Highlight matching text
+function highlightText(text: string, query: string): React.ReactNode {
+  if (!query.trim()) return text;
+  
+  const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+  const parts = text.split(regex);
+  
+  return parts.map((part, i) => 
+    regex.test(part) ? (
+      <mark key={i} className="bg-primary/30 text-foreground rounded px-0.5">
+        {part}
+      </mark>
+    ) : (
+      part
+    )
+  );
+}
+
 interface JournalEntryProps {
   item: AtomItem;
   isLast: boolean;
+  searchQuery?: string;
 }
 
-function JournalEntry({ item, isLast }: JournalEntryProps) {
+function JournalEntry({ item, isLast, searchQuery = "" }: JournalEntryProps) {
   // Filter out internal tags for display
   const displayTags = item.tags.filter(tag => 
     !tag.startsWith("inbox") && !tag.startsWith("macro:")
   );
+
+  const content = item.notes || item.title;
 
   return (
     <div className="relative pl-6 pb-6 group">
@@ -57,7 +79,7 @@ function JournalEntry({ item, isLast }: JournalEntryProps) {
         
         {/* Text content */}
         <p className="text-sm whitespace-pre-wrap leading-relaxed text-foreground/90">
-          {item.notes || item.title}
+          {highlightText(content, searchQuery)}
         </p>
         
         {/* Tags */}
@@ -90,13 +112,28 @@ export function JournalPane({ projectId, projectTitle, projectModule }: JournalP
   const [isComposing, setIsComposing] = useState(false);
   const [content, setContent] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Filter reflections for this project
-  const projectReflections = (items || [])
-    .filter((item) => item.type === "reflection" && item.project_id === projectId)
-    .sort((a, b) => 
-      new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-    );
+  const projectReflections = useMemo(() => {
+    return (items || [])
+      .filter((item) => item.type === "reflection" && item.project_id === projectId)
+      .sort((a, b) => 
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      );
+  }, [items, projectId]);
+
+  // Apply search filter
+  const filteredReflections = useMemo(() => {
+    if (!searchQuery.trim()) return projectReflections;
+    
+    const query = searchQuery.toLowerCase();
+    return projectReflections.filter((item) => {
+      const content = (item.notes || item.title).toLowerCase();
+      const tags = item.tags.join(" ").toLowerCase();
+      return content.includes(query) || tags.includes(query);
+    });
+  }, [projectReflections, searchQuery]);
 
   const handleSave = async () => {
     const trimmedContent = content.trim();
@@ -219,6 +256,27 @@ export function JournalPane({ projectId, projectTitle, projectModule }: JournalP
         </Button>
       )}
 
+      {/* Search */}
+      {projectReflections.length > 0 && (
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Buscar decisões, ideias..."
+            className="pl-9 pr-9"
+          />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery("")}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
+        </div>
+      )}
+
       {/* Reflections List */}
       {projectReflections.length === 0 ? (
         <div className="text-center py-8 px-4">
@@ -230,13 +288,20 @@ export function JournalPane({ projectId, projectTitle, projectModule }: JournalP
             Registre decisões, ideias e aprendizados.
           </p>
         </div>
+      ) : filteredReflections.length === 0 ? (
+        <div className="text-center py-8 px-4">
+          <p className="text-sm text-muted-foreground">
+            Nenhuma reflexão encontrada para "{searchQuery}"
+          </p>
+        </div>
       ) : (
         <div className="pt-2">
-          {projectReflections.map((item, index) => (
+          {filteredReflections.map((item, index) => (
             <JournalEntry
               key={item.id}
               item={item}
-              isLast={index === projectReflections.length - 1}
+              isLast={index === filteredReflections.length - 1}
+              searchQuery={searchQuery}
             />
           ))}
         </div>
