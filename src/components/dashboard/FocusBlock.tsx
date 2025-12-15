@@ -8,6 +8,7 @@ import { useAtomItems } from "@/hooks/useAtomItems";
 import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import type { AtomItem } from "@/types/atom-engine";
+
 // dnd-kit imports
 import {
   DndContext,
@@ -17,6 +18,8 @@ import {
   useSensor,
   useSensors,
   DragEndEvent,
+  DragStartEvent,
+  DragOverlay,
 } from "@dnd-kit/core";
 import {
   arrayMove,
@@ -50,7 +53,13 @@ function SortableItem({ item, onToggle }: SortableItemProps) {
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: item.id });
+  } = useSortable({ 
+    id: item.id,
+    transition: {
+      duration: 250,
+      easing: 'cubic-bezier(0.25, 1, 0.5, 1)',
+    },
+  });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -86,15 +95,16 @@ function SortableItem({ item, onToggle }: SortableItemProps) {
         ref={setNodeRef}
         style={style}
         className={cn(
-          "flex items-center gap-2 w-full p-3 rounded-lg bg-background/50 hover:bg-background transition-colors group",
-          isDragging && "opacity-50 shadow-lg ring-2 ring-primary"
+          "flex items-center gap-2 w-full p-3 rounded-lg bg-background/50 hover:bg-background group border border-transparent",
+          "transition-all duration-200 ease-out",
+          isDragging && "opacity-40 scale-[0.98] border-primary/30 bg-primary/5 z-0"
         )}
       >
         {/* Drag handle */}
         <button
           {...attributes}
           {...listeners}
-          className="cursor-grab active:cursor-grabbing p-1 -ml-1 text-muted-foreground hover:text-foreground touch-none"
+          className="cursor-grab active:cursor-grabbing p-1 -ml-1 text-muted-foreground hover:text-foreground touch-none transition-colors"
         >
           <GripVertical className="h-4 w-4" />
         </button>
@@ -102,7 +112,7 @@ function SortableItem({ item, onToggle }: SortableItemProps) {
         {/* Toggle button */}
         <button
           onClick={() => onToggle(item.id)}
-          className="flex-shrink-0"
+          className="flex-shrink-0 transition-transform hover:scale-110"
         >
           {item.completed ? (
             <CheckCircle2 className="h-5 w-5 text-primary" />
@@ -114,7 +124,7 @@ function SortableItem({ item, onToggle }: SortableItemProps) {
         {/* Content */}
         <div className="flex-1 min-w-0 text-left">
           <p className={cn(
-            "font-medium truncate",
+            "font-medium truncate transition-colors",
             item.completed && "line-through text-muted-foreground"
           )}>
             {item.title}
@@ -149,8 +159,35 @@ function SortableItem({ item, onToggle }: SortableItemProps) {
   );
 }
 
+// Drag overlay item (floating preview)
+function DragOverlayItem({ item }: { item: AtomItem }) {
+  return (
+    <div className="flex items-center gap-2 w-full p-3 rounded-lg bg-background shadow-2xl border-2 border-primary scale-[1.02] rotate-[1deg]">
+      <div className="p-1 -ml-1 text-primary cursor-grabbing">
+        <GripVertical className="h-4 w-4" />
+      </div>
+      <div className="flex-shrink-0">
+        {item.completed ? (
+          <CheckCircle2 className="h-5 w-5 text-primary" />
+        ) : (
+          <Circle className="h-5 w-5 text-primary" />
+        )}
+      </div>
+      <div className="flex-1 min-w-0 text-left">
+        <p className={cn(
+          "font-medium truncate",
+          item.completed && "line-through text-muted-foreground"
+        )}>
+          {item.title}
+        </p>
+      </div>
+    </div>
+  );
+}
+
 export function FocusBlock({ items, onToggle, onReorder }: FocusBlockProps) {
   const { updateItem } = useAtomItems();
+  const [activeId, setActiveId] = useState<string | null>(null);
   
   // Sort by order_index (items without order_index go to end)
   const sortedItems = [...items].sort((a, b) => {
@@ -158,6 +195,8 @@ export function FocusBlock({ items, onToggle, onReorder }: FocusBlockProps) {
     const orderB = (b as any).order_index ?? Infinity;
     return orderA - orderB;
   });
+
+  const activeItem = activeId ? sortedItems.find(item => item.id === activeId) : null;
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -170,8 +209,13 @@ export function FocusBlock({ items, onToggle, onReorder }: FocusBlockProps) {
     })
   );
 
+  const handleDragStart = (event: DragStartEvent) => {
+    setActiveId(event.active.id as string);
+  };
+
   const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
+    setActiveId(null);
 
     if (over && active.id !== over.id) {
       const oldIndex = sortedItems.findIndex((item) => item.id === active.id);
@@ -201,6 +245,10 @@ export function FocusBlock({ items, onToggle, onReorder }: FocusBlockProps) {
     }
   };
 
+  const handleDragCancel = () => {
+    setActiveId(null);
+  };
+
   if (items.length === 0) {
     return (
       <Card className="border-dashed border-primary/30 bg-primary/5">
@@ -224,7 +272,9 @@ export function FocusBlock({ items, onToggle, onReorder }: FocusBlockProps) {
         <DndContext
           sensors={sensors}
           collisionDetection={closestCenter}
+          onDragStart={handleDragStart}
           onDragEnd={handleDragEnd}
+          onDragCancel={handleDragCancel}
         >
           <SortableContext
             items={sortedItems.map((item) => item.id)}
@@ -240,6 +290,14 @@ export function FocusBlock({ items, onToggle, onReorder }: FocusBlockProps) {
               ))}
             </div>
           </SortableContext>
+
+          {/* Drag overlay for smooth animation */}
+          <DragOverlay dropAnimation={{
+            duration: 200,
+            easing: 'cubic-bezier(0.18, 0.67, 0.6, 1.22)',
+          }}>
+            {activeItem ? <DragOverlayItem item={activeItem} /> : null}
+          </DragOverlay>
         </DndContext>
         
         {/* Hint */}
