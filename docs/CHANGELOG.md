@@ -7,6 +7,46 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [4.0.0-alpha.7] - 2025-12-15
+
+### Adicionado
+
+#### Command Palette (Power User)
+- **Atalho Global:** `Cmd+K` (Mac) / `Ctrl+K` (Windows)
+- **Navegação Rápida:**
+  - Ir para Home, Inbox, Projetos, Ritual
+  - Atalhos visuais (⌘H, ⌘I, ⌘P, ⌘N)
+- **Busca de Projetos:**
+  - Lista todos os projetos ativos
+  - Exibe ModuleBadge de cada projeto
+  - Navegação direta para Project Sheet
+- **Ações do Sistema:**
+  - Novo Item (navega para Inbox com foco no input)
+  - Debug Console (⌃⇧E)
+  - Logout
+
+#### Mobile Navigation (Drawer)
+- **Sidebar Mobile:**
+  - Transformada em Sheet/Drawer que desliza da esquerda
+  - Hamburger menu no header fixo
+  - Logo e branding no header
+  - Botão de Command Palette no header
+- **Header Fixo:**
+  - Barra fixa no topo em mobile
+  - Acesso rápido ao menu e busca
+- **Responsividade:**
+  - Layout adaptativo desktop/mobile
+  - Padding ajustado para header fixo
+
+#### Ritual View (Mobile Improvements)
+- **Footer Fixo:**
+  - Botão "Encerrar Ritual" fixo na parte inferior
+  - Acessível com polegar em qualquer posição de scroll
+  - Backdrop blur para legibilidade
+  - Botão maior (h-14) para toque fácil
+
+---
+
 ## [4.0.0-alpha.6] - 2025-12-15
 
 ### Adicionado

@@ -1,0 +1,163 @@
+// Global Command Palette (CMD+K)
+// Power user navigation and actions
+
+import { useEffect, useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  CommandDialog,
+  CommandInput,
+  CommandList,
+  CommandEmpty,
+  CommandGroup,
+  CommandItem,
+  CommandSeparator,
+  CommandShortcut,
+} from "@/components/ui/command";
+import {
+  Home,
+  FolderKanban,
+  Inbox,
+  Plus,
+  Search,
+  Sunrise,
+  Terminal,
+  LogOut,
+} from "lucide-react";
+import { useAtomItems } from "@/hooks/useAtomItems";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import { ModuleBadge } from "@/components/shared/ModuleBadge";
+
+interface CommandPaletteProps {
+  onNewItem?: () => void;
+}
+
+export function CommandPalette({ onNewItem }: CommandPaletteProps) {
+  const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
+  const { items } = useAtomItems();
+
+  // Get projects for search
+  const projects = useMemo(() => {
+    return items.filter(item => item.type === "project" && item.project_status !== "archived");
+  }, [items]);
+
+  // Keyboard shortcut: CMD+K or CTRL+K
+  useEffect(() => {
+    const down = (e: KeyboardEvent) => {
+      if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        setOpen((open) => !open);
+      }
+    };
+
+    document.addEventListener("keydown", down);
+    return () => document.removeEventListener("keydown", down);
+  }, []);
+
+  const runCommand = (command: () => void) => {
+    setOpen(false);
+    command();
+  };
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    toast.success("Logout realizado");
+    navigate("/");
+  };
+
+  const openDebug = () => {
+    const event = new KeyboardEvent('keydown', {
+      key: 'E',
+      ctrlKey: true,
+      shiftKey: true,
+    });
+    window.dispatchEvent(event);
+  };
+
+  return (
+    <CommandDialog open={open} onOpenChange={setOpen}>
+      <CommandInput placeholder="Buscar ações, projetos..." />
+      <CommandList>
+        <CommandEmpty>Nenhum resultado encontrado.</CommandEmpty>
+
+        {/* Navigation */}
+        <CommandGroup heading="Navegação">
+          <CommandItem onSelect={() => runCommand(() => navigate("/"))}>
+            <Home className="mr-2 h-4 w-4" />
+            Ir para Home
+            <CommandShortcut>⌘H</CommandShortcut>
+          </CommandItem>
+          <CommandItem onSelect={() => runCommand(() => navigate("/inbox"))}>
+            <Inbox className="mr-2 h-4 w-4" />
+            Ir para Inbox
+            <CommandShortcut>⌘I</CommandShortcut>
+          </CommandItem>
+          <CommandItem onSelect={() => runCommand(() => navigate("/projects"))}>
+            <FolderKanban className="mr-2 h-4 w-4" />
+            Ir para Projetos
+            <CommandShortcut>⌘P</CommandShortcut>
+          </CommandItem>
+          <CommandItem onSelect={() => runCommand(() => navigate("/ritual"))}>
+            <Sunrise className="mr-2 h-4 w-4" />
+            Entrar no Ritual
+          </CommandItem>
+        </CommandGroup>
+
+        <CommandSeparator />
+
+        {/* Actions */}
+        <CommandGroup heading="Ações">
+          <CommandItem onSelect={() => runCommand(() => {
+            navigate("/inbox");
+            // Small delay to ensure navigation completes before focusing input
+            setTimeout(() => {
+              const input = document.querySelector('input[placeholder*="mente"]') as HTMLInputElement;
+              input?.focus();
+            }, 100);
+          })}>
+            <Plus className="mr-2 h-4 w-4" />
+            Novo Item
+            <CommandShortcut>⌘N</CommandShortcut>
+          </CommandItem>
+        </CommandGroup>
+
+        <CommandSeparator />
+
+        {/* Projects Search */}
+        {projects.length > 0 && (
+          <CommandGroup heading="Projetos">
+            {projects.map((project) => (
+              <CommandItem
+                key={project.id}
+                onSelect={() => runCommand(() => navigate(`/projects/${project.id}`))}
+                className="flex items-center gap-2"
+              >
+                <FolderKanban className="mr-2 h-4 w-4 text-muted-foreground" />
+                <span className="flex-1">{project.title}</span>
+                {project.module && (
+                  <ModuleBadge module={project.module} size="sm" showIcon={false} />
+                )}
+              </CommandItem>
+            ))}
+          </CommandGroup>
+        )}
+
+        <CommandSeparator />
+
+        {/* System */}
+        <CommandGroup heading="Sistema">
+          <CommandItem onSelect={() => runCommand(openDebug)}>
+            <Terminal className="mr-2 h-4 w-4" />
+            Debug Console
+            <CommandShortcut>⌃⇧E</CommandShortcut>
+          </CommandItem>
+          <CommandItem onSelect={() => runCommand(handleLogout)}>
+            <LogOut className="mr-2 h-4 w-4" />
+            Sair
+          </CommandItem>
+        </CommandGroup>
+      </CommandList>
+    </CommandDialog>
+  );
+}
