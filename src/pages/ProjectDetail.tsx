@@ -1,13 +1,14 @@
 // Project Sheet (A.13) - Full project detail view with milestones
+import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import { useMilestones } from "@/hooks/useMilestones";
 import { useProjectProgress } from "@/hooks/useProjectProgress";
+import { useAtomItems } from "@/hooks/useAtomItems";
 import { 
   ArrowLeft, 
   FolderKanban, 
   Loader2,
-  Plus,
   Pause,
   Play
 } from "lucide-react";
@@ -18,19 +19,27 @@ import { Card, CardContent } from "@/components/ui/card";
 import { MilestonesPane } from "@/components/project-sheet/MilestonesPane";
 import { WorkAreaPane } from "@/components/project-sheet/WorkAreaPane";
 import { NotesPane } from "@/components/project-sheet/NotesPane";
+import { ProjectFab } from "@/components/project-sheet/ProjectFab";
+import { QuickAddTaskModal } from "@/components/project-sheet/QuickAddTaskModal";
+import { QuickAddMilestoneModal } from "@/components/project-sheet/QuickAddMilestoneModal";
 import { toast } from "sonner";
 
 export default function ProjectDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { projects, items, toggleComplete, isLoading } = useDashboardData();
+  const { createItem } = useAtomItems();
   const { 
     milestones, 
     createMilestone, 
     toggleComplete: toggleMilestone,
     deleteMilestone,
-    isCreating 
+    isCreating: isCreatingMilestone
   } = useMilestones(id);
+
+  // Modal states
+  const [taskModalOpen, setTaskModalOpen] = useState(false);
+  const [milestoneModalOpen, setMilestoneModalOpen] = useState(false);
 
   // Get project and its items
   const project = projects.find(p => p.id === id);
@@ -76,14 +85,36 @@ export default function ProjectDetail() {
     }
   };
 
-  const handleNewItem = () => {
-    // Navigate to inbox with project context (for future implementation)
-    navigate("/inbox");
-    toast.info(`Crie um item e vincule ao projeto "${project.title}"`);
+  const handleCreateTask = async (title: string) => {
+    try {
+      await createItem({
+        title,
+        type: "task",
+        project_id: id!,
+        module: project.module,
+        tags: project.module ? [`#${project.module.toLowerCase()}`] : [],
+        parent_id: null,
+        due_date: null,
+        recurrence_rule: null,
+        ritual_slot: null,
+        completed: false,
+        completed_at: null,
+        notes: null,
+        checklist: [],
+        project_status: null,
+        progress_mode: null,
+        progress: null,
+        deadline: null,
+        milestones: [],
+      });
+      toast.success("Task criada!");
+    } catch (error) {
+      toast.error("Erro ao criar task");
+    }
   };
 
   return (
-    <div className="p-4 md:p-8 max-w-4xl mx-auto space-y-6">
+    <div className="p-4 md:p-8 max-w-4xl mx-auto space-y-6 pb-24">
       {/* Header & Meta */}
       <header className="space-y-4">
         <Button 
@@ -120,11 +151,6 @@ export default function ProjectDetail() {
               </div>
             </div>
           </div>
-
-          <Button onClick={handleNewItem} size="sm">
-            <Plus className="h-4 w-4 mr-2" />
-            Novo Item
-          </Button>
         </div>
 
         {/* Progress Card */}
@@ -149,27 +175,27 @@ export default function ProjectDetail() {
                 /{progressData.milestoneCount} milestones
               </span>
               <span className="ml-auto">
-                Peso total: {progressData.completedWeight}/{progressData.totalWeight}
+                Peso: {progressData.completedWeight}/{progressData.totalWeight}
               </span>
             </div>
           </CardContent>
         </Card>
       </header>
 
-      {/* Milestones Pane */}
+      {/* Jornada (Milestones) */}
       <section>
         <MilestonesPane
           milestones={milestones}
           onToggle={toggleMilestone}
           onCreate={handleCreateMilestone}
           onDelete={handleDeleteMilestone}
-          isCreating={isCreating}
+          isCreating={isCreatingMilestone}
         />
       </section>
 
-      {/* Work Area (Tasks & Habits) */}
+      {/* Mesa de Trabalho (Tasks & Habits) */}
       <section>
-        <h2 className="text-lg font-semibold mb-3">Área de Trabalho</h2>
+        <h2 className="text-lg font-semibold mb-3">Mesa de Trabalho</h2>
         <WorkAreaPane 
           items={projectItems}
           onToggle={toggleComplete}
@@ -181,6 +207,26 @@ export default function ProjectDetail() {
         <h2 className="text-lg font-semibold mb-3">Notas & Recursos</h2>
         <NotesPane items={projectItems} />
       </section>
+
+      {/* FAB */}
+      <ProjectFab
+        onCreateTask={() => setTaskModalOpen(true)}
+        onCreateMilestone={() => setMilestoneModalOpen(true)}
+      />
+
+      {/* Modals */}
+      <QuickAddTaskModal
+        open={taskModalOpen}
+        onOpenChange={setTaskModalOpen}
+        onSubmit={handleCreateTask}
+        projectTitle={project.title}
+      />
+      <QuickAddMilestoneModal
+        open={milestoneModalOpen}
+        onOpenChange={setMilestoneModalOpen}
+        onSubmit={handleCreateMilestone}
+        projectTitle={project.title}
+      />
     </div>
   );
 }
