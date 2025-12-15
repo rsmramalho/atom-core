@@ -2,12 +2,37 @@ import { useState, useMemo } from "react";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import { ProjectCard } from "@/components/projects/ProjectCard";
 import { MODULE_OPTIONS, getModuleConfig } from "@/components/shared/ModuleBadge";
-import { FolderKanban, Plus, Loader2, Briefcase, Dumbbell, Brain, Users, LayoutGrid } from "lucide-react";
+import { 
+  FolderKanban, 
+  Plus, 
+  Loader2, 
+  Briefcase, 
+  Dumbbell, 
+  Brain, 
+  Users, 
+  LayoutGrid,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
+  Calendar,
+  Percent,
+  SortAsc
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+  DropdownMenuLabel,
+} from "@/components/ui/dropdown-menu";
 import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
 type ModuleFilter = "all" | "work" | "body" | "mind" | "family";
+type SortField = "name" | "progress" | "created_at";
+type SortDirection = "asc" | "desc";
 
 const FILTER_OPTIONS: { value: ModuleFilter; label: string; icon: React.ReactNode }[] = [
   { value: "all", label: "Todos", icon: <LayoutGrid className="h-4 w-4" /> },
@@ -17,16 +42,47 @@ const FILTER_OPTIONS: { value: ModuleFilter; label: string; icon: React.ReactNod
   { value: "family", label: "Family", icon: <Users className="h-4 w-4" /> },
 ];
 
+const SORT_OPTIONS: { value: SortField; label: string; icon: React.ReactNode }[] = [
+  { value: "name", label: "Nome", icon: <SortAsc className="h-4 w-4" /> },
+  { value: "progress", label: "Progresso", icon: <Percent className="h-4 w-4" /> },
+  { value: "created_at", label: "Data de Criação", icon: <Calendar className="h-4 w-4" /> },
+];
+
 export default function Projects() {
   const navigate = useNavigate();
   const { projects, isLoading } = useDashboardData();
   const [activeFilter, setActiveFilter] = useState<ModuleFilter>("all");
+  const [sortField, setSortField] = useState<SortField>("created_at");
+  const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
 
   // Filter projects by module
   const filteredProjects = useMemo(() => {
     if (activeFilter === "all") return projects;
     return projects.filter(p => p.module?.toLowerCase() === activeFilter);
   }, [projects, activeFilter]);
+
+  // Sort projects
+  const sortedProjects = useMemo(() => {
+    const sorted = [...filteredProjects].sort((a, b) => {
+      let comparison = 0;
+      
+      switch (sortField) {
+        case "name":
+          comparison = a.title.localeCompare(b.title, "pt-BR", { sensitivity: "base" });
+          break;
+        case "progress":
+          comparison = a.calculatedProgress - b.calculatedProgress;
+          break;
+        case "created_at":
+          comparison = new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+          break;
+      }
+      
+      return sortDirection === "asc" ? comparison : -comparison;
+    });
+    
+    return sorted;
+  }, [filteredProjects, sortField, sortDirection]);
 
   // Count projects by module
   const moduleCounts = useMemo(() => {
@@ -36,6 +92,19 @@ export default function Projects() {
     });
     return counts;
   }, [projects]);
+
+  const handleSort = (field: SortField) => {
+    if (sortField === field) {
+      // Toggle direction if same field
+      setSortDirection(prev => prev === "asc" ? "desc" : "asc");
+    } else {
+      // Set new field with default direction
+      setSortField(field);
+      setSortDirection(field === "name" ? "asc" : "desc");
+    }
+  };
+
+  const currentSortOption = SORT_OPTIONS.find(o => o.value === sortField);
 
   if (isLoading) {
     return (
@@ -64,43 +133,84 @@ export default function Projects() {
         </Button>
       </header>
 
-      {/* Module Filters */}
+      {/* Filters and Sort Controls */}
       {projects.length > 0 && (
-        <div className="mb-6 flex flex-wrap gap-2">
-          {FILTER_OPTIONS.map(({ value, label, icon }) => {
-            const config = value !== "all" ? getModuleConfig(value) : null;
-            const count = moduleCounts[value] || 0;
-            const isActive = activeFilter === value;
-            
-            return (
-              <Button
-                key={value}
-                variant={isActive ? "default" : "outline"}
-                size="sm"
-                onClick={() => setActiveFilter(value)}
-                className={cn(
-                  "gap-2 transition-all",
-                  !isActive && config && `${config.color} hover:${config.bgColor}`,
-                  value === "all" && !isActive && "text-muted-foreground"
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+          {/* Module Filters */}
+          <div className="flex flex-wrap gap-2">
+            {FILTER_OPTIONS.map(({ value, label, icon }) => {
+              const config = value !== "all" ? getModuleConfig(value) : null;
+              const count = moduleCounts[value] || 0;
+              const isActive = activeFilter === value;
+              
+              return (
+                <Button
+                  key={value}
+                  variant={isActive ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setActiveFilter(value)}
+                  className={cn(
+                    "gap-2 transition-all",
+                    !isActive && config && `${config.color} hover:${config.bgColor}`,
+                    value === "all" && !isActive && "text-muted-foreground"
+                  )}
+                >
+                  <span className={cn(
+                    isActive ? "text-primary-foreground" : config?.color
+                  )}>
+                    {icon}
+                  </span>
+                  {label}
+                  <span className={cn(
+                    "text-xs px-1.5 py-0.5 rounded-full",
+                    isActive 
+                      ? "bg-primary-foreground/20 text-primary-foreground" 
+                      : "bg-muted text-muted-foreground"
+                  )}>
+                    {count}
+                  </span>
+                </Button>
+              );
+            })}
+          </div>
+
+          {/* Sort Dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="gap-2">
+                <ArrowUpDown className="h-4 w-4" />
+                {currentSortOption?.label}
+                {sortDirection === "asc" ? (
+                  <ArrowUp className="h-3 w-3 text-muted-foreground" />
+                ) : (
+                  <ArrowDown className="h-3 w-3 text-muted-foreground" />
                 )}
-              >
-                <span className={cn(
-                  isActive ? "text-primary-foreground" : config?.color
-                )}>
-                  {icon}
-                </span>
-                {label}
-                <span className={cn(
-                  "text-xs px-1.5 py-0.5 rounded-full",
-                  isActive 
-                    ? "bg-primary-foreground/20 text-primary-foreground" 
-                    : "bg-muted text-muted-foreground"
-                )}>
-                  {count}
-                </span>
               </Button>
-            );
-          })}
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuLabel>Ordenar por</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              {SORT_OPTIONS.map(({ value, label, icon }) => (
+                <DropdownMenuItem
+                  key={value}
+                  onClick={() => handleSort(value)}
+                  className="gap-2 cursor-pointer"
+                >
+                  {icon}
+                  {label}
+                  {sortField === value && (
+                    <span className="ml-auto">
+                      {sortDirection === "asc" ? (
+                        <ArrowUp className="h-3 w-3" />
+                      ) : (
+                        <ArrowDown className="h-3 w-3" />
+                      )}
+                    </span>
+                  )}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       )}
 
@@ -116,7 +226,7 @@ export default function Projects() {
             Ir para Inbox
           </Button>
         </div>
-      ) : filteredProjects.length === 0 ? (
+      ) : sortedProjects.length === 0 ? (
         <div className="text-center py-16">
           <FolderKanban className="h-12 w-12 mx-auto text-muted-foreground/30 mb-4" />
           <h2 className="text-lg font-medium mb-2">Nenhum projeto neste módulo</h2>
@@ -126,7 +236,7 @@ export default function Projects() {
         </div>
       ) : (
         <div className="grid gap-4 md:grid-cols-2">
-          {filteredProjects.map((project) => (
+          {sortedProjects.map((project) => (
             <ProjectCard key={project.id} project={project} />
           ))}
         </div>
