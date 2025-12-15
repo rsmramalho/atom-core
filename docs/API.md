@@ -41,9 +41,26 @@ interface AtomItem {
   progress_mode: ProgressMode | null;
   progress: number | null;             // 0-100
   deadline: string | null;             // "YYYY-MM-DD"
-  milestones: Milestone[];
+  milestones: Milestone[];             // [DEPRECATED] Usar tabela project_milestones
   
   // Timestamps
+  created_at: string;                  // ISO timestamp
+  updated_at: string;                  // ISO timestamp
+}
+```
+
+### Milestone (Tabela Separada)
+
+```typescript
+interface Milestone {
+  id: string;                          // UUID
+  project_id: string;                  // UUID do projeto
+  user_id: string;                     // UUID do usuário
+  title: string;                       // Título da milestone
+  completed: boolean;
+  completed_at: string | null;         // ISO timestamp
+  weight: number;                      // Peso no progresso (padrão: 3)
+  due_date: string | null;             // "YYYY-MM-DD"
   created_at: string;                  // ISO timestamp
   updated_at: string;                  // ISO timestamp
 }
@@ -80,6 +97,17 @@ type ProjectStatus = "draft" | "active" | "paused" | "completed" | "archived";
 type ProgressMode = "auto" | "manual";
 ```
 
+### RitualPeriod
+
+```typescript
+type RitualPeriod = "aurora" | "zenite" | "crepusculo";
+
+// Mapeamento RitualSlot -> RitualPeriod
+// manha -> aurora
+// meio_dia -> zenite
+// noite -> crepusculo
+```
+
 ### ChecklistItem
 
 ```typescript
@@ -87,18 +115,6 @@ interface ChecklistItem {
   id: string;
   label: string;
   completed: boolean;
-}
-```
-
-### Milestone
-
-```typescript
-interface Milestone {
-  id: string;
-  title: string;
-  completed: boolean;
-  weight: number;
-  due_date?: string;
 }
 ```
 
@@ -196,7 +212,6 @@ const newItem = await createItem({
   tags: ["#urgente"],
   due_date: "2025-12-20",
   module: "work",
-  // ... outros campos opcionais
 });
 ```
 
@@ -210,11 +225,119 @@ const updated = await updateItem({
 });
 ```
 
-#### Deletar Item
+---
+
+### useMilestones
+
+CRUD de milestones de projeto.
 
 ```typescript
-await deleteItem("uuid-do-item");
+import { useMilestones } from "@/hooks/useMilestones";
+
+const {
+  milestones,       // Milestone[]
+  isLoading,        // boolean
+  createMilestone,  // (payload: CreateMilestonePayload) => Promise<Milestone>
+  updateMilestone,  // (payload: UpdateMilestonePayload) => Promise<Milestone>
+  deleteMilestone,  // (id: string) => Promise<void>
+  toggleComplete,   // (milestone: Milestone) => Promise<void>
+  isCreating,       // boolean
+} = useMilestones(projectId);
 ```
+
+#### Criar Milestone
+
+```typescript
+await createMilestone({
+  project_id: "uuid-do-projeto",
+  title: "Lançamento Beta",
+  weight: 5, // Opcional, default = 3
+});
+```
+
+---
+
+### useProjectProgress
+
+Cálculo de progresso híbrido (tasks + milestones).
+
+```typescript
+import { useProjectProgress } from "@/hooks/useProjectProgress";
+
+const {
+  progress,               // number (0-100)
+  totalWeight,            // number
+  completedWeight,        // number
+  taskCount,              // number
+  taskCompletedCount,     // number
+  milestoneCount,         // number
+  milestoneCompletedCount,// number
+} = useProjectProgress(projectItems, milestones);
+```
+
+**Fórmula:**
+```
+progress = (completedWeight / totalWeight) * 100
+
+Onde:
+- Tasks: peso 1 cada
+- Milestones: peso variável (default 3)
+```
+
+---
+
+### useDashboardData
+
+Filtros e organização para dashboard.
+
+```typescript
+import { useDashboardData } from "@/hooks/useDashboardData";
+
+const {
+  items,          // AtomItem[] - Todos os itens
+  activeItems,    // AtomItem[] - Não completados
+  focusItems,     // AtomItem[] - Com tag #focus
+  todayItems,     // AtomItem[] - Due <= hoje
+  overdueItems,   // AtomItem[] - Due < hoje
+  dueTodayItems,  // AtomItem[] - Due = hoje
+  ritualItems,    // AtomItem[] - Hábitos do período atual
+  projects,       // Project[] - Projetos ativos com progresso
+  currentSlot,    // RitualSlot - Slot atual baseado na hora
+  
+  getProjectItems,// (projectId) => AtomItem[]
+  toggleComplete, // (itemId) => Promise<void>
+  isLoading,      // boolean
+  refetch,        // () => void
+} = useDashboardData();
+```
+
+---
+
+### useRitual
+
+Lógica para Ritual View.
+
+```typescript
+import { useRitual } from "@/hooks/useRitual";
+
+const {
+  currentPeriod,    // RitualPeriod - aurora, zenite, crepusculo
+  ritualHabits,     // AtomItem[] - Hábitos do período
+  pendingCount,     // number - Hábitos pendentes
+  completedCount,   // number - Hábitos completos
+  
+  toggleHabit,      // (id: string) => Promise<void>
+  overridePeriod,   // (period: RitualPeriod | null) => void
+} = useRitual();
+```
+
+#### Períodos
+
+| Período | Horário | RitualSlot |
+|---------|---------|------------|
+| aurora | < 11:00 | manha |
+| zenite | 11:00 - 17:00 | meio_dia |
+| crepusculo | > 17:00 | noite |
 
 ---
 
@@ -255,6 +378,69 @@ toggle();
 
 ## Componentes
 
+### Project Sheet
+
+Componentes da tela de detalhes do projeto.
+
+```tsx
+import { MilestonesPane } from "@/components/project-sheet/MilestonesPane";
+import { WorkAreaPane } from "@/components/project-sheet/WorkAreaPane";
+import { NotesPane } from "@/components/project-sheet/NotesPane";
+import { ProjectFab } from "@/components/project-sheet/ProjectFab";
+import { QuickAddTaskModal } from "@/components/project-sheet/QuickAddTaskModal";
+import { QuickAddMilestoneModal } from "@/components/project-sheet/QuickAddMilestoneModal";
+```
+
+### MilestonesPane
+
+Timeline visual de milestones.
+
+```tsx
+<MilestonesPane
+  milestones={milestones}
+  onToggle={(milestone) => toggleMilestone(milestone)}
+  onCreate={(title) => createMilestone({ project_id, title })}
+  onDelete={(id) => deleteMilestone(id)}
+  isCreating={isCreating}
+/>
+```
+
+### WorkAreaPane
+
+Tasks e Hábitos separados.
+
+```tsx
+<WorkAreaPane
+  items={projectItems}
+  onToggle={(id) => toggleComplete(id)}
+/>
+```
+
+### ProjectFab
+
+FAB flutuante com opções.
+
+```tsx
+<ProjectFab
+  onCreateTask={() => setTaskModalOpen(true)}
+  onCreateMilestone={() => setMilestoneModalOpen(true)}
+/>
+```
+
+---
+
+### Dashboard
+
+Componentes do dashboard principal.
+
+```tsx
+import { FocusBlock } from "@/components/dashboard/FocusBlock";
+import { RitualBanner } from "@/components/dashboard/RitualBanner";
+import { TodayList } from "@/components/dashboard/TodayList";
+```
+
+---
+
 ### EngineDebugConsole
 
 Console de debug flutuante.
@@ -277,3 +463,15 @@ import { AuthForm } from "@/components/AuthForm";
 
 <AuthForm onSuccess={() => console.log("Logged in!")} />
 ```
+
+---
+
+## Rotas
+
+| Rota | Componente | Auth | Nav |
+|------|------------|------|-----|
+| `/` | Index.tsx | ✅ | ✅ |
+| `/inbox` | Inbox.tsx | ✅ | ✅ |
+| `/projects` | Projects.tsx | ✅ | ✅ |
+| `/projects/:id` | ProjectDetail.tsx | ✅ | ✅ |
+| `/ritual` | RitualView.tsx | ✅ | ❌ |

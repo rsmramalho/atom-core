@@ -7,6 +7,77 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [4.0.0-alpha.5] - 2025-12-15
+
+### Adicionado
+
+#### Project Sheet (A.13/B.13)
+- **Tabela `project_milestones`** - Milestones como entidades independentes
+  - `id`, `project_id`, `user_id`, `title`, `completed`, `weight`, `due_date`
+  - RLS policies para isolamento por usuário
+  - Peso padrão: 3x (tasks = 1x)
+- **Hook `useMilestones`** - CRUD completo para milestones
+  - `createMilestone()`, `updateMilestone()`, `deleteMilestone()`
+  - `toggleComplete()` - Toggle de conclusão
+- **Hook `useProjectProgress`** - Cálculo de progresso híbrido
+  - Fórmula: `(Peso Concluído / Peso Total) * 100`
+  - Considera tasks (peso 1) + milestones (peso 3)
+- **Componentes Project Sheet:**
+  - `MilestonesPane` - Timeline visual da "Jornada"
+  - `WorkAreaPane` - Tasks e Hábitos separados
+  - `NotesPane` - Notas e Recursos vinculados
+  - `ProjectFab` - Botão flutuante com opções Task/Milestone
+  - `QuickAddTaskModal` - Criação rápida de task
+  - `QuickAddMilestoneModal` - Criação rápida de milestone
+
+### Modificado
+- **ProjectDetail** refatorado para Project Sheet completo
+  - Header com título, módulo e status
+  - Barra de progresso híbrido (tasks + milestones)
+  - Layout em blocos verticais (não abas)
+  - FAB para criação rápida dentro do projeto
+
+---
+
+## [4.0.0-alpha.4] - 2025-12-15
+
+### Adicionado
+
+#### Ritual View (A.19/B.19)
+- **Rota `/ritual`** - Experiência imersiva full-screen
+- **Detecção de Período** baseada na hora do sistema:
+  - Aurora (manhã): < 11:00
+  - Zênite (meio-dia): 11:00 - 17:00
+  - Crepúsculo (noite): > 17:00
+- **Cores por Período:**
+  - Aurora: tons quentes (laranja/amarelo)
+  - Zênite: tons claros (amarelo brilhante)
+  - Crepúsculo: tons frios (roxo/azul)
+- **Componentes:**
+  - Header com ícone de sol e frase motivacional
+  - Lista de hábitos com cards grandes e clicáveis
+  - Feedback visual de conclusão (checkmark verde)
+  - Botão "Encerrar Ritual" para voltar ao dashboard
+- **Debug Selector** - Seletor para forçar período (dev only)
+
+#### Ritual Slot Assignment
+- **MacroPickerModal** atualizado para hábitos:
+  - Seletor de ritual slot (Manhã, Meio-dia, Noite)
+  - Só aparece quando `type === "habit"`
+  - Ícones visuais: Sunrise, Sun, Sunset
+
+#### Hook useRitual
+- **Filtragem por período** - Hábitos do slot atual
+- **Contagem de pendentes** - Para badge no dashboard
+- **Funções de override** - Para debug/testes
+
+### Modificado
+- **Dashboard** agora mostra RitualBanner com botão "Entrar no Ritual"
+- **Inbox** passa `ritualSlot` no `handlePromote`
+- **AppLayout** não renderiza nav no `/ritual` (experiência imersiva)
+
+---
+
 ## [4.0.0-alpha.3] - 2025-12-15
 
 ### Adicionado
