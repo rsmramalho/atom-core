@@ -4,10 +4,11 @@
 import { useMemo } from "react";
 import { useAtomItems } from "@/hooks/useAtomItems";
 import { AtomItem } from "@/types/atom-engine";
-import { format, isToday, isYesterday, parseISO } from "date-fns";
+import { format, isToday, isYesterday, parseISO, startOfDay, startOfWeek, startOfMonth, startOfYear } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { TimePeriod } from "./JournalFilters";
 
 function formatReflectionDate(dateString: string): string {
   const date = parseISO(dateString);
@@ -123,11 +124,21 @@ function EmptyJournal() {
   );
 }
 
-export function JournalFeed() {
+interface JournalFeedProps {
+  selectedTags?: string[];
+  timePeriod?: TimePeriod;
+  onReflectionsChange?: (reflections: AtomItem[]) => void;
+}
+
+export function JournalFeed({ 
+  selectedTags = [], 
+  timePeriod = "all",
+  onReflectionsChange,
+}: JournalFeedProps) {
   const { items, isLoading } = useAtomItems();
 
-  // Filter only reflections and sort by date (newest first)
-  const reflections = useMemo(() => {
+  // Filter only reflections
+  const allReflections = useMemo(() => {
     if (!items) return [];
     return items
       .filter((item) => item.type === "reflection")
@@ -136,21 +147,77 @@ export function JournalFeed() {
       );
   }, [items]);
 
+  // Notify parent of all reflections (for tag extraction)
+  useMemo(() => {
+    onReflectionsChange?.(allReflections);
+  }, [allReflections, onReflectionsChange]);
+
+  // Apply filters
+  const filteredReflections = useMemo(() => {
+    let result = allReflections;
+
+    // Filter by tags
+    if (selectedTags.length > 0) {
+      result = result.filter((item) =>
+        selectedTags.some((tag) => item.tags.includes(tag))
+      );
+    }
+
+    // Filter by time period
+    if (timePeriod !== "all") {
+      const now = new Date();
+      let startDate: Date;
+
+      switch (timePeriod) {
+        case "today":
+          startDate = startOfDay(now);
+          break;
+        case "week":
+          startDate = startOfWeek(now, { locale: ptBR });
+          break;
+        case "month":
+          startDate = startOfMonth(now);
+          break;
+        case "year":
+          startDate = startOfYear(now);
+          break;
+        default:
+          startDate = new Date(0);
+      }
+
+      result = result.filter((item) => 
+        parseISO(item.created_at) >= startDate
+      );
+    }
+
+    return result;
+  }, [allReflections, selectedTags, timePeriod]);
+
   if (isLoading) {
     return <JournalFeedSkeleton />;
   }
 
-  if (reflections.length === 0) {
+  if (allReflections.length === 0) {
     return <EmptyJournal />;
+  }
+
+  if (filteredReflections.length === 0) {
+    return (
+      <div className="text-center py-12 px-4">
+        <p className="text-muted-foreground">
+          Nenhuma reflexão encontrada com os filtros selecionados.
+        </p>
+      </div>
+    );
   }
 
   return (
     <div className="w-full max-w-2xl mx-auto">
-      {reflections.map((item, index) => (
+      {filteredReflections.map((item, index) => (
         <JournalEntry
           key={item.id}
           item={item}
-          isLast={index === reflections.length - 1}
+          isLast={index === filteredReflections.length - 1}
         />
       ))}
     </div>
