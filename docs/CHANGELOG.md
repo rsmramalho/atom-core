@@ -75,6 +75,18 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
   - Itens sem módulo recebem "geral" automaticamente
   - Projetos nunca podem ter módulo null
 
+#### Projects Page - Filtros e Ordenação
+- **Filtros por Módulo:**
+  - Pills compactas para Work, Body, Mind, Family e Todos
+  - Cores distintas por módulo
+  - Contador de projetos por categoria
+  - Estado vazio quando nenhum projeto no filtro
+- **Ordenação de Projetos:**
+  - Dropdown com opções: Nome, Progresso, Data de Criação
+  - Toggle de direção (asc/desc) ao clicar no mesmo campo
+  - Indicador visual de direção atual
+  - Ordenação alfabética PT-BR para nomes
+
 ---
 
 ## [4.0.0-alpha.5] - 2025-12-15
