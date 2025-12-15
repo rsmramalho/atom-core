@@ -1,24 +1,43 @@
+// Project Sheet (A.13) - Full project detail view with milestones
 import { useParams, useNavigate } from "react-router-dom";
 import { useDashboardData } from "@/hooks/useDashboardData";
+import { useMilestones } from "@/hooks/useMilestones";
+import { useProjectProgress } from "@/hooks/useProjectProgress";
 import { 
   ArrowLeft, 
   FolderKanban, 
-  CheckCircle2, 
-  Circle,
-  Loader2 
+  Loader2,
+  Plus,
+  Pause,
+  Play
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Card, CardContent } from "@/components/ui/card";
+import { MilestonesPane } from "@/components/project-sheet/MilestonesPane";
+import { WorkAreaPane } from "@/components/project-sheet/WorkAreaPane";
+import { NotesPane } from "@/components/project-sheet/NotesPane";
+import { toast } from "sonner";
 
 export default function ProjectDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { projects, getProjectItems, toggleComplete, isLoading } = useDashboardData();
+  const { projects, items, toggleComplete, isLoading } = useDashboardData();
+  const { 
+    milestones, 
+    createMilestone, 
+    toggleComplete: toggleMilestone,
+    deleteMilestone,
+    isCreating 
+  } = useMilestones(id);
 
+  // Get project and its items
   const project = projects.find(p => p.id === id);
-  const projectItems = id ? getProjectItems(id) : [];
+  const projectItems = items.filter(item => item.project_id === id);
+  
+  // Calculate progress with milestones
+  const progressData = useProjectProgress(projectItems, milestones);
 
   if (isLoading) {
     return (
@@ -30,7 +49,7 @@ export default function ProjectDetail() {
 
   if (!project) {
     return (
-      <div className="p-4 md:p-8 max-w-3xl mx-auto text-center">
+      <div className="p-4 md:p-8 max-w-4xl mx-auto text-center">
         <p className="text-muted-foreground mb-4">Projeto não encontrado</p>
         <Button onClick={() => navigate("/projects")}>
           Voltar aos Projetos
@@ -39,120 +58,129 @@ export default function ProjectDetail() {
     );
   }
 
-  const pendingItems = projectItems.filter(i => !i.completed);
-  const completedItems = projectItems.filter(i => i.completed);
+  const handleCreateMilestone = async (title: string) => {
+    try {
+      await createMilestone({ project_id: id!, title });
+      toast.success("Milestone criada!");
+    } catch (error) {
+      toast.error("Erro ao criar milestone");
+    }
+  };
+
+  const handleDeleteMilestone = async (milestoneId: string) => {
+    try {
+      await deleteMilestone(milestoneId);
+      toast.success("Milestone removida");
+    } catch (error) {
+      toast.error("Erro ao remover milestone");
+    }
+  };
+
+  const handleNewItem = () => {
+    // Navigate to inbox with project context (for future implementation)
+    navigate("/inbox");
+    toast.info(`Crie um item e vincule ao projeto "${project.title}"`);
+  };
 
   return (
-    <div className="p-4 md:p-8 max-w-3xl mx-auto">
-      {/* Header */}
-      <header className="mb-8">
+    <div className="p-4 md:p-8 max-w-4xl mx-auto space-y-6">
+      {/* Header & Meta */}
+      <header className="space-y-4">
         <Button 
           variant="ghost" 
           size="sm" 
-          className="mb-4 -ml-2"
+          className="-ml-2"
           onClick={() => navigate("/projects")}
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
-          Voltar
+          Projetos
         </Button>
 
-        <div className="flex items-start gap-3 mb-4">
-          <FolderKanban className="h-8 w-8 text-primary flex-shrink-0 mt-1" />
-          <div>
-            <h1 className="text-2xl font-bold">{project.title}</h1>
-            {project.module && (
-              <Badge variant="secondary" className="mt-1">
-                {project.module}
-              </Badge>
-            )}
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex items-start gap-3 flex-1 min-w-0">
+            <FolderKanban className="h-8 w-8 text-primary flex-shrink-0 mt-1" />
+            <div className="flex-1 min-w-0">
+              <h1 className="text-2xl font-bold truncate">{project.title}</h1>
+              <div className="flex flex-wrap items-center gap-2 mt-1">
+                {project.module && (
+                  <Badge variant="secondary">
+                    {project.module}
+                  </Badge>
+                )}
+                <Badge 
+                  variant={project.project_status === "active" ? "default" : "outline"}
+                  className="gap-1"
+                >
+                  {project.project_status === "active" ? (
+                    <><Play className="h-3 w-3" /> Ativo</>
+                  ) : (
+                    <><Pause className="h-3 w-3" /> Pausado</>
+                  )}
+                </Badge>
+              </div>
+            </div>
           </div>
+
+          <Button onClick={handleNewItem} size="sm">
+            <Plus className="h-4 w-4 mr-2" />
+            Novo Item
+          </Button>
         </div>
 
-        {/* Progress */}
-        <Card className="bg-muted/30">
+        {/* Progress Card */}
+        <Card className="bg-gradient-to-r from-primary/10 to-transparent border-primary/20">
           <CardContent className="p-4">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-muted-foreground">Progresso Geral</span>
-              <span className="text-2xl font-bold text-primary">
-                {project.calculatedProgress}%
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-sm font-medium text-muted-foreground">
+                Progresso Geral
+              </span>
+              <span className="text-3xl font-bold text-primary">
+                {progressData.progress}%
               </span>
             </div>
-            <Progress value={project.calculatedProgress} className="h-3" />
-            <p className="text-xs text-muted-foreground mt-2">
-              {project.completedItems} de {project.totalItems} itens completos
-            </p>
+            <Progress value={progressData.progress} className="h-3 mb-3" />
+            <div className="flex flex-wrap gap-4 text-xs text-muted-foreground">
+              <span>
+                <strong className="text-foreground">{progressData.taskCompletedCount}</strong>
+                /{progressData.taskCount} tasks
+              </span>
+              <span>
+                <strong className="text-foreground">{progressData.milestoneCompletedCount}</strong>
+                /{progressData.milestoneCount} milestones
+              </span>
+              <span className="ml-auto">
+                Peso total: {progressData.completedWeight}/{progressData.totalWeight}
+              </span>
+            </div>
           </CardContent>
         </Card>
       </header>
 
-      {/* Items */}
-      <div className="space-y-6">
-        {/* Pending Items */}
-        {pendingItems.length > 0 && (
-          <section>
-            <h2 className="text-lg font-semibold mb-3 flex items-center gap-2">
-              <Circle className="h-4 w-4 text-muted-foreground" />
-              Pendentes ({pendingItems.length})
-            </h2>
-            <div className="space-y-2">
-              {pendingItems.map((item) => (
-                <button
-                  key={item.id}
-                  onClick={() => toggleComplete(item.id)}
-                  className="flex items-center gap-3 w-full p-3 rounded-lg bg-card border hover:border-primary/50 transition-colors text-left"
-                >
-                  <Circle className="h-5 w-5 text-muted-foreground flex-shrink-0" />
-                  <div className="flex-1 min-w-0">
-                    <p className="truncate">{item.title}</p>
-                    <div className="flex items-center gap-2 mt-0.5">
-                      <Badge variant="outline" className="text-xs py-0">
-                        {item.type}
-                      </Badge>
-                      {item.due_date && (
-                        <span className="text-xs text-muted-foreground">
-                          {new Date(item.due_date).toLocaleDateString("pt-BR")}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </button>
-              ))}
-            </div>
-          </section>
-        )}
+      {/* Milestones Pane */}
+      <section>
+        <MilestonesPane
+          milestones={milestones}
+          onToggle={toggleMilestone}
+          onCreate={handleCreateMilestone}
+          onDelete={handleDeleteMilestone}
+          isCreating={isCreating}
+        />
+      </section>
 
-        {/* Completed Items */}
-        {completedItems.length > 0 && (
-          <section>
-            <h2 className="text-lg font-semibold mb-3 flex items-center gap-2 text-muted-foreground">
-              <CheckCircle2 className="h-4 w-4 text-primary" />
-              Completos ({completedItems.length})
-            </h2>
-            <div className="space-y-2">
-              {completedItems.map((item) => (
-                <button
-                  key={item.id}
-                  onClick={() => toggleComplete(item.id)}
-                  className="flex items-center gap-3 w-full p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors text-left"
-                >
-                  <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0" />
-                  <span className="line-through text-muted-foreground truncate">
-                    {item.title}
-                  </span>
-                </button>
-              ))}
-            </div>
-          </section>
-        )}
+      {/* Work Area (Tasks & Habits) */}
+      <section>
+        <h2 className="text-lg font-semibold mb-3">Área de Trabalho</h2>
+        <WorkAreaPane 
+          items={projectItems}
+          onToggle={toggleComplete}
+        />
+      </section>
 
-        {/* Empty State */}
-        {projectItems.length === 0 && (
-          <div className="text-center py-12 text-muted-foreground">
-            <p>Nenhum item neste projeto ainda</p>
-            <p className="text-sm">Adicione itens via Inbox e vincule a este projeto</p>
-          </div>
-        )}
-      </div>
+      {/* Notes & Resources */}
+      <section>
+        <h2 className="text-lg font-semibold mb-3">Notas & Recursos</h2>
+        <NotesPane items={projectItems} />
+      </section>
     </div>
   );
 }
