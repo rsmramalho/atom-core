@@ -1,9 +1,11 @@
+import { useState } from "react";
 import { NavLink } from "@/components/NavLink";
-import { Home, FolderKanban, Inbox, Terminal, LogOut } from "lucide-react";
+import { Home, FolderKanban, Inbox, Terminal, LogOut, Menu, X, Command } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 
 const navItems = [
   { title: "Home", url: "/", icon: Home },
@@ -13,11 +15,11 @@ const navItems = [
 
 export function AppNavigation() {
   const navigate = useNavigate();
-  const { toast } = useToast();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
-    toast({ title: "Logout realizado" });
+    toast.success("Logout realizado");
     navigate("/");
   };
 
@@ -30,62 +32,158 @@ export function AppNavigation() {
     window.dispatchEvent(event);
   };
 
+  const openCommandPalette = () => {
+    const event = new KeyboardEvent('keydown', {
+      key: 'k',
+      metaKey: true,
+    });
+    document.dispatchEvent(event);
+  };
+
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-md border-t border-border md:relative md:border-t-0 md:border-r md:h-screen md:w-64 md:flex-shrink-0">
-      <div className="flex items-center justify-around py-2 md:flex-col md:items-stretch md:justify-start md:py-6 md:px-4 md:gap-2 md:h-full">
-        {/* Logo - Desktop only */}
-        <div className="hidden md:block mb-8">
-          <h1 className="text-xl font-bold text-primary">MindMate</h1>
-          <p className="text-xs text-muted-foreground">Atom Engine 4.0</p>
-        </div>
+    <>
+      {/* Mobile: Hamburger Menu Button - Fixed top */}
+      <div className="fixed top-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-md border-b border-border md:hidden">
+        <div className="flex items-center justify-between px-4 py-3">
+          <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon" className="-ml-2">
+                <Menu className="h-5 w-5" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="w-64 p-0">
+              <div className="flex flex-col h-full">
+                {/* Header */}
+                <div className="p-6 border-b border-border">
+                  <h1 className="text-xl font-bold text-primary">MindMate</h1>
+                  <p className="text-xs text-muted-foreground">Atom Engine 4.0</p>
+                </div>
 
-        {/* Nav Items */}
-        <div className="flex items-center justify-around w-full md:flex-col md:gap-1 md:flex-1">
-          {navItems.map((item) => (
-            <NavLink
-              key={item.url}
-              to={item.url}
-              end={item.url === "/"}
-              className="flex flex-col items-center gap-1 px-4 py-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors md:flex-row md:gap-3 md:justify-start md:w-full"
-              activeClassName="text-primary bg-primary/10"
-            >
-              <item.icon className="h-5 w-5" />
-              <span className="text-xs md:text-sm">{item.title}</span>
-            </NavLink>
-          ))}
-        </div>
+                {/* Nav Items */}
+                <nav className="flex-1 p-4 space-y-1">
+                  {navItems.map((item) => (
+                    <SheetClose key={item.url} asChild>
+                      <NavLink
+                        to={item.url}
+                        end={item.url === "/"}
+                        className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+                        activeClassName="text-primary bg-primary/10"
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        <item.icon className="h-5 w-5" />
+                        <span>{item.title}</span>
+                      </NavLink>
+                    </SheetClose>
+                  ))}
+                </nav>
 
-        {/* Bottom Actions - Desktop */}
-        <div className="hidden md:flex md:flex-col md:gap-2 md:mt-auto md:pt-4 md:border-t md:border-border">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="justify-start gap-3 text-muted-foreground hover:text-foreground"
-            onClick={openDebug}
+                {/* Bottom Actions */}
+                <div className="p-4 border-t border-border space-y-1">
+                  <SheetClose asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="w-full justify-start gap-3 text-muted-foreground hover:text-foreground"
+                      onClick={() => {
+                        setMobileMenuOpen(false);
+                        openDebug();
+                      }}
+                    >
+                      <Terminal className="h-4 w-4" />
+                      Debug Console
+                    </Button>
+                  </SheetClose>
+                  <SheetClose asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="w-full justify-start gap-3 text-muted-foreground hover:text-destructive"
+                      onClick={() => {
+                        setMobileMenuOpen(false);
+                        handleLogout();
+                      }}
+                    >
+                      <LogOut className="h-4 w-4" />
+                      Sair
+                    </Button>
+                  </SheetClose>
+                </div>
+              </div>
+            </SheetContent>
+          </Sheet>
+
+          <h1 className="text-lg font-bold text-primary">MindMate</h1>
+
+          {/* Command Palette Button */}
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="-mr-2"
+            onClick={openCommandPalette}
           >
-            <Terminal className="h-4 w-4" />
-            Debug Console
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="justify-start gap-3 text-muted-foreground hover:text-destructive"
-            onClick={handleLogout}
-          >
-            <LogOut className="h-4 w-4" />
-            Sair
+            <Command className="h-5 w-5" />
           </Button>
         </div>
-
-        {/* Debug - Mobile */}
-        <button
-          onClick={openDebug}
-          className="flex flex-col items-center gap-1 px-4 py-2 text-muted-foreground hover:text-foreground md:hidden"
-        >
-          <Terminal className="h-5 w-5" />
-          <span className="text-xs">Debug</span>
-        </button>
       </div>
-    </nav>
+
+      {/* Desktop: Sidebar */}
+      <nav className="hidden md:flex md:flex-col md:border-r md:border-border md:h-screen md:w-64 md:flex-shrink-0 md:bg-card/50">
+        <div className="flex flex-col h-full py-6 px-4">
+          {/* Logo */}
+          <div className="mb-8">
+            <h1 className="text-xl font-bold text-primary">MindMate</h1>
+            <p className="text-xs text-muted-foreground">Atom Engine 4.0</p>
+          </div>
+
+          {/* Command Palette Hint */}
+          <button
+            onClick={openCommandPalette}
+            className="flex items-center gap-2 px-3 py-2 mb-4 text-sm text-muted-foreground hover:text-foreground bg-muted/50 hover:bg-muted rounded-lg transition-colors"
+          >
+            <Command className="h-4 w-4" />
+            <span className="flex-1 text-left">Buscar...</span>
+            <kbd className="text-xs bg-background px-1.5 py-0.5 rounded border border-border">⌘K</kbd>
+          </button>
+
+          {/* Nav Items */}
+          <div className="flex-1 space-y-1">
+            {navItems.map((item) => (
+              <NavLink
+                key={item.url}
+                to={item.url}
+                end={item.url === "/"}
+                className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+                activeClassName="text-primary bg-primary/10"
+              >
+                <item.icon className="h-5 w-5" />
+                <span>{item.title}</span>
+              </NavLink>
+            ))}
+          </div>
+
+          {/* Bottom Actions */}
+          <div className="mt-auto pt-4 border-t border-border space-y-1">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="w-full justify-start gap-3 text-muted-foreground hover:text-foreground"
+              onClick={openDebug}
+            >
+              <Terminal className="h-4 w-4" />
+              Debug Console
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="w-full justify-start gap-3 text-muted-foreground hover:text-destructive"
+              onClick={handleLogout}
+            >
+              <LogOut className="h-4 w-4" />
+              Sair
+            </Button>
+          </div>
+        </div>
+      </nav>
+    </>
   );
 }

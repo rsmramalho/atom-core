@@ -2,6 +2,7 @@ import { ReactNode, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { AppNavigation } from "./AppNavigation";
+import { CommandPalette } from "./CommandPalette";
 import { EngineDebugConsole } from "@/components/EngineDebugConsole";
 import { useDebugConsole } from "@/hooks/useDebugConsole";
 import { Loader2 } from "lucide-react";
@@ -51,9 +52,13 @@ export function AppLayout({ children }: AppLayoutProps) {
     <div className="min-h-screen bg-background flex flex-col md:flex-row">
       <AppNavigation />
       
-      <main className="flex-1 pb-20 md:pb-0 overflow-auto">
+      {/* Main content with top padding on mobile for fixed header */}
+      <main className="flex-1 pt-14 md:pt-0 overflow-auto">
         {children}
       </main>
+
+      {/* Command Palette - Global */}
+      <CommandPalette />
 
       {/* Debug Console */}
       {isOpen && <EngineDebugConsole isOpen={isOpen} onClose={() => {}} />}

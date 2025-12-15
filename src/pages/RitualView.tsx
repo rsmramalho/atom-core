@@ -156,12 +156,12 @@ export default function RitualView() {
         )}
       </main>
 
-      {/* Footer */}
-      <footer className="p-8 flex justify-center">
+      {/* Footer - Fixed on mobile for thumb access */}
+      <footer className="p-6 md:p-8 flex justify-center sticky bottom-0 bg-gradient-to-t from-current/5 to-transparent backdrop-blur-sm">
         <Button
           onClick={handleClose}
           size="lg"
-          className="bg-black/20 hover:bg-black/30 text-current border-2 border-current/30"
+          className="bg-black/20 hover:bg-black/30 text-current border-2 border-current/30 min-w-[200px] h-14 text-lg shadow-lg"
         >
           Encerrar Ritual
         </Button>
