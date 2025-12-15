@@ -25,8 +25,12 @@ import {
   FolderKanban,
   Plus,
   Lightbulb,
-  Sparkles
+  Sparkles,
+  Sunrise,
+  Sun,
+  Sunset
 } from "lucide-react";
+import type { RitualSlot } from "@/types/atom-engine";
 import type { AtomItem, ItemType } from "@/types/atom-engine";
 
 interface MacroPickerModalProps {
@@ -34,7 +38,7 @@ interface MacroPickerModalProps {
   onOpenChange: (open: boolean) => void;
   item: AtomItem | null;
   projects: AtomItem[];
-  onPromote: (itemId: string, projectId: string, projectName: string, type: ItemType) => void;
+  onPromote: (itemId: string, projectId: string, projectName: string, type: ItemType, ritualSlot?: RitualSlot) => void;
   onCreateProject: (name: string, module: string | null) => Promise<AtomItem | undefined>;
 }
 
@@ -43,6 +47,13 @@ const TYPE_OPTIONS: { value: ItemType; label: string; icon: React.ReactNode }[] 
   { value: "habit", label: "Hábito", icon: <RefreshCw className="h-4 w-4" /> },
   { value: "note", label: "Nota", icon: <FileText className="h-4 w-4" /> },
   { value: "project", label: "Projeto", icon: <FolderKanban className="h-4 w-4" /> },
+];
+
+const RITUAL_SLOT_OPTIONS: { value: RitualSlot | "none"; label: string; icon: React.ReactNode }[] = [
+  { value: "none", label: "Sem ritual", icon: null },
+  { value: "manha", label: "Manhã", icon: <Sunrise className="h-4 w-4 text-amber-500" /> },
+  { value: "meio_dia", label: "Meio-dia", icon: <Sun className="h-4 w-4 text-yellow-500" /> },
+  { value: "noite", label: "Noite", icon: <Sunset className="h-4 w-4 text-purple-500" /> },
 ];
 
 export function MacroPickerModal({
@@ -55,6 +66,7 @@ export function MacroPickerModal({
 }: MacroPickerModalProps) {
   const [selectedType, setSelectedType] = useState<ItemType>("task");
   const [selectedProjectId, setSelectedProjectId] = useState<string>("");
+  const [selectedRitualSlot, setSelectedRitualSlot] = useState<RitualSlot | "none">("none");
   const [isCreatingProject, setIsCreatingProject] = useState(false);
   const [newProjectName, setNewProjectName] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -93,6 +105,7 @@ export function MacroPickerModal({
     if (open && item) {
       setSelectedType(item.type !== "project" ? item.type : "task");
       setSelectedProjectId("");
+      setSelectedRitualSlot(item.ritual_slot || "none");
       setIsCreatingProject(false);
       setNewProjectName("");
     }
@@ -104,6 +117,10 @@ export function MacroPickerModal({
     setIsSubmitting(true);
     
     try {
+      const ritualSlot = selectedType === "habit" && selectedRitualSlot !== "none" 
+        ? selectedRitualSlot 
+        : undefined;
+
       if (selectedType === "project") {
         // Converting item to a standalone project
         onPromote(item.id, "", item.title, "project");
@@ -112,13 +129,13 @@ export function MacroPickerModal({
         // Create new project first
         const newProject = await onCreateProject(newProjectName.trim(), itemModule);
         if (newProject) {
-          onPromote(item.id, newProject.id, newProject.title, selectedType);
+          onPromote(item.id, newProject.id, newProject.title, selectedType, ritualSlot);
           onOpenChange(false);
         }
       } else if (selectedProjectId) {
         const project = projects.find(p => p.id === selectedProjectId);
         if (project) {
-          onPromote(item.id, selectedProjectId, project.title, selectedType);
+          onPromote(item.id, selectedProjectId, project.title, selectedType, ritualSlot);
           onOpenChange(false);
         }
       }
@@ -163,6 +180,30 @@ export function MacroPickerModal({
               ))}
             </div>
           </div>
+
+          {/* Ritual Slot Selection - Only show for habits */}
+          {selectedType === "habit" && (
+            <div className="space-y-3">
+              <Label>Ritual (opcional)</Label>
+              <div className="grid grid-cols-4 gap-2">
+                {RITUAL_SLOT_OPTIONS.map(({ value, label, icon }) => (
+                  <Button
+                    key={value}
+                    type="button"
+                    variant={selectedRitualSlot === value ? "default" : "outline"}
+                    className="flex flex-col gap-1 h-auto py-3"
+                    onClick={() => setSelectedRitualSlot(value)}
+                  >
+                    {icon || <span className="h-4 w-4" />}
+                    <span className="text-xs">{label}</span>
+                  </Button>
+                ))}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Hábitos com ritual aparecem na Ritual View do período selecionado.
+              </p>
+            </div>
+          )}
 
           {/* Project Selection - Only show if not converting to project */}
           {selectedType !== "project" && (
