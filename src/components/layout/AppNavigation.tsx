@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { NavLink } from "@/components/NavLink";
-import { Home, FolderKanban, Inbox, Terminal, LogOut, Menu, X, Command } from "lucide-react";
+import { Home, FolderKanban, Inbox, Terminal, LogOut, Menu, X, Command, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
 import { supabase } from "@/integrations/supabase/client";
@@ -11,6 +11,7 @@ const navItems = [
   { title: "Home", url: "/", icon: Home },
   { title: "Projetos", url: "/projects", icon: FolderKanban },
   { title: "Inbox", url: "/inbox", icon: Inbox },
+  { title: "Diário", url: "/journal", icon: BookOpen },
 ];
 
 export function AppNavigation() {

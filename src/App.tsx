@@ -9,6 +9,7 @@ import Inbox from "./pages/Inbox";
 import Projects from "./pages/Projects";
 import ProjectDetail from "./pages/ProjectDetail";
 import RitualView from "./pages/RitualView";
+import Journal from "./pages/Journal";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -33,6 +34,7 @@ const App = () => (
           <Route path="/inbox" element={<LayoutRoute><Inbox /></LayoutRoute>} />
           <Route path="/projects" element={<LayoutRoute><Projects /></LayoutRoute>} />
           <Route path="/projects/:id" element={<LayoutRoute><ProjectDetail /></LayoutRoute>} />
+          <Route path="/journal" element={<LayoutRoute><Journal /></LayoutRoute>} />
           
           {/* Catch-all */}
           <Route path="*" element={<NotFound />} />
