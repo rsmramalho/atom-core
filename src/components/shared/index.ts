@@ -2,3 +2,4 @@
 export { ItemContextMenu } from "./ItemContextMenu";
 export { EditItemModal } from "./EditItemModal";
 export { DeleteConfirmDialog } from "./DeleteConfirmDialog";
+export { Confetti } from "./Confetti";
