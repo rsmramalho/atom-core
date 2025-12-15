@@ -2,9 +2,9 @@
 
 ## Arquitetura do Sistema
 
-**Versão:** 4.0.0-alpha.1  
+**Versão:** 4.0.0-alpha.2  
 **Data:** 2025-12-15  
-**Status:** Core Engine + Debug Console implementados
+**Status:** Core Engine + Debug Console + Inbox + MacroPicker implementados
 
 ---
 
@@ -14,6 +14,9 @@
 src/
 ├── components/
 │   ├── ui/                    # Componentes Shadcn (base)
+│   ├── inbox/
+│   │   ├── InboxItemCard.tsx  # Card de item no inbox
+│   │   └── MacroPickerModal.tsx # Modal de promoção (B.8)
 │   ├── AuthForm.tsx           # Formulário de login/signup
 │   └── EngineDebugConsole.tsx # Console de debug (God Mode)
 │
@@ -32,6 +35,7 @@ src/
 │
 ├── pages/
 │   ├── Index.tsx              # Página principal (debug mode)
+│   ├── Inbox.tsx              # Inbox Engine UI (B.6)
 │   └── NotFound.tsx           # 404
 │
 └── integrations/
@@ -149,6 +153,55 @@ Palavras-chave que inferem módulos automaticamente:
 | `resource` | recurso, link, artigo |
 | `list` | lista |
 
+### 2. Inbox Engine (B.6)
+
+**Arquivo:** `src/pages/Inbox.tsx`
+
+Tela de captura e processamento de itens brutos.
+
+#### Funcionalidades
+
+| Feature | Descrição |
+|---------|-----------|
+| Quick Capture | Input no topo com parsing automático |
+| Inbox Filter | Exibe apenas itens com `#inbox` tag |
+| Auto-refresh | Lista atualiza ao criar/processar |
+| Process Button | Abre MacroPicker para promoção |
+
+#### Fluxo de Captura
+
+1. Usuário digita no input
+2. `parseInput()` extrai tokens
+3. Tag `#inbox` é adicionada automaticamente
+4. Item salvo no Supabase
+5. Lista atualiza via React Query
+
+---
+
+### 3. MacroPicker Engine (B.8)
+
+**Arquivo:** `src/components/inbox/MacroPickerModal.tsx`
+
+Modal de promoção de itens do inbox para projetos.
+
+#### Interface
+
+| Elemento | Função |
+|----------|--------|
+| Type Buttons | Escolher: Task, Habit, Note, Project |
+| Project Combobox | Selecionar projeto existente |
+| Create Project | Criar novo projeto inline |
+| Suggestions | Badges de projetos do mesmo módulo |
+| Confirm Button | Só habilita com projeto selecionado |
+
+#### Ação de Promoção
+
+1. Remove tag `#inbox`
+2. Adiciona `project_id`
+3. Adiciona tag `#macro:NomeProjeto`
+4. Atualiza `type` se alterado
+5. Item desaparece do Inbox
+
 ---
 
 ## 🔧 Hooks
@@ -230,7 +283,7 @@ font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
 
 ## 📋 Roadmap
 
-### ✅ Implementado (v4.0.0-alpha.1)
+### ✅ Implementado (v4.0.0-alpha.2)
 
 - [x] Modelo de dados (items table)
 - [x] Tipos TypeScript
@@ -240,15 +293,15 @@ font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
 - [x] Debug Console (God Mode)
 - [x] Autenticação básica
 - [x] RLS Policies
+- [x] Inbox Engine (B.6) - Tela de captura
+- [x] MacroPicker Engine (B.8) - Promoção para projetos
 
 ### 🔲 Próximas Etapas
 
-- [ ] Inbox Engine (B.6) - Tag #inbox, regras de ordenação
-- [ ] MacroPicker Engine (B.8) - Promoção para projetos
 - [ ] Dashboard Engine (B.10/B.14) - Lógica de exibição
 - [ ] Ritual Engine (B.11/B.19) - Camada simbólica
-- [ ] Quick Input UI - Campo de entrada rápida
 - [ ] Realtime sync - Atualizações em tempo real
+- [ ] Project View - Visualização de projeto com tarefas
 
 ---
 

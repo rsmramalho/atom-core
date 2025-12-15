@@ -2,7 +2,8 @@
 // Debug-focused interface for engine validation
 
 import { useState, useEffect } from "react";
-import { Terminal, LogOut, User } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Terminal, LogOut, User, Inbox } from "lucide-react";
 import { EngineDebugConsole } from "@/components/EngineDebugConsole";
 import { AuthForm } from "@/components/AuthForm";
 import { useDebugConsole } from "@/hooks/useDebugConsole";
@@ -10,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 
 const Index = () => {
+  const navigate = useNavigate();
   const { isOpen, open, close } = useDebugConsole();
   const [user, setUser] = useState<SupabaseUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -114,6 +116,14 @@ const Index = () => {
             >
               <Terminal className="w-5 h-5" />
               Open Debug Console
+            </button>
+
+            <button
+              onClick={() => navigate("/inbox")}
+              className="ml-4 inline-flex items-center gap-3 px-6 py-4 bg-primary hover:bg-primary/90 text-primary-foreground font-mono font-semibold rounded-lg transition-all hover:scale-105 shadow-lg shadow-primary/20"
+            >
+              <Inbox className="w-5 h-5" />
+              Abrir Inbox
             </button>
 
             <div className="mt-6 p-4 bg-console rounded-lg border border-console-border">

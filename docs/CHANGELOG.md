@@ -7,6 +7,33 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [4.0.0-alpha.2] - 2025-12-15
+
+### Adicionado
+
+#### Inbox Engine (B.6)
+- **Rota `/inbox`** - Tela operacional de captura e processamento
+- **Input de Captura** - Campo "O que está na sua mente?" com parsing automático
+- **Filtro por tag** - Exibe apenas itens com `#inbox`
+- **InboxItemCard** - Card com título, chips de tags, e botão "Processar"
+- **Remoção automática** - Item some do inbox ao ser processado (remove `#inbox`)
+
+#### MacroPicker Engine (B.8)
+- **Modal MacroPicker** - Interface de promoção de itens
+- **Seleção de Tipo** - Botões para Task, Habit, Note, Project
+- **Seleção de Projeto** - Combobox com projetos existentes
+- **Criação de Projeto** - Opção de criar "Projeto Geral" inline
+- **Sugestões Inteligentes** - Destaca projetos do mesmo módulo (`#mod_*`)
+- **Regra de Ouro** - Botão "Confirmar" só habilita com projeto selecionado
+- **Tags de Promoção** - Adiciona `#macro:NomeProjeto` ao promover
+
+#### UI/Navegação
+- Botão "Abrir Inbox" na página principal
+- Header do Inbox com contagem de itens
+- Botão de acesso rápido ao Debug Console no Inbox
+
+---
+
 ## [4.0.0-alpha.1] - 2025-12-15
 
 ### Adicionado
