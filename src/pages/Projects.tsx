@@ -138,7 +138,7 @@ export default function Projects() {
         <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
           {/* Module Filters */}
           <div className="flex flex-wrap gap-2">
-            {FILTER_OPTIONS.map(({ value, label, icon }) => {
+          {FILTER_OPTIONS.map(({ value, label, icon }) => {
               const config = value !== "all" ? getModuleConfig(value) : null;
               const count = moduleCounts[value] || 0;
               const isActive = activeFilter === value;
@@ -150,19 +150,20 @@ export default function Projects() {
                   size="sm"
                   onClick={() => setActiveFilter(value)}
                   className={cn(
-                    "gap-2 transition-all",
+                    "gap-1.5 h-7 px-2 text-xs transition-all",
                     !isActive && config && `${config.color} hover:${config.bgColor}`,
                     value === "all" && !isActive && "text-muted-foreground"
                   )}
                 >
                   <span className={cn(
+                    "[&>svg]:h-3 [&>svg]:w-3",
                     isActive ? "text-primary-foreground" : config?.color
                   )}>
                     {icon}
                   </span>
                   {label}
                   <span className={cn(
-                    "text-xs px-1.5 py-0.5 rounded-full",
+                    "text-[10px] px-1 py-0 rounded-full",
                     isActive 
                       ? "bg-primary-foreground/20 text-primary-foreground" 
                       : "bg-muted text-muted-foreground"
