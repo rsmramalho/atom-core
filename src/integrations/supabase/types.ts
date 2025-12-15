@@ -26,6 +26,7 @@ export type Database = {
           milestones: Json | null
           module: string | null
           notes: string | null
+          order_index: number | null
           parent_id: string | null
           progress: number | null
           progress_mode: Database["public"]["Enums"]["progress_mode"] | null
@@ -50,6 +51,7 @@ export type Database = {
           milestones?: Json | null
           module?: string | null
           notes?: string | null
+          order_index?: number | null
           parent_id?: string | null
           progress?: number | null
           progress_mode?: Database["public"]["Enums"]["progress_mode"] | null
@@ -74,6 +76,7 @@ export type Database = {
           milestones?: Json | null
           module?: string | null
           notes?: string | null
+          order_index?: number | null
           parent_id?: string | null
           progress?: number | null
           progress_mode?: Database["public"]["Enums"]["progress_mode"] | null

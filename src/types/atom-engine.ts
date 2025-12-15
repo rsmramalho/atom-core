@@ -66,6 +66,9 @@ export interface AtomItem {
   deadline: string | null;
   milestones: Milestone[];
   
+  // Ordering
+  order_index: number;
+  
   // Timestamps
   created_at: string;
   updated_at: string;
