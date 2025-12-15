@@ -10,26 +10,35 @@ import {
   FolderKanban, 
   Loader2,
   Pause,
-  Play
+  Play,
+  ListTodo,
+  Flag,
+  BookOpen,
+  Feather
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Card, CardContent } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MilestonesPane } from "@/components/project-sheet/MilestonesPane";
 import { WorkAreaPane } from "@/components/project-sheet/WorkAreaPane";
 import { NotesPane } from "@/components/project-sheet/NotesPane";
+import { JournalPane } from "@/components/project-sheet/JournalPane";
 import { EmptyProjectStart } from "@/components/empty-states";
 import { ProjectFab } from "@/components/project-sheet/ProjectFab";
 import { QuickAddTaskModal } from "@/components/project-sheet/QuickAddTaskModal";
 import { QuickAddMilestoneModal } from "@/components/project-sheet/QuickAddMilestoneModal";
 import { toast } from "sonner";
 
+type ProjectTab = "work" | "milestones" | "notes" | "journal";
+
 export default function ProjectDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { projects, items, toggleComplete, isLoading } = useDashboardData();
   const { createItem } = useAtomItems();
+  const [activeTab, setActiveTab] = useState<ProjectTab>("work");
   const { 
     milestones, 
     createMilestone, 
@@ -200,9 +209,34 @@ export default function ProjectDetail() {
           onCreateTask={() => setTaskModalOpen(true)}
         />
       ) : (
-        <>
-          {/* Jornada (Milestones) */}
-          <section>
+        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as ProjectTab)} className="w-full">
+          <TabsList className="grid w-full grid-cols-4 mb-6">
+            <TabsTrigger value="work" className="gap-1.5">
+              <ListTodo className="h-4 w-4" />
+              <span className="hidden sm:inline">Trabalho</span>
+            </TabsTrigger>
+            <TabsTrigger value="milestones" className="gap-1.5">
+              <Flag className="h-4 w-4" />
+              <span className="hidden sm:inline">Jornada</span>
+            </TabsTrigger>
+            <TabsTrigger value="notes" className="gap-1.5">
+              <BookOpen className="h-4 w-4" />
+              <span className="hidden sm:inline">Notas</span>
+            </TabsTrigger>
+            <TabsTrigger value="journal" className="gap-1.5">
+              <Feather className="h-4 w-4" />
+              <span className="hidden sm:inline">Journal</span>
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="work" className="mt-0">
+            <WorkAreaPane 
+              items={projectItems}
+              onToggle={toggleComplete}
+            />
+          </TabsContent>
+
+          <TabsContent value="milestones" className="mt-0">
             <MilestonesPane
               milestones={milestones}
               onToggle={toggleMilestone}
@@ -211,23 +245,20 @@ export default function ProjectDetail() {
               onUpdate={handleUpdateMilestone}
               isCreating={isCreatingMilestone}
             />
-          </section>
+          </TabsContent>
 
-          {/* Mesa de Trabalho (Tasks & Habits) */}
-          <section>
-            <h2 className="text-lg font-semibold mb-3">Mesa de Trabalho</h2>
-            <WorkAreaPane 
-              items={projectItems}
-              onToggle={toggleComplete}
-            />
-          </section>
-
-          {/* Notes & Resources */}
-          <section>
-            <h2 className="text-lg font-semibold mb-3">Notas & Recursos</h2>
+          <TabsContent value="notes" className="mt-0">
             <NotesPane items={projectItems} />
-          </section>
-        </>
+          </TabsContent>
+
+          <TabsContent value="journal" className="mt-0">
+            <JournalPane 
+              projectId={id!} 
+              projectTitle={project.title}
+              projectModule={project.module}
+            />
+          </TabsContent>
+        </Tabs>
       )}
 
       {/* FAB */}
