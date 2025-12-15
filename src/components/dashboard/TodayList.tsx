@@ -1,6 +1,10 @@
+import { useState } from "react";
 import { CalendarDays, AlertTriangle, CheckCircle2, Circle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { ItemContextMenu, EditItemModal, DeleteConfirmDialog } from "@/components/shared";
+import { useAtomItems } from "@/hooks/useAtomItems";
+import { toast } from "@/hooks/use-toast";
 import type { AtomItem } from "@/types/atom-engine";
 
 interface TodayListProps {
@@ -14,38 +18,108 @@ function TaskItem({ item, onToggle, isOverdue = false }: {
   onToggle: (id: string) => void;
   isOverdue?: boolean;
 }) {
+  const { updateItem, deleteItem, isUpdating, isDeleting } = useAtomItems();
+  
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+
+  const handleEdit = () => {
+    setEditModalOpen(true);
+  };
+
+  const handleDelete = () => {
+    setDeleteDialogOpen(true);
+  };
+
+  const handleSaveEdit = async (updates: Partial<AtomItem>) => {
+    try {
+      await updateItem({ id: item.id, ...updates });
+      setEditModalOpen(false);
+      toast({
+        title: "Item atualizado",
+        description: "As alterações foram salvas.",
+      });
+    } catch (error) {
+      toast({
+        title: "Erro",
+        description: "Não foi possível salvar as alterações.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleConfirmDelete = async () => {
+    try {
+      await deleteItem(item.id);
+      setDeleteDialogOpen(false);
+      toast({
+        title: "Item excluído",
+        description: `"${item.title}" foi removido.`,
+      });
+    } catch (error) {
+      toast({
+        title: "Erro",
+        description: "Não foi possível excluir o item.",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
-    <button
-      onClick={() => onToggle(item.id)}
-      className={`flex items-center gap-3 w-full p-3 rounded-lg transition-colors text-left ${
-        isOverdue 
-          ? "bg-destructive/10 hover:bg-destructive/20" 
-          : "bg-muted/30 hover:bg-muted/50"
-      }`}
-    >
-      {item.completed ? (
-        <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0" />
-      ) : (
-        <Circle className={`h-5 w-5 flex-shrink-0 ${isOverdue ? "text-destructive" : "text-muted-foreground"}`} />
-      )}
-      <div className="flex-1 min-w-0">
-        <p className={`truncate ${item.completed ? "line-through text-muted-foreground" : ""}`}>
-          {item.title}
-        </p>
-        <div className="flex items-center gap-2 mt-0.5">
-          {item.due_date && (
-            <span className={`text-xs ${isOverdue ? "text-destructive" : "text-muted-foreground"}`}>
-              {new Date(item.due_date).toLocaleDateString("pt-BR")}
-            </span>
+    <>
+      <div
+        className={`flex items-center gap-3 w-full p-3 rounded-lg transition-colors group ${
+          isOverdue 
+            ? "bg-destructive/10 hover:bg-destructive/20" 
+            : "bg-muted/30 hover:bg-muted/50"
+        }`}
+      >
+        <button onClick={() => onToggle(item.id)} className="flex-shrink-0">
+          {item.completed ? (
+            <CheckCircle2 className="h-5 w-5 text-primary" />
+          ) : (
+            <Circle className={`h-5 w-5 ${isOverdue ? "text-destructive" : "text-muted-foreground"} hover:text-primary transition-colors`} />
           )}
-          {item.module && (
-            <Badge variant="outline" className="text-xs py-0">
-              {item.module}
-            </Badge>
-          )}
+        </button>
+        <div className="flex-1 min-w-0">
+          <p className={`truncate ${item.completed ? "line-through text-muted-foreground" : ""}`}>
+            {item.title}
+          </p>
+          <div className="flex items-center gap-2 mt-0.5">
+            {item.due_date && (
+              <span className={`text-xs ${isOverdue ? "text-destructive" : "text-muted-foreground"}`}>
+                {new Date(item.due_date).toLocaleDateString("pt-BR")}
+              </span>
+            )}
+            {item.module && (
+              <Badge variant="outline" className="text-xs py-0">
+                {item.module}
+              </Badge>
+            )}
+          </div>
         </div>
+        <ItemContextMenu
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+        />
       </div>
-    </button>
+
+      <EditItemModal
+        item={item}
+        open={editModalOpen}
+        onOpenChange={setEditModalOpen}
+        onSave={handleSaveEdit}
+        isLoading={isUpdating}
+      />
+
+      <DeleteConfirmDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        onConfirm={handleConfirmDelete}
+        title={item.title}
+        isLoading={isDeleting}
+      />
+    </>
   );
 }
 
