@@ -1,8 +1,9 @@
 // Empty State - New Project
 // Clear CTA to create first milestone
 
-import { Flag, Rocket, Plus, ArrowDown } from "lucide-react";
+import { Flag, Plus, ArrowDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { RocketLaunchIllustration } from "./illustrations";
 
 interface EmptyProjectStartProps {
   onCreateMilestone?: () => void;
@@ -12,30 +13,8 @@ interface EmptyProjectStartProps {
 export function EmptyProjectStart({ onCreateMilestone, onCreateTask }: EmptyProjectStartProps) {
   return (
     <div className="flex flex-col items-center justify-center py-12 px-4 animate-fade-in">
-      {/* Illustration */}
-      <div className="relative mb-6">
-        {/* Rocket launching */}
-        <div className="w-24 h-24 rounded-full bg-gradient-to-br from-primary/20 via-primary/10 to-transparent flex items-center justify-center">
-          <Rocket className="h-10 w-10 text-primary rotate-[-30deg]" />
-        </div>
-        
-        {/* Trajectory dots */}
-        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1">
-          <div className="w-1 h-1 rounded-full bg-primary/60" />
-          <div className="w-1.5 h-1.5 rounded-full bg-primary/40" />
-          <div className="w-2 h-2 rounded-full bg-primary/20" />
-        </div>
-        
-        {/* Stars */}
-        <div className="absolute -top-2 right-0 w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
-        <div 
-          className="absolute top-4 -right-3 w-1.5 h-1.5 rounded-full bg-primary/50 animate-pulse"
-          style={{ animationDelay: "0.4s" }}
-        />
-        <Flag 
-          className="absolute -bottom-1 -left-2 h-5 w-5 text-emerald-500" 
-        />
-      </div>
+      {/* Custom SVG Illustration */}
+      <RocketLaunchIllustration className="w-28 h-28 mb-4" />
 
       {/* Text */}
       <h3 className="text-lg font-semibold text-foreground mb-2">
