@@ -32,6 +32,7 @@ export default function ProjectDetail() {
   const { 
     milestones, 
     createMilestone, 
+    updateMilestone,
     toggleComplete: toggleMilestone,
     deleteMilestone,
     isCreating: isCreatingMilestone
@@ -82,6 +83,14 @@ export default function ProjectDetail() {
       toast.success("Milestone removida");
     } catch (error) {
       toast.error("Erro ao remover milestone");
+    }
+  };
+
+  const handleUpdateMilestone = async (milestoneId: string, updates: Partial<typeof milestones[0]>) => {
+    try {
+      await updateMilestone({ id: milestoneId, ...updates });
+    } catch (error) {
+      toast.error("Erro ao atualizar milestone");
     }
   };
 
@@ -189,6 +198,7 @@ export default function ProjectDetail() {
           onToggle={toggleMilestone}
           onCreate={handleCreateMilestone}
           onDelete={handleDeleteMilestone}
+          onUpdate={handleUpdateMilestone}
           isCreating={isCreatingMilestone}
         />
       </section>
