@@ -42,18 +42,46 @@ export function CommandPalette({ onNewItem }: CommandPaletteProps) {
     return items.filter(item => item.type === "project" && item.project_status !== "archived");
   }, [items]);
 
-  // Keyboard shortcut: CMD+K or CTRL+K
+  // Keyboard shortcuts
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
+      // CMD+K - Toggle Command Palette
       if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
         e.preventDefault();
         setOpen((open) => !open);
+        return;
+      }
+
+      // Only process shortcuts if command palette is closed
+      if (e.metaKey || e.ctrlKey) {
+        switch (e.key.toLowerCase()) {
+          case "h":
+            e.preventDefault();
+            navigate("/");
+            break;
+          case "i":
+            e.preventDefault();
+            navigate("/inbox");
+            break;
+          case "p":
+            e.preventDefault();
+            navigate("/projects");
+            break;
+          case "n":
+            e.preventDefault();
+            navigate("/inbox");
+            setTimeout(() => {
+              const input = document.querySelector('input[placeholder*="mente"]') as HTMLInputElement;
+              input?.focus();
+            }, 100);
+            break;
+        }
       }
     };
 
     document.addEventListener("keydown", down);
     return () => document.removeEventListener("keydown", down);
-  }, []);
+  }, [navigate]);
 
   const runCommand = (command: () => void) => {
     setOpen(false);
