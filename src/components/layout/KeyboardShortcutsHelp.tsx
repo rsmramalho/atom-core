@@ -18,6 +18,7 @@ const shortcuts = [
   { keys: ["⌘", "H"], description: "Ir para Home" },
   { keys: ["⌘", "I"], description: "Ir para Inbox" },
   { keys: ["⌘", "P"], description: "Ir para Projetos" },
+  { keys: ["⌘", "J"], description: "Abrir Diário" },
   { keys: ["⌘", "N"], description: "Novo Item" },
   { keys: ["⌘", "R"], description: "Entrar no Ritual" },
   { keys: ["Ctrl", "⇧", "E"], description: "Debug Console" },

@@ -22,6 +22,7 @@ import {
   Sunrise,
   Terminal,
   LogOut,
+  BookOpen,
 } from "lucide-react";
 import { useAtomItems } from "@/hooks/useAtomItems";
 import { supabase } from "@/integrations/supabase/client";
@@ -79,6 +80,10 @@ export function CommandPalette({ onNewItem }: CommandPaletteProps) {
             e.preventDefault();
             navigate("/ritual");
             break;
+          case "j":
+            e.preventDefault();
+            navigate("/journal");
+            break;
         }
       }
     };
@@ -133,6 +138,12 @@ export function CommandPalette({ onNewItem }: CommandPaletteProps) {
           <CommandItem onSelect={() => runCommand(() => navigate("/ritual"))}>
             <Sunrise className="mr-2 h-4 w-4" />
             Entrar no Ritual
+            <CommandShortcut>⌘R</CommandShortcut>
+          </CommandItem>
+          <CommandItem onSelect={() => runCommand(() => navigate("/journal"))}>
+            <BookOpen className="mr-2 h-4 w-4" />
+            Abrir Diário
+            <CommandShortcut>⌘J</CommandShortcut>
           </CommandItem>
         </CommandGroup>
 
