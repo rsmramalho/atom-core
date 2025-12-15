@@ -1,10 +1,15 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Sunrise, Sun, Sunset, Check, X } from "lucide-react";
+import { Sunrise, Sun, Sunset, Check, X, ArrowRight, Feather } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { useRitual, RitualPeriod } from "@/hooks/useRitual";
+import { useAtomItems } from "@/hooks/useAtomItems";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
+
+type RitualStep = "habits" | "checkin";
 
 const periodIcons = {
   sunrise: Sunrise,
@@ -30,8 +35,18 @@ const periodStyles: Record<RitualPeriod, { bg: string; text: string; card: strin
   },
 };
 
+const checkinQuestions: Record<RitualPeriod, string> = {
+  aurora: "Qual é sua intenção para hoje?",
+  zenite: "Como está sendo seu dia até agora?",
+  crepusculo: "Como você encerra este ciclo?",
+};
+
 export default function RitualView() {
   const navigate = useNavigate();
+  const [step, setStep] = useState<RitualStep>("habits");
+  const [checkinText, setCheckinText] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
+  
   const {
     activePeriod,
     config,
@@ -42,12 +57,81 @@ export default function RitualView() {
     forcedPeriod,
     setForcedPeriod,
   } = useRitual();
+  
+  const { createItem } = useAtomItems();
 
   const styles = periodStyles[activePeriod];
   const Icon = periodIcons[config.icon];
 
   const handleClose = () => {
     navigate("/");
+  };
+
+  const handleContinueToCheckin = () => {
+    setStep("checkin");
+  };
+
+  const handleSkipCheckin = () => {
+    handleClose();
+  };
+
+  const handleSaveCheckin = async () => {
+    const trimmedText = checkinText.trim();
+    if (!trimmedText) {
+      handleClose();
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      // Create reflection with ritual context tags
+      const contextTags = [`ritual:${activePeriod}`, "checkin"];
+      
+      // Extract any additional tags from content
+      const tagMatches = trimmedText.match(/#[\w:]+/g) || [];
+      const contentTags = tagMatches.map(t => t.slice(1));
+      
+      const allTags = [...contextTags, ...contentTags];
+      
+      // Clean title (first line or first 50 chars)
+      const firstLine = trimmedText.split('\n')[0];
+      const title = firstLine.length > 50 
+        ? firstLine.slice(0, 50) + '...' 
+        : firstLine;
+
+      await createItem({
+        title,
+        type: "reflection",
+        notes: trimmedText,
+        tags: allTags,
+        completed: false,
+        completed_at: null,
+        due_date: null,
+        recurrence_rule: null,
+        ritual_slot: null,
+        module: null,
+        parent_id: null,
+        project_id: null,
+        checklist: [],
+        project_status: null,
+        progress_mode: null,
+        progress: null,
+        deadline: null,
+        milestones: [],
+        order_index: 0,
+      });
+
+      toast.success("Check-in registrado", {
+        description: "Sua reflexão foi salva no diário.",
+      });
+      handleClose();
+    } catch (error) {
+      toast.error("Erro ao salvar", {
+        description: "Tente novamente.",
+      });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   // Dev mode period selector
@@ -57,7 +141,7 @@ export default function RitualView() {
     <div className={cn("min-h-screen flex flex-col", styles.bg, styles.text)}>
       {/* Dev Period Selector */}
       {isDev && (
-        <div className="absolute top-4 right-4 flex gap-2 opacity-60 hover:opacity-100 transition-opacity">
+        <div className="absolute top-4 right-4 flex gap-2 opacity-60 hover:opacity-100 transition-opacity z-10">
           <span className="text-xs mr-2 self-center">DEV:</span>
           {(["aurora", "zenite", "crepusculo"] as RitualPeriod[]).map((p) => (
             <button
@@ -79,7 +163,7 @@ export default function RitualView() {
       {/* Close button */}
       <button
         onClick={handleClose}
-        className="absolute top-4 left-4 p-2 rounded-full hover:bg-black/10 transition-colors"
+        className="absolute top-4 left-4 p-2 rounded-full hover:bg-black/10 transition-colors z-10"
       >
         <X className="h-6 w-6" />
       </button>
@@ -102,69 +186,120 @@ export default function RitualView() {
         <Progress value={progress} className="h-2 bg-black/10" />
       </div>
 
-      {/* Habits List */}
+      {/* Step Content */}
       <main className="flex-1 px-6 py-8 max-w-lg mx-auto w-full">
-        {isLoading ? (
-          <div className="text-center opacity-60">Carregando hábitos...</div>
-        ) : habits.length === 0 ? (
-          <div className="text-center opacity-60">
-            <p className="mb-2">Nenhum hábito para este ritual.</p>
-            <p className="text-sm">
-              Adicione hábitos com ritual_slot = "{config.slot}" no Inbox.
-            </p>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {habits.map((habit) => (
-              <Card
-                key={habit.id}
-                onClick={() => toggleHabit(habit.id)}
-                className={cn(
-                  "p-6 cursor-pointer border-2 transition-all duration-300",
-                  styles.card,
-                  habit.completed && "opacity-50"
-                )}
-              >
-                <div className="flex items-center gap-4">
-                  <div
+        {step === "habits" && (
+          <>
+            {isLoading ? (
+              <div className="text-center opacity-60">Carregando hábitos...</div>
+            ) : habits.length === 0 ? (
+              <div className="text-center opacity-60">
+                <p className="mb-2">Nenhum hábito para este ritual.</p>
+                <p className="text-sm">
+                  Adicione hábitos com ritual_slot = "{config.slot}" no Inbox.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {habits.map((habit) => (
+                  <Card
+                    key={habit.id}
+                    onClick={() => toggleHabit(habit.id)}
                     className={cn(
-                      "w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all",
-                      habit.completed
-                        ? "bg-green-500 border-green-500"
-                        : "border-current"
+                      "p-6 cursor-pointer border-2 transition-all duration-300",
+                      styles.card,
+                      habit.completed && "opacity-50"
                     )}
                   >
-                    {habit.completed && <Check className="h-5 w-5 text-white" />}
-                  </div>
-                  <div className="flex-1">
-                    <h3
-                      className={cn(
-                        "text-xl font-medium transition-all",
-                        habit.completed && "line-through"
-                      )}
-                    >
-                      {habit.title}
-                    </h3>
-                    {habit.notes && (
-                      <p className="text-sm opacity-70 mt-1">{habit.notes}</p>
-                    )}
-                  </div>
-                </div>
-              </Card>
-            ))}
+                    <div className="flex items-center gap-4">
+                      <div
+                        className={cn(
+                          "w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all",
+                          habit.completed
+                            ? "bg-green-500 border-green-500"
+                            : "border-current"
+                        )}
+                      >
+                        {habit.completed && <Check className="h-5 w-5 text-white" />}
+                      </div>
+                      <div className="flex-1">
+                        <h3
+                          className={cn(
+                            "text-xl font-medium transition-all",
+                            habit.completed && "line-through"
+                          )}
+                        >
+                          {habit.title}
+                        </h3>
+                        {habit.notes && (
+                          <p className="text-sm opacity-70 mt-1">{habit.notes}</p>
+                        )}
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </>
+        )}
+
+        {step === "checkin" && (
+          <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
+            <div className="text-center">
+              <Feather className="h-10 w-10 mx-auto mb-4 opacity-70" />
+              <h2 className="text-2xl font-medium mb-2">Check-in</h2>
+              <p className="opacity-80">{checkinQuestions[activePeriod]}</p>
+            </div>
+            
+            <Card className={cn("p-6 border-2", styles.card)}>
+              <textarea
+                value={checkinText}
+                onChange={(e) => setCheckinText(e.target.value)}
+                placeholder="Escreva livremente..."
+                className="w-full min-h-[120px] resize-none bg-transparent border-none outline-none text-lg leading-relaxed placeholder:opacity-50 focus:ring-0"
+                disabled={isSaving}
+                autoFocus
+              />
+            </Card>
           </div>
         )}
       </main>
 
-      {/* Footer - Fixed on mobile for thumb access */}
-      <footer className="p-6 md:p-8 flex justify-center sticky bottom-0 bg-gradient-to-t from-current/5 to-transparent backdrop-blur-sm">
-        <Button
-          onClick={handleClose}
-          size="lg"
-          className="bg-black/20 hover:bg-black/30 text-current border-2 border-current/30 min-w-[200px] h-14 text-lg shadow-lg"
-        >
-          Encerrar Ritual
-        </Button>
+      {/* Footer */}
+      <footer className="p-6 md:p-8 flex justify-center gap-4 sticky bottom-0 bg-gradient-to-t from-current/5 to-transparent backdrop-blur-sm">
+        {step === "habits" && (
+          <Button
+            onClick={handleContinueToCheckin}
+            size="lg"
+            className="bg-black/20 hover:bg-black/30 text-current border-2 border-current/30 min-w-[200px] h-14 text-lg shadow-lg gap-2"
+          >
+            Continuar
+            <ArrowRight className="h-5 w-5" />
+          </Button>
+        )}
+
+        {step === "checkin" && (
+          <>
+            <Button
+              onClick={handleSkipCheckin}
+              variant="ghost"
+              size="lg"
+              className="text-current hover:bg-black/10 h-14"
+              disabled={isSaving}
+            >
+              Pular
+            </Button>
+            <Button
+              onClick={handleSaveCheckin}
+              size="lg"
+              className="bg-black/20 hover:bg-black/30 text-current border-2 border-current/30 min-w-[160px] h-14 text-lg shadow-lg gap-2"
+              disabled={isSaving}
+            >
+              <Feather className="h-5 w-5" />
+              {isSaving ? "Salvando..." : "Registrar"}
+            </Button>
+          </>
+        )}
       </footer>
     </div>
   );
