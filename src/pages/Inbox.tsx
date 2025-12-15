@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Inbox as InboxIcon, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import type { AtomItem } from "@/types/atom-engine";
+import type { AtomItem, RitualSlot } from "@/types/atom-engine";
 
 export default function Inbox() {
   const { toast } = useToast();
@@ -107,7 +107,8 @@ export default function Inbox() {
     itemId: string, 
     projectId: string, 
     projectName: string, 
-    newType: AtomItem["type"]
+    newType: AtomItem["type"],
+    ritualSlot?: RitualSlot
   ) => {
     const item = items.find(i => i.id === itemId);
     if (!item) return;
@@ -152,18 +153,24 @@ export default function Inbox() {
           type: newType,
           project_id: projectId,
           tags: updatedTags,
+          ritual_slot: ritualSlot || null,
         });
 
         addLog("MacroPicker", "item_promoted", { 
           item_id: itemId, 
           project_id: projectId,
           project_name: projectName,
-          new_type: newType 
+          new_type: newType,
+          ritual_slot: ritualSlot || null
         });
 
+        const ritualMessage = ritualSlot 
+          ? ` (Ritual: ${ritualSlot === "manha" ? "Manhã" : ritualSlot === "meio_dia" ? "Meio-dia" : "Noite"})`
+          : "";
+        
         toast({
           title: "Promovido!",
-          description: `Item movido para "${projectName}".`,
+          description: `Item movido para "${projectName}"${ritualMessage}.`,
         });
       }
 
