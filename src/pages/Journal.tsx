@@ -3,13 +3,15 @@
 
 import { useState, useCallback } from "react";
 import { JournalComposer, JournalFeed, JournalFilters, TimePeriod } from "@/components/journal";
-import { BookOpen } from "lucide-react";
+import { BookOpen, Search, X } from "lucide-react";
 import { AtomItem } from "@/types/atom-engine";
+import { Input } from "@/components/ui/input";
 
 export default function Journal() {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [timePeriod, setTimePeriod] = useState<TimePeriod>("all");
   const [reflections, setReflections] = useState<AtomItem[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const handleReflectionsChange = useCallback((items: AtomItem[]) => {
     setReflections(items);
@@ -48,6 +50,27 @@ export default function Journal() {
           </div>
         </div>
 
+        {/* Search */}
+        <section className="w-full max-w-2xl mx-auto mb-6">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Buscar reflexões..."
+              className="pl-9 pr-9"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery("")}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )}
+          </div>
+        </section>
+
         {/* Filters */}
         <section className="mb-8">
           <JournalFilters
@@ -64,6 +87,7 @@ export default function Journal() {
           <JournalFeed
             selectedTags={selectedTags}
             timePeriod={timePeriod}
+            searchQuery={searchQuery}
             onReflectionsChange={handleReflectionsChange}
           />
         </section>
