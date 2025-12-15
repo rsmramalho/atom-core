@@ -24,16 +24,37 @@ function formatReflectionDate(dateString: string): string {
   return format(date, "d 'de' MMMM, HH:mm", { locale: ptBR });
 }
 
+// Highlight matching text
+function highlightText(text: string, query: string): React.ReactNode {
+  if (!query.trim()) return text;
+  
+  const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+  const parts = text.split(regex);
+  
+  return parts.map((part, i) => 
+    regex.test(part) ? (
+      <mark key={i} className="bg-primary/30 text-foreground rounded px-0.5">
+        {part}
+      </mark>
+    ) : (
+      part
+    )
+  );
+}
+
 interface JournalEntryProps {
   item: AtomItem;
   isLast: boolean;
+  searchQuery?: string;
 }
 
-function JournalEntry({ item, isLast }: JournalEntryProps) {
+function JournalEntry({ item, isLast, searchQuery = "" }: JournalEntryProps) {
   // Filter out internal tags for display
   const displayTags = item.tags.filter(tag => 
     !tag.startsWith("inbox") && !tag.startsWith("macro:")
   );
+
+  const content = item.notes || item.title;
 
   return (
     <div className="relative pl-8 pb-8 group">
@@ -55,7 +76,7 @@ function JournalEntry({ item, isLast }: JournalEntryProps) {
         {/* Text content */}
         <div className="prose prose-sm dark:prose-invert max-w-none">
           <p className="whitespace-pre-wrap leading-relaxed text-foreground/90">
-            {item.notes || item.title}
+            {highlightText(content, searchQuery)}
           </p>
         </div>
         
@@ -127,12 +148,14 @@ function EmptyJournal() {
 interface JournalFeedProps {
   selectedTags?: string[];
   timePeriod?: TimePeriod;
+  searchQuery?: string;
   onReflectionsChange?: (reflections: AtomItem[]) => void;
 }
 
 export function JournalFeed({ 
   selectedTags = [], 
   timePeriod = "all",
+  searchQuery = "",
   onReflectionsChange,
 }: JournalFeedProps) {
   const { items, isLoading } = useAtomItems();
@@ -190,8 +213,18 @@ export function JournalFeed({
       );
     }
 
+    // Filter by search query
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      result = result.filter((item) => {
+        const content = (item.notes || item.title).toLowerCase();
+        const tags = item.tags.join(" ").toLowerCase();
+        return content.includes(query) || tags.includes(query);
+      });
+    }
+
     return result;
-  }, [allReflections, selectedTags, timePeriod]);
+  }, [allReflections, selectedTags, timePeriod, searchQuery]);
 
   if (isLoading) {
     return <JournalFeedSkeleton />;
@@ -205,7 +238,10 @@ export function JournalFeed({
     return (
       <div className="text-center py-12 px-4">
         <p className="text-muted-foreground">
-          Nenhuma reflexão encontrada com os filtros selecionados.
+          {searchQuery 
+            ? `Nenhuma reflexão encontrada para "${searchQuery}"`
+            : "Nenhuma reflexão encontrada com os filtros selecionados."
+          }
         </p>
       </div>
     );
@@ -218,6 +254,7 @@ export function JournalFeed({
           key={item.id}
           item={item}
           isLast={index === filteredReflections.length - 1}
+          searchQuery={searchQuery}
         />
       ))}
     </div>
