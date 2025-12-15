@@ -104,16 +104,22 @@ export function MacroPickerModal({
     setIsSubmitting(true);
     
     try {
-      if (isCreatingProject && newProjectName.trim()) {
+      if (selectedType === "project") {
+        // Converting item to a standalone project
+        onPromote(item.id, "", item.title, "project");
+        onOpenChange(false);
+      } else if (isCreatingProject && newProjectName.trim()) {
         // Create new project first
         const newProject = await onCreateProject(newProjectName.trim(), itemModule);
         if (newProject) {
           onPromote(item.id, newProject.id, newProject.title, selectedType);
+          onOpenChange(false);
         }
       } else if (selectedProjectId) {
         const project = projects.find(p => p.id === selectedProjectId);
         if (project) {
           onPromote(item.id, selectedProjectId, project.title, selectedType);
+          onOpenChange(false);
         }
       }
     } finally {
