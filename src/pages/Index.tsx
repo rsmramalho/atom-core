@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { AuthForm } from "@/components/AuthForm";
@@ -8,8 +8,10 @@ import { RitualBanner } from "@/components/dashboard/RitualBanner";
 import { FocusBlock } from "@/components/dashboard/FocusBlock";
 import { TodayList } from "@/components/dashboard/TodayList";
 import { EmptyDashboard } from "@/components/empty-states";
+import { Confetti } from "@/components/shared";
 import { Button } from "@/components/ui/button";
 import { Loader2, Sunrise, Sun, Sunset } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 const periodIcons = {
   aurora: Sunrise,
@@ -19,8 +21,13 @@ const periodIcons = {
 
 export default function Index() {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [showConfetti, setShowConfetti] = useState(false);
+  
+  // Track previous pending count to detect completion
+  const prevPendingCountRef = useRef<number | null>(null);
 
   const {
     isLoading,
@@ -34,6 +41,33 @@ export default function Index() {
 
   const { activePeriod, config, pendingHabits } = useRitual();
   const PeriodIcon = periodIcons[activePeriod];
+
+  // Calculate total pending items (excluding ritual items as they have their own flow)
+  const totalPendingItems = focusItems.length + overdueItems.length + dueTodayItems.length;
+
+  // Detect when all tasks are completed
+  useEffect(() => {
+    // Skip on initial load or when loading
+    if (isLoading || prevPendingCountRef.current === null) {
+      prevPendingCountRef.current = totalPendingItems;
+      return;
+    }
+
+    // Check if we went from having items to zero
+    if (prevPendingCountRef.current > 0 && totalPendingItems === 0) {
+      setShowConfetti(true);
+      toast({
+        title: "🎉 Parabéns!",
+        description: "Você completou todas as tarefas do dia!",
+      });
+    }
+
+    prevPendingCountRef.current = totalPendingItems;
+  }, [totalPendingItems, isLoading, toast]);
+
+  const handleConfettiComplete = useCallback(() => {
+    setShowConfetti(false);
+  }, []);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -84,6 +118,9 @@ export default function Index() {
 
   return (
     <div className="p-4 md:p-8 max-w-3xl mx-auto">
+      {/* Confetti celebration */}
+      <Confetti trigger={showConfetti} onComplete={handleConfettiComplete} />
+
       {/* Header */}
       <header className="mb-8">
         <h1 className="text-2xl font-bold">{greeting}! 👋</h1>
