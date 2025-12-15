@@ -19,6 +19,7 @@ import {
   useSensors,
   DragEndEvent,
   DragStartEvent,
+  DragOverEvent,
   DragOverlay,
 } from "@dnd-kit/core";
 import {
@@ -29,6 +30,14 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+
+// Haptic feedback utility
+const hapticFeedback = {
+  light: () => navigator.vibrate?.(10),
+  medium: () => navigator.vibrate?.(25),
+  heavy: () => navigator.vibrate?.(50),
+  success: () => navigator.vibrate?.([10, 50, 20]),
+};
 
 interface FocusBlockProps {
   items: AtomItem[];
@@ -211,6 +220,14 @@ export function FocusBlock({ items, onToggle, onReorder }: FocusBlockProps) {
 
   const handleDragStart = (event: DragStartEvent) => {
     setActiveId(event.active.id as string);
+    hapticFeedback.medium(); // Vibrate on pickup
+  };
+
+  const handleDragOver = (event: DragOverEvent) => {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      hapticFeedback.light(); // Light vibration when hovering over new position
+    }
   };
 
   const handleDragEnd = async (event: DragEndEvent) => {
@@ -231,12 +248,14 @@ export function FocusBlock({ items, onToggle, onReorder }: FocusBlockProps) {
           )
         );
         
+        hapticFeedback.success(); // Success pattern on drop
         onReorder?.(newOrder);
         toast({
           title: "Ordem atualizada",
           description: "A prioridade dos itens foi salva.",
         });
       } catch {
+        hapticFeedback.heavy(); // Error vibration
         toast({
           title: "Erro ao reordenar",
           variant: "destructive",
@@ -273,6 +292,7 @@ export function FocusBlock({ items, onToggle, onReorder }: FocusBlockProps) {
           sensors={sensors}
           collisionDetection={closestCenter}
           onDragStart={handleDragStart}
+          onDragOver={handleDragOver}
           onDragEnd={handleDragEnd}
           onDragCancel={handleDragCancel}
         >
