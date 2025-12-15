@@ -19,6 +19,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { MilestonesPane } from "@/components/project-sheet/MilestonesPane";
 import { WorkAreaPane } from "@/components/project-sheet/WorkAreaPane";
 import { NotesPane } from "@/components/project-sheet/NotesPane";
+import { EmptyProjectStart } from "@/components/empty-states";
 import { ProjectFab } from "@/components/project-sheet/ProjectFab";
 import { QuickAddTaskModal } from "@/components/project-sheet/QuickAddTaskModal";
 import { QuickAddMilestoneModal } from "@/components/project-sheet/QuickAddMilestoneModal";
@@ -192,32 +193,42 @@ export default function ProjectDetail() {
         </Card>
       </header>
 
-      {/* Jornada (Milestones) */}
-      <section>
-        <MilestonesPane
-          milestones={milestones}
-          onToggle={toggleMilestone}
-          onCreate={handleCreateMilestone}
-          onDelete={handleDeleteMilestone}
-          onUpdate={handleUpdateMilestone}
-          isCreating={isCreatingMilestone}
+      {/* Empty state when no content */}
+      {projectItems.length === 0 && milestones.length === 0 ? (
+        <EmptyProjectStart 
+          onCreateMilestone={() => setMilestoneModalOpen(true)}
+          onCreateTask={() => setTaskModalOpen(true)}
         />
-      </section>
+      ) : (
+        <>
+          {/* Jornada (Milestones) */}
+          <section>
+            <MilestonesPane
+              milestones={milestones}
+              onToggle={toggleMilestone}
+              onCreate={handleCreateMilestone}
+              onDelete={handleDeleteMilestone}
+              onUpdate={handleUpdateMilestone}
+              isCreating={isCreatingMilestone}
+            />
+          </section>
 
-      {/* Mesa de Trabalho (Tasks & Habits) */}
-      <section>
-        <h2 className="text-lg font-semibold mb-3">Mesa de Trabalho</h2>
-        <WorkAreaPane 
-          items={projectItems}
-          onToggle={toggleComplete}
-        />
-      </section>
+          {/* Mesa de Trabalho (Tasks & Habits) */}
+          <section>
+            <h2 className="text-lg font-semibold mb-3">Mesa de Trabalho</h2>
+            <WorkAreaPane 
+              items={projectItems}
+              onToggle={toggleComplete}
+            />
+          </section>
 
-      {/* Notes & Resources */}
-      <section>
-        <h2 className="text-lg font-semibold mb-3">Notas & Recursos</h2>
-        <NotesPane items={projectItems} />
-      </section>
+          {/* Notes & Resources */}
+          <section>
+            <h2 className="text-lg font-semibold mb-3">Notas & Recursos</h2>
+            <NotesPane items={projectItems} />
+          </section>
+        </>
+      )}
 
       {/* FAB */}
       <ProjectFab

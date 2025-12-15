@@ -4,6 +4,7 @@ import { useAtomItems } from "@/hooks/useAtomItems";
 import { useEngineLogger } from "@/hooks/useEngineLogger";
 import { parseInput } from "@/lib/parsing-engine";
 import { InboxItemCard } from "@/components/inbox/InboxItemCard";
+import { EmptyInbox } from "@/components/empty-states";
 import { MacroPickerModal } from "@/components/inbox/MacroPickerModal";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -235,13 +236,7 @@ export default function Inbox() {
 
       {/* Inbox List */}
       {inboxItems.length === 0 ? (
-        <div className="text-center py-12">
-          <InboxIcon className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
-          <p className="text-muted-foreground">Inbox vazio</p>
-          <p className="text-sm text-muted-foreground/70">
-            Capture pensamentos acima para começar
-          </p>
-        </div>
+        <EmptyInbox />
       ) : (
         <div className="space-y-3">
           {inboxItems.map((item) => (

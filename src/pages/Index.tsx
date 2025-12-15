@@ -7,6 +7,7 @@ import { useRitual } from "@/hooks/useRitual";
 import { RitualBanner } from "@/components/dashboard/RitualBanner";
 import { FocusBlock } from "@/components/dashboard/FocusBlock";
 import { TodayList } from "@/components/dashboard/TodayList";
+import { EmptyDashboard } from "@/components/empty-states";
 import { Button } from "@/components/ui/button";
 import { Loader2, Sunrise, Sun, Sunset } from "lucide-react";
 
@@ -123,12 +124,16 @@ export default function Index() {
           onToggle={toggleComplete} 
         />
 
-        {/* Today List */}
-        <TodayList 
-          overdueItems={overdueItems}
-          dueTodayItems={dueTodayItems}
-          onToggle={toggleComplete}
-        />
+        {/* Today List or Empty Dashboard */}
+        {overdueItems.length === 0 && dueTodayItems.length === 0 && focusItems.length === 0 && ritualItems.length === 0 ? (
+          <EmptyDashboard />
+        ) : (
+          <TodayList 
+            overdueItems={overdueItems}
+            dueTodayItems={dueTodayItems}
+            onToggle={toggleComplete}
+          />
+        )}
       </div>
     </div>
   );
