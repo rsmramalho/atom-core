@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { AppNavigation } from "./AppNavigation";
 import { CommandPalette } from "./CommandPalette";
 import { EngineDebugConsole } from "@/components/EngineDebugConsole";
+import { KeyboardShortcutsHelp } from "./KeyboardShortcutsHelp";
 import { useDebugConsole } from "@/hooks/useDebugConsole";
 import { Loader2 } from "lucide-react";
 
@@ -59,6 +60,9 @@ export function AppLayout({ children }: AppLayoutProps) {
 
       {/* Command Palette - Global */}
       <CommandPalette />
+
+      {/* Keyboard Shortcuts Help */}
+      <KeyboardShortcutsHelp />
 
       {/* Debug Console */}
       {isOpen && <EngineDebugConsole isOpen={isOpen} onClose={() => {}} />}
