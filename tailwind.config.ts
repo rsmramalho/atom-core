@@ -13,6 +13,9 @@ export default {
       },
     },
     extend: {
+      fontFamily: {
+        mono: ["JetBrains Mono", "Fira Code", "SF Mono", "Monaco", "Inconsolata", "Roboto Mono", "monospace"],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -56,6 +59,18 @@ export default {
           "accent-foreground": "hsl(var(--sidebar-accent-foreground))",
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
+        },
+        // Console-specific colors for debug interface
+        console: {
+          DEFAULT: "hsl(var(--console))",
+          header: "hsl(var(--console-header))",
+          border: "hsl(var(--console-border))",
+          hover: "hsl(var(--console-hover))",
+          active: "hsl(var(--console-active))",
+          input: "hsl(var(--console-input))",
+          text: "hsl(var(--console-text))",
+          muted: "hsl(var(--console-muted))",
+          accent: "hsl(var(--console-accent))",
         },
       },
       borderRadius: {
