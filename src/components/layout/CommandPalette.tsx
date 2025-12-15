@@ -75,6 +75,10 @@ export function CommandPalette({ onNewItem }: CommandPaletteProps) {
               input?.focus();
             }, 100);
             break;
+          case "r":
+            e.preventDefault();
+            navigate("/ritual");
+            break;
         }
       }
     };
