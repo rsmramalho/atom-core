@@ -17,21 +17,103 @@
 
 ---
 
-## 📸 Screenshots
+## 📸 Telas do Sistema
 
-<div align="center">
+### 🔐 Login
+```
+┌─────────────────────────────────────┐
+│                                     │
+│          MindMate                   │
+│       Atom Engine 4.0               │
+│                                     │
+│  ┌─────────────────────────────┐   │
+│  │         Login               │   │
+│  │                             │   │
+│  │  Email: [user@example.com] │   │
+│  │                             │   │
+│  │  Password: [••••••••]      │   │
+│  │                             │   │
+│  │  [      Login →     ]      │   │
+│  │                             │   │
+│  │  Need an account? Sign up   │   │
+│  └─────────────────────────────┘   │
+└─────────────────────────────────────┘
+```
 
-| Dashboard | Ritual View | Project Sheet |
-|:---------:|:-----------:|:-------------:|
-| ![Dashboard](https://placehold.co/300x200/1a1f2e/22c55e?text=Dashboard) | ![Ritual](https://placehold.co/300x200/FFD9A0/1a1f2e?text=Ritual+View) | ![Project](https://placehold.co/300x200/1a1f2e/22c55e?text=Project+Sheet) |
-| Home com Focus, Today e Ritual | Experiência imersiva por período | Milestones e Tasks |
+### 📥 Inbox
+```
+┌─────────────────────────────────────────┐
+│ 📥 Inbox                                │
+│ 0 items para processar                  │
+│                                         │
+│ ┌─────────────────────────────────────┐ │
+│ │ O que está na sua mente?  [Capturar]│ │
+│ └─────────────────────────────────────┘ │
+│ Dica: Use @hoje, @amanha, #tags         │
+│                                         │
+│            📭 Inbox vazio               │
+│  Capture pensamentos acima para começar │
+└─────────────────────────────────────────┘
+```
 
-| Inbox | Debug Console |
-|:-----:|:-------------:|
-| ![Inbox](https://placehold.co/300x200/1a1f2e/22c55e?text=Inbox) | ![Debug](https://placehold.co/300x200/0d1117/22c55e?text=Debug+Console) |
-| Captura rápida com parsing | God Mode para devs |
+### 📁 Projects
+```
+┌─────────────────────────────────────────┐
+│ 📁 Projetos              [+ Novo Item]  │
+│ 0 projetos ativos                       │
+│                                         │
+│              📁                         │
+│      Nenhum projeto ainda               │
+│  Crie projetos processando itens        │
+│           no Inbox                      │
+│        [Ir para Inbox]                  │
+└─────────────────────────────────────────┘
+```
 
-</div>
+### 🌆 Ritual View (Crepúsculo)
+```
+┌─────────────────────────────────────────┐
+│ [X]                    DEV: [aurora][...│
+│                                         │
+│               ☀️                        │
+│                                         │
+│       Ritual Crepúsculo                 │
+│    Hora de refletir e descansar.        │
+│                                         │
+│  Progresso                         0%   │
+│  ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓       │
+│                                         │
+│     Nenhum hábito para este ritual.     │
+│  Adicione hábitos com ritual_slot =     │
+│          "noite" no Inbox.              │
+│                                         │
+│         [Encerrar Ritual]               │
+└─────────────────────────────────────────┘
+
+Cores por período:
+🌅 Aurora (< 11:00)     → #FFD9A0 (Laranja)
+☀️ Zênite (11:00-17:00) → #FFF7C2 (Amarelo)
+🌆 Crepúsculo (> 17:00) → #D4C0E8 (Roxo)
+```
+
+### 🖥️ Debug Console (Ctrl+Shift+E)
+```
+┌─────────────────────────────────────────┐
+│ 🔧 Engine Debug Console          [X]   │
+├─────────────────────────────────────────┤
+│ [State] [Logs] [Input Test]             │
+├─────────────────────────────────────────┤
+│ {                                       │
+│   "items": [...],                       │
+│   "milestones": [...],                  │
+│   "user": {...}                         │
+│ }                                       │
+│                                         │
+│ > ParsingEngine: Parsed "@hoje" → today │
+│ > MacroPicker: Item promoted to project │
+│ > RitualEngine: Period = crepusculo     │
+└─────────────────────────────────────────┘
+```
 
 ---
 
