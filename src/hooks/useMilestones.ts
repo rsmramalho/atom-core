@@ -68,7 +68,7 @@ export function useMilestones(projectId?: string) {
         .insert({
           ...payload,
           user_id: user.id,
-          weight: payload.weight || 1,
+          weight: payload.weight || 3, // Default weight for milestones = 3x
         })
         .select()
         .single();
