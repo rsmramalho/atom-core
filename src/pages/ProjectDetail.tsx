@@ -115,6 +115,7 @@ export default function ProjectDetail() {
         progress: null,
         deadline: null,
         milestones: [],
+        order_index: 0,
       });
       toast.success("Task criada!");
     } catch (error) {

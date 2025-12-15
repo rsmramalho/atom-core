@@ -30,6 +30,7 @@ function mapRowToAtomItem(row: any): AtomItem {
     progress: row.progress,
     deadline: row.deadline,
     milestones: (row.milestones as Milestone[]) || [],
+    order_index: row.order_index ?? 0,
     created_at: row.created_at,
     updated_at: row.updated_at,
   };

@@ -70,6 +70,7 @@ export default function Inbox() {
         progress: null,
         deadline: null,
         milestones: [],
+        order_index: 0,
       });
       
       addLog("InboxEngine", "item_captured", { title: parsed.title, tags });
@@ -280,6 +281,7 @@ export default function Inbox() {
             progress: 0,
             deadline: null,
             milestones: [],
+            order_index: 0,
           });
           addLog("MacroPicker", "project_created", { name, module });
           return newProject;
