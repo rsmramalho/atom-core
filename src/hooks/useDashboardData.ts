@@ -3,16 +3,14 @@
 
 import { useMemo } from "react";
 import { useAtomItems } from "./useAtomItems";
-import { format, isToday, isBefore, startOfDay } from "date-fns";
-import type { AtomItem, RitualSlot } from "@/types/atom-engine";
-
-// Get current ritual slot based on time of day
-function getCurrentRitualSlot(): RitualSlot {
-  const hour = new Date().getHours();
-  if (hour >= 5 && hour < 12) return "manha";
-  if (hour >= 12 && hour < 18) return "meio_dia";
-  return "noite";
-}
+import type { AtomItem } from "@/types/atom-engine";
+import {
+  getCurrentRitualSlot,
+  filterFocus,
+  filterToday,
+  splitTodayItems,
+  filterRitual,
+} from "@/lib/dashboard-filters";
 
 export function useDashboardData() {
   const { items, isLoading, updateItem, refetch } = useAtomItems();
@@ -24,56 +22,25 @@ export function useDashboardData() {
 
   // filterFocus: Items with #focus tag
   const focusItems = useMemo(() => {
-    return activeItems.filter(item => 
-      item.tags.some(tag => tag.toLowerCase() === "#focus")
-    );
-  }, [activeItems]);
+    return filterFocus(items);
+  }, [items]);
 
   // filterToday: Items due today or overdue (excluding ritual items)
   const todayItems = useMemo(() => {
-    const today = startOfDay(new Date());
-    
-    return activeItems.filter(item => {
-      // Exclude items with ritual_slot (they go to ritual section)
-      if (item.ritual_slot) return false;
-      // Exclude projects
-      if (item.type === "project") return false;
-      // Must have a due_date
-      if (!item.due_date) return false;
-      
-      const dueDate = startOfDay(new Date(item.due_date));
-      // Include if due today or overdue
-      return isToday(dueDate) || isBefore(dueDate, today);
-    });
-  }, [activeItems]);
+    return filterToday(items);
+  }, [items]);
 
   // Split today items into overdue and today
   const { overdueItems, dueTodayItems } = useMemo(() => {
-    const today = startOfDay(new Date());
-    const overdue: AtomItem[] = [];
-    const dueToday: AtomItem[] = [];
-
-    todayItems.forEach(item => {
-      if (!item.due_date) return;
-      const dueDate = startOfDay(new Date(item.due_date));
-      if (isBefore(dueDate, today)) {
-        overdue.push(item);
-      } else {
-        dueToday.push(item);
-      }
-    });
-
-    return { overdueItems: overdue, dueTodayItems: dueToday };
+    return splitTodayItems(todayItems);
   }, [todayItems]);
 
   // filterRitual: Habits with matching ritual_slot for current time
   const currentSlot = getCurrentRitualSlot();
   
   const ritualItems = useMemo(() => {
-    return activeItems.filter(item => 
-      item.type === "habit" && item.ritual_slot === currentSlot
-    );
-  }, [activeItems, currentSlot]);
+    return filterRitual(items, currentSlot);
+  }, [items, currentSlot]);
 
   // filterProjects: Active projects with progress calculation
   const projects = useMemo(() => {
