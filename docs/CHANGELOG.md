@@ -12,11 +12,37 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 ### Adicionado
 
 #### Empty States (UX)
-- **EmptyInbox** - Ilustração zen para "Inbox Zero" com ícone de caixa vazia
+- **EmptyInbox** - Ilustração zen para "Inbox Zero"
 - **EmptyDashboard** - Estado de "dia livre" com mensagem encorajadora
 - **EmptyProjectStart** - CTA claro para criar primeira milestone/task
 - **EmptyFocus** - Estado para lista de foco vazia com sugestão de adicionar itens
 - Integração em todas as telas: Inbox, Dashboard, ProjectDetail, FocusBlock
+
+#### Ilustrações SVG Customizadas
+- **ZenCircleIllustration** - Círculo zen animado (enso) para Inbox Zero
+  - Anel rotativo com gradiente
+  - Partículas flutuantes com pulse
+  - Checkmark central e folha decorativa
+- **FreeDayIllustration** - Cena aconchegante de café para Dashboard vazio
+  - Xícara com vapor animado
+  - Sol com raios pulsantes
+  - Nuvem e partículas decorativas
+- **RocketLaunchIllustration** - Foguete dinâmico para Projeto novo
+  - Chama animada no propulsor
+  - Trilha de trajetória
+  - Estrelas e bandeira de destino
+- **TargetFocusIllustration** - Alvo minimalista para Focus vazio
+  - Anéis concêntricos com pulse
+  - Crosshairs e ponto central
+  - Sparkle decorativo
+
+#### Confetti Celebration
+- **Componente Confetti** - Explosão de confetes para celebração
+  - 60 peças com cores variadas (primary, gold, green, blue, pink, purple)
+  - Animação de queda com rotação e drift horizontal
+  - Duração e delay randomizados para efeito natural
+- **Detecção automática** - Dispara ao completar todas as tasks do dia
+- **Toast de celebração** - Mensagem "Parabéns!" ao zerar pendências
 
 #### Drag & Drop Animations (FocusBlock)
 - **DragOverlay** - Preview flutuante do item sendo arrastado
