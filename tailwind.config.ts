@@ -72,6 +72,21 @@ export default {
           muted: "hsl(var(--console-muted))",
           accent: "hsl(var(--console-accent))",
         },
+        // Ritual themes (B.19)
+        ritual: {
+          aurora: {
+            bg: "hsl(var(--ritual-aurora-bg))",
+            fg: "hsl(var(--ritual-aurora-fg))",
+          },
+          zenite: {
+            bg: "hsl(var(--ritual-zenite-bg))",
+            fg: "hsl(var(--ritual-zenite-fg))",
+          },
+          crepusculo: {
+            bg: "hsl(var(--ritual-crepusculo-bg))",
+            fg: "hsl(var(--ritual-crepusculo-fg))",
+          },
+        },
       },
       borderRadius: {
         lg: "var(--radius)",

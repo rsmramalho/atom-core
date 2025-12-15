@@ -1,13 +1,23 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { AuthForm } from "@/components/AuthForm";
 import { useDashboardData } from "@/hooks/useDashboardData";
+import { useRitual } from "@/hooks/useRitual";
 import { RitualBanner } from "@/components/dashboard/RitualBanner";
 import { FocusBlock } from "@/components/dashboard/FocusBlock";
 import { TodayList } from "@/components/dashboard/TodayList";
-import { Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Loader2, Sunrise, Sun, Sunset } from "lucide-react";
+
+const periodIcons = {
+  aurora: Sunrise,
+  zenite: Sun,
+  crepusculo: Sunset,
+};
 
 export default function Index() {
+  const navigate = useNavigate();
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
@@ -20,6 +30,9 @@ export default function Index() {
     currentSlot,
     toggleComplete,
   } = useDashboardData();
+
+  const { activePeriod, config, pendingHabits } = useRitual();
+  const PeriodIcon = periodIcons[activePeriod];
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -81,6 +94,19 @@ export default function Index() {
           })}
         </p>
       </header>
+
+      {/* Ritual Entry Button */}
+      <Button
+        onClick={() => navigate("/ritual")}
+        variant={pendingHabits.length > 0 ? "default" : "outline"}
+        className="w-full mb-6 py-6 text-lg gap-3"
+      >
+        <PeriodIcon className="h-6 w-6" />
+        {pendingHabits.length > 0 
+          ? `Ritual ${config.label} Pendente (${pendingHabits.length})`
+          : `Entrar no Ritual ${config.label}`
+        }
+      </Button>
 
       {/* Dashboard Sections */}
       <div className="space-y-6">
