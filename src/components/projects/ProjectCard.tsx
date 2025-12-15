@@ -2,9 +2,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FolderKanban, ChevronRight } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { ItemContextMenu, EditItemModal, DeleteConfirmDialog } from "@/components/shared";
+import { ItemContextMenu, EditItemModal, DeleteConfirmDialog, ModuleBadge } from "@/components/shared";
 import { useAtomItems } from "@/hooks/useAtomItems";
 import { toast } from "@/hooks/use-toast";
 import type { AtomItem } from "@/types/atom-engine";
@@ -131,11 +130,10 @@ export function ProjectCard({ project }: ProjectCardProps) {
             </div>
           </div>
 
-          {project.module && (
-            <Badge variant="secondary" className="mb-3">
-              {project.module}
-            </Badge>
-          )}
+          {/* Module Badge */}
+          <div className="mb-3">
+            <ModuleBadge module={project.module} />
+          </div>
 
           <div className="space-y-2">
             <div className="flex items-center justify-between text-sm">

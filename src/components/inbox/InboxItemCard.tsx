@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Wand2 } from "lucide-react";
-import { ItemContextMenu, EditItemModal, DeleteConfirmDialog } from "@/components/shared";
+import { ItemContextMenu, EditItemModal, DeleteConfirmDialog, ModuleBadge } from "@/components/shared";
 import { useAtomItems } from "@/hooks/useAtomItems";
 import { toast } from "@/hooks/use-toast";
 import type { AtomItem } from "@/types/atom-engine";
@@ -26,6 +26,7 @@ export function InboxItemCard({ item, onProcess }: InboxItemCardProps) {
 
   // Check for special tags
   const moduleTag = displayTags.find(t => t.startsWith("#mod_"));
+  const moduleFromTag = moduleTag ? moduleTag.replace("#mod_", "") : null;
   const whoTags = displayTags.filter(t => t.startsWith("#who:"));
   const whereTags = displayTags.filter(t => t.startsWith("#where:"));
   const otherTags = displayTags.filter(t => 
@@ -76,6 +77,9 @@ export function InboxItemCard({ item, onProcess }: InboxItemCardProps) {
     }
   };
 
+  // Get the module to display (from field or tag)
+  const displayModule = item.module || moduleFromTag;
+
   return (
     <>
       <Card className="p-4 bg-card hover:bg-card/80 border-border transition-all hover:border-primary/30 group">
@@ -98,14 +102,9 @@ export function InboxItemCard({ item, onProcess }: InboxItemCardProps) {
                 </Badge>
               )}
               
-              {/* Module chip */}
-              {moduleTag && (
-                <Badge 
-                  variant="outline" 
-                  className="text-xs bg-primary/10 text-primary border-primary/30"
-                >
-                  {moduleTag.replace("#mod_", "📁 ")}
-                </Badge>
+              {/* Module badge */}
+              {displayModule && (
+                <ModuleBadge module={displayModule} />
               )}
               
               {/* Who chips */}
