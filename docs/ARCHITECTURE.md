@@ -2,9 +2,9 @@
 
 ## Arquitetura do Sistema
 
-**Versão:** 4.0.0-alpha.2  
+**Versão:** 4.0.0-alpha.5  
 **Data:** 2025-12-15  
-**Status:** Core Engine + Debug Console + Inbox + MacroPicker implementados
+**Status:** Core Engine + Debug Console + Inbox + MacroPicker + Dashboard + Ritual View + Project Sheet
 
 ---
 
@@ -13,33 +13,57 @@
 ```
 src/
 ├── components/
-│   ├── ui/                    # Componentes Shadcn (base)
+│   ├── ui/                         # Componentes Shadcn (base)
 │   ├── inbox/
-│   │   ├── InboxItemCard.tsx  # Card de item no inbox
-│   │   └── MacroPickerModal.tsx # Modal de promoção (B.8)
-│   ├── AuthForm.tsx           # Formulário de login/signup
-│   └── EngineDebugConsole.tsx # Console de debug (God Mode)
+│   │   ├── InboxItemCard.tsx       # Card de item no inbox
+│   │   └── MacroPickerModal.tsx    # Modal de promoção (B.8)
+│   ├── dashboard/
+│   │   ├── FocusBlock.tsx          # Bloco de itens #focus
+│   │   ├── RitualBanner.tsx        # Banner do ritual ativo
+│   │   └── TodayList.tsx           # Lista do dia
+│   ├── projects/
+│   │   └── ProjectCard.tsx         # Card de projeto na lista
+│   ├── project-sheet/
+│   │   ├── MilestonesPane.tsx      # Timeline de milestones
+│   │   ├── WorkAreaPane.tsx        # Tasks & Hábitos
+│   │   ├── NotesPane.tsx           # Notas & Recursos
+│   │   ├── ProjectFab.tsx          # FAB flutuante
+│   │   ├── QuickAddTaskModal.tsx   # Modal criação task
+│   │   └── QuickAddMilestoneModal.tsx # Modal criação milestone
+│   ├── layout/
+│   │   ├── AppLayout.tsx           # Layout principal com auth
+│   │   └── AppNavigation.tsx       # Nav sidebar/bottom
+│   ├── AuthForm.tsx                # Formulário de login/signup
+│   ├── EngineDebugConsole.tsx      # Console de debug (God Mode)
+│   └── NavLink.tsx                 # Link de navegação
 │
 ├── hooks/
-│   ├── useAtomItems.ts        # CRUD de itens via Supabase
-│   ├── useDebugConsole.ts     # Controle do console (atalho Ctrl+Shift+E)
-│   ├── useEngineLogger.ts     # Sistema de logs global (Zustand)
-│   └── use-toast.ts           # Toasts do sistema
+│   ├── useAtomItems.ts             # CRUD de itens via Supabase
+│   ├── useDashboardData.ts         # Filtros do dashboard (B.10)
+│   ├── useMilestones.ts            # CRUD de milestones
+│   ├── useProjectProgress.ts       # Cálculo de progresso híbrido
+│   ├── useRitual.ts                # Lógica do ritual (B.19)
+│   ├── useDebugConsole.ts          # Controle do console
+│   ├── useEngineLogger.ts          # Sistema de logs (Zustand)
+│   └── use-toast.ts                # Toasts do sistema
 │
 ├── lib/
-│   ├── parsing-engine.ts      # Motor de parsing (B.7)
-│   └── utils.ts               # Utilitários (cn, etc)
+│   ├── parsing-engine.ts           # Motor de parsing (B.7)
+│   └── utils.ts                    # Utilitários (cn, etc)
 │
 ├── types/
-│   └── atom-engine.ts         # Tipos TypeScript do domínio
+│   └── atom-engine.ts              # Tipos TypeScript do domínio
 │
 ├── pages/
-│   ├── Index.tsx              # Página principal (debug mode)
-│   ├── Inbox.tsx              # Inbox Engine UI (B.6)
-│   └── NotFound.tsx           # 404
+│   ├── Index.tsx                   # Dashboard principal
+│   ├── Inbox.tsx                   # Inbox Engine UI (B.6)
+│   ├── Projects.tsx                # Lista de projetos
+│   ├── ProjectDetail.tsx           # Project Sheet (A.13)
+│   ├── RitualView.tsx              # Ritual imersivo (B.19)
+│   └── NotFound.tsx                # 404
 │
 └── integrations/
-    └── supabase/              # Cliente Supabase (auto-gerado)
+    └── supabase/                   # Cliente Supabase (auto-gerado)
 ```
 
 ---
@@ -71,7 +95,24 @@ Baseado no Doc B.3 e B.9 - Single Table Design para todos os tipos de itens.
 | `progress_mode` | progress_mode | Yes | 'auto' | Modo de progresso |
 | `progress` | integer | Yes | 0 | Progresso 0-100 |
 | `deadline` | date | Yes | - | Deadline (apenas projetos) |
-| `milestones` | jsonb | Yes | '[]' | Milestones do projeto |
+| `milestones` | jsonb | Yes | '[]' | [DEPRECATED] Usar tabela project_milestones |
+| `created_at` | timestamptz | No | now() | Criação |
+| `updated_at` | timestamptz | No | now() | Atualização |
+
+### Tabela: `project_milestones`
+
+Milestones como entidades independentes (Doc B.9/B.13).
+
+| Coluna | Tipo | Nullable | Default | Descrição |
+|--------|------|----------|---------|-----------|
+| `id` | uuid | No | gen_random_uuid() | Chave primária |
+| `project_id` | uuid | No | - | FK para items (projeto) |
+| `user_id` | uuid | No | - | FK para auth.users |
+| `title` | text | No | - | Título da milestone |
+| `completed` | boolean | No | false | Estado de conclusão |
+| `completed_at` | timestamptz | Yes | - | Timestamp de conclusão |
+| `weight` | integer | No | 3 | Peso no cálculo de progresso |
+| `due_date` | date | Yes | - | Data de entrega |
 | `created_at` | timestamptz | No | now() | Criação |
 | `updated_at` | timestamptz | No | now() | Atualização |
 
@@ -100,10 +141,7 @@ CREATE TYPE progress_mode AS ENUM ('auto', 'manual');
 
 ### RLS Policies
 
-Todas as operações (SELECT, INSERT, UPDATE, DELETE) verificam:
-```sql
-auth.uid() = user_id
-```
+Todas as operações verificam: `auth.uid() = user_id`
 
 ---
 
@@ -129,29 +167,7 @@ Transforma texto cru em estrutura `ParsedInput`.
 | `#tag` | Tag | "Tarefa #urgente" | `tags: ["#urgente"]` |
 | `#mod_modulo` | Módulo | "Treino #mod_body" | `module: "body"` |
 
-#### Inferência de Módulo
-
-Palavras-chave que inferem módulos automaticamente:
-
-| Módulo | Palavras-chave |
-|--------|---------------|
-| `work` | trabalho, reunião, meeting, cliente, projeto, email, call, deadline |
-| `body` | treino, academia, correr, exercício, dieta, saúde, gym, workout |
-| `mind` | meditar, ler, estudar, curso, aprender, livro, meditação |
-| `home` | casa, limpar, organizar, compras, mercado, cozinha |
-| `social` | amigo, família, encontro, festa, jantar, almoço |
-| `finance` | pagar, conta, dinheiro, investir, banco, boleto |
-
-#### Inferência de Tipo
-
-| Tipo | Palavras-chave |
-|------|---------------|
-| `note` | nota, ideia, lembrete, anotação |
-| `habit` | hábito, rotina, diário, sempre |
-| `project` | projeto |
-| `reflection` | reflexão, pensamento |
-| `resource` | recurso, link, artigo |
-| `list` | lista |
+---
 
 ### 2. Inbox Engine (B.6)
 
@@ -159,22 +175,12 @@ Palavras-chave que inferem módulos automaticamente:
 
 Tela de captura e processamento de itens brutos.
 
-#### Funcionalidades
-
 | Feature | Descrição |
 |---------|-----------|
 | Quick Capture | Input no topo com parsing automático |
 | Inbox Filter | Exibe apenas itens com `#inbox` tag |
 | Auto-refresh | Lista atualiza ao criar/processar |
 | Process Button | Abre MacroPicker para promoção |
-
-#### Fluxo de Captura
-
-1. Usuário digita no input
-2. `parseInput()` extrai tokens
-3. Tag `#inbox` é adicionada automaticamente
-4. Item salvo no Supabase
-5. Lista atualiza via React Query
 
 ---
 
@@ -184,94 +190,162 @@ Tela de captura e processamento de itens brutos.
 
 Modal de promoção de itens do inbox para projetos.
 
-#### Interface
-
 | Elemento | Função |
 |----------|--------|
 | Type Buttons | Escolher: Task, Habit, Note, Project |
+| Ritual Selector | Só para Habit: Manhã, Meio-dia, Noite |
 | Project Combobox | Selecionar projeto existente |
 | Create Project | Criar novo projeto inline |
 | Suggestions | Badges de projetos do mesmo módulo |
 | Confirm Button | Só habilita com projeto selecionado |
 
-#### Ação de Promoção
+---
 
-1. Remove tag `#inbox`
-2. Adiciona `project_id`
-3. Adiciona tag `#macro:NomeProjeto`
-4. Atualiza `type` se alterado
-5. Item desaparece do Inbox
+### 4. Dashboard Engine (B.10)
+
+**Arquivo:** `src/hooks/useDashboardData.ts`
+
+Filtros e organização para o dashboard principal.
+
+| Filtro | Descrição |
+|--------|-----------|
+| `focusItems` | Itens com tag `#focus` |
+| `todayItems` | Due date <= hoje (exclui rituais) |
+| `overdueItems` | Due date < hoje |
+| `ritualItems` | Hábitos com ritual_slot do período |
+| `projects` | Projetos ativos com progresso |
+
+---
+
+### 5. Ritual Engine (B.11/B.19)
+
+**Arquivos:** `src/hooks/useRitual.ts`, `src/pages/RitualView.tsx`
+
+Experiência imersiva para hábitos diários.
+
+#### Detecção de Período
+
+| Período | Horário | Cor Principal |
+|---------|---------|---------------|
+| Aurora (Manhã) | < 11:00 | `#FFD9A0` (laranja/amarelo) |
+| Zênite (Meio-dia) | 11:00 - 17:00 | `#FFF7C2` (amarelo brilhante) |
+| Crepúsculo (Noite) | > 17:00 | `#D4C0E8` (roxo/azul) |
+
+#### Componentes
+
+- **Header:** Ícone de sol + frase motivacional do período
+- **Habit Cards:** Cards grandes com toggle de conclusão
+- **Footer:** Botão "Encerrar Ritual" → volta ao dashboard
+- **Debug Selector:** Override de período para testes
+
+---
+
+### 6. Project Engine (B.9/B.13)
+
+**Arquivos:** `src/hooks/useProjectProgress.ts`, `src/hooks/useMilestones.ts`, `src/pages/ProjectDetail.tsx`
+
+Gestão de projetos com milestones independentes.
+
+#### Conceito de Milestones
+
+- **Milestones** são "Capítulos" ou "Âncoras Narrativas" do projeto
+- Entidades independentes (não agrupam tasks)
+- Peso padrão: 3x (tasks = 1x)
+- Completar milestone = "Salto Narrativo" no progresso
+
+#### Cálculo de Progresso (Smart Weighting)
+
+```
+Progresso = (Soma Pesos Concluídos / Soma Pesos Totais) * 100
+
+Onde:
+- Cada Task = peso 1
+- Cada Milestone = peso 3 (padrão)
+```
+
+#### Project Sheet (A.13)
+
+Layout em blocos verticais:
+
+1. **Header:** Título, módulo, status, barra de progresso
+2. **Jornada (Milestones):** Timeline visual com diamantes
+3. **Mesa de Trabalho:** Tasks e Hábitos separados
+4. **Notas & Recursos:** Items type=note ou resource
+5. **FAB:** Botão flutuante → "Nova Task" ou "Nova Milestone"
 
 ---
 
 ## 🔧 Hooks
 
 ### useAtomItems
-
 ```typescript
-const {
-  items,           // AtomItem[] - Lista de itens
-  isLoading,       // boolean - Estado de carregamento
-  error,           // Error | null
-  refetch,         // () => void - Recarregar
-  createItem,      // (payload) => Promise<AtomItem>
-  updateItem,      // ({ id, ...payload }) => Promise<AtomItem>
-  deleteItem,      // (id) => Promise<void>
-  isCreating,      // boolean
-  isUpdating,      // boolean
-  isDeleting,      // boolean
-} = useAtomItems();
+const { items, isLoading, createItem, updateItem, deleteItem } = useAtomItems();
+```
+
+### useMilestones
+```typescript
+const { milestones, createMilestone, toggleComplete, deleteMilestone } = useMilestones(projectId);
+```
+
+### useProjectProgress
+```typescript
+const { progress, taskCount, milestoneCount } = useProjectProgress(projectItems, milestones);
+```
+
+### useDashboardData
+```typescript
+const { focusItems, todayItems, ritualItems, projects, toggleComplete } = useDashboardData();
+```
+
+### useRitual
+```typescript
+const { currentPeriod, ritualHabits, pendingCount, toggleHabit } = useRitual();
 ```
 
 ### useEngineLogger
-
 ```typescript
-const {
-  logs,      // EngineLogEntry[] - Lista de logs
-  addLog,    // (engine, action, details?) => void
-  clearLogs, // () => void
-} = useEngineLogger();
+const { logs, addLog, clearLogs } = useEngineLogger();
 ```
 
 ### useDebugConsole
-
 ```typescript
-const {
-  isOpen,  // boolean
-  toggle,  // () => void
-  open,    // () => void
-  close,   // () => void
-} = useDebugConsole();
+const { isOpen, toggle, open, close } = useDebugConsole();
 ```
 
 ---
 
-## 🖥️ Debug Console (God Mode)
+## 🖥️ Rotas
 
-**Atalho:** `Ctrl+Shift+E` ou `Cmd+Shift+E`
-
-### Abas
-
-1. **State** - JSON cru de todos os itens do banco
-2. **Logs** - Logs de ações das engines
-3. **Input Test** - Tester do ParsingEngine em tempo real
+| Rota | Componente | Descrição |
+|------|------------|-----------|
+| `/` | Index.tsx | Dashboard principal |
+| `/inbox` | Inbox.tsx | Captura e processamento |
+| `/projects` | Projects.tsx | Lista de projetos |
+| `/projects/:id` | ProjectDetail.tsx | Project Sheet |
+| `/ritual` | RitualView.tsx | Ritual imersivo (sem nav) |
 
 ---
 
 ## 🎨 Design System
 
-**Tema:** Terminal/Hacker (dark only)
+**Tema:** Terminal/Hacker (dark mode) + Cores de Ritual
 
-### Cores Principais
+### Cores Console
 
 | Token | HSL | Uso |
 |-------|-----|-----|
 | `--background` | 220 20% 8% | Fundo principal |
 | `--console` | 220 20% 10% | Fundo do console |
 | `--console-accent` | 142 70% 50% | Verde destaque |
-| `--console-text` | 0 0% 92% | Texto principal |
-| `--console-muted` | 220 10% 50% | Texto secundário |
-| `--console-border` | 220 15% 18% | Bordas |
+| `--primary` | 142 70% 45% | Ações principais |
+
+### Cores Ritual
+
+| Token | Hex | Período |
+|-------|-----|---------|
+| `--ritual-aurora` | #FFD9A0 | Manhã |
+| `--ritual-zenite` | #FFF7C2 | Meio-dia |
+| `--ritual-crepusculo` | #D4C0E8 | Noite |
 
 ### Fonte
 
@@ -283,34 +357,40 @@ font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
 
 ## 📋 Roadmap
 
-### ✅ Implementado (v4.0.0-alpha.2)
+### ✅ Implementado (v4.0.0-alpha.5)
 
-- [x] Modelo de dados (items table)
-- [x] Tipos TypeScript
+- [x] Modelo de dados (items + project_milestones)
+- [x] Tipos TypeScript completos
 - [x] Parsing Engine (B.7)
-- [x] Hook useAtomItems (CRUD)
-- [x] Sistema de logs
+- [x] Inbox Engine (B.6)
+- [x] MacroPicker Engine (B.8) com Ritual Slot
+- [x] Dashboard Engine (B.10)
+- [x] Ritual View (B.19) - Experiência imersiva
+- [x] Project Sheet (A.13) - Milestones independentes
+- [x] Sistema de navegação (sidebar/bottom nav)
 - [x] Debug Console (God Mode)
-- [x] Autenticação básica
-- [x] RLS Policies
-- [x] Inbox Engine (B.6) - Tela de captura
-- [x] MacroPicker Engine (B.8) - Promoção para projetos
+- [x] Autenticação básica + RLS
 
 ### 🔲 Próximas Etapas
 
-- [ ] Dashboard Engine (B.10/B.14) - Lógica de exibição
-- [ ] Ritual Engine (B.11/B.19) - Camada simbólica
-- [ ] Realtime sync - Atualizações em tempo real
-- [ ] Project View - Visualização de projeto com tarefas
+- [ ] Recorrência de hábitos (RRULE)
+- [ ] Reflection Engine (B.11)
+- [ ] Notificações e lembretes
+- [ ] Realtime sync aprimorado
+- [ ] Estatísticas e analytics
 
 ---
 
 ## 🔗 Referências
 
+- **Doc A.13** - Project Sheet UI
+- **Doc A.19** - Ritual View UI
 - **Doc B.3** - Modelo de Dados Core
 - **Doc B.6** - Inbox Engine
 - **Doc B.7** - Parsing Engine
 - **Doc B.8** - MacroPicker Engine
-- **Doc B.9** - ProjectMeta
-- **Doc B.10/B.14** - Dashboard Engine
-- **Doc B.11/B.19** - Reflection & Ritual Engine
+- **Doc B.9** - ProjectMeta & Progress
+- **Doc B.10** - Dashboard Engine
+- **Doc B.11** - Reflection Engine
+- **Doc B.13** - Project Sheet Logic
+- **Doc B.19** - Ritual Engine
