@@ -3,11 +3,11 @@ import { Target, CheckCircle2, Circle, GripVertical } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ItemContextMenu, EditItemModal, DeleteConfirmDialog } from "@/components/shared";
+import { EmptyFocus } from "@/components/empty-states";
 import { useAtomItems } from "@/hooks/useAtomItems";
 import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import type { AtomItem } from "@/types/atom-engine";
-
 // dnd-kit imports
 import {
   DndContext,
@@ -201,7 +201,13 @@ export function FocusBlock({ items, onToggle, onReorder }: FocusBlockProps) {
     }
   };
 
-  if (items.length === 0) return null;
+  if (items.length === 0) {
+    return (
+      <Card className="border-dashed border-primary/30 bg-primary/5">
+        <EmptyFocus />
+      </Card>
+    );
+  }
 
   return (
     <Card className="border-primary bg-primary/5">
