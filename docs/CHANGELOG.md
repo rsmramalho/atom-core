@@ -7,6 +7,31 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [4.0.0-alpha.6] - 2025-12-15
+
+### Adicionado
+
+#### Empty States (UX)
+- **EmptyInbox** - Ilustração zen para "Inbox Zero" com ícone de caixa vazia
+- **EmptyDashboard** - Estado de "dia livre" com mensagem encorajadora
+- **EmptyProjectStart** - CTA claro para criar primeira milestone/task
+- **EmptyFocus** - Estado para lista de foco vazia com sugestão de adicionar itens
+- Integração em todas as telas: Inbox, Dashboard, ProjectDetail, FocusBlock
+
+#### Drag & Drop Animations (FocusBlock)
+- **DragOverlay** - Preview flutuante do item sendo arrastado
+- **Transições suaves** - Cubic-bezier easing para movimentação natural
+- **Feedback visual** - Escala, opacidade, bordas e rotação sutil durante arraste
+- **Estados visuais** - Distinção clara entre item original e overlay
+
+#### Haptic Feedback (Mobile)
+- **Vibração no pickup** - Feedback médio (25ms) ao iniciar arraste
+- **Vibração no hover** - Feedback leve (10ms) ao passar sobre nova posição
+- **Vibração de sucesso** - Padrão [10, 50, 20]ms ao soltar com sucesso
+- **Vibração de erro** - Feedback pesado (50ms) em caso de falha
+
+---
+
 ## [4.0.0-alpha.5] - 2025-12-15
 
 ### Adicionado
