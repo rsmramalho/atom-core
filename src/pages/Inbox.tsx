@@ -110,7 +110,8 @@ export default function Inbox() {
     projectId: string, 
     projectName: string, 
     newType: AtomItem["type"],
-    ritualSlot?: RitualSlot
+    ritualSlot?: RitualSlot,
+    module?: string
   ) => {
     const item = items.find(i => i.id === itemId);
     if (!item) return;
@@ -132,6 +133,7 @@ export default function Inbox() {
           type: "project",
           project_id: null,
           tags: updatedTags,
+          module: module || "geral", // Ensure module is never null
           project_status: "active",
           progress_mode: "auto",
           progress: 0,
@@ -150,12 +152,16 @@ export default function Inbox() {
         // Add #macro:ProjectName tag
         updatedTags = [...updatedTags, `#macro:${projectName.replace(/\s+/g, "_")}`];
 
+        // Determine final module: use provided module, or fallback to geral
+        const finalModule = module || "geral";
+
         await updateItem({
           id: itemId,
           type: newType,
           project_id: projectId,
           tags: updatedTags,
           ritual_slot: ritualSlot || null,
+          module: finalModule,
         });
 
         addLog("MacroPicker", "item_promoted", { 

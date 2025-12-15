@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from "react";
 import { format } from "date-fns";
-import { Calendar as CalendarIcon } from "lucide-react";
+import { Calendar as CalendarIcon, Briefcase, Dumbbell, Brain, Users } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -29,6 +29,7 @@ import {
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
+import { MODULE_OPTIONS } from "./ModuleBadge";
 import type { AtomItem, ItemType, RitualSlot, ProjectStatus } from "@/types/atom-engine";
 
 interface EditItemModalProps {
@@ -64,6 +65,13 @@ const projectStatusLabels: Record<ProjectStatus, string> = {
   archived: "Arquivado",
 };
 
+const MODULE_ICONS: Record<string, React.ReactNode> = {
+  work: <Briefcase className="h-4 w-4 text-blue-500" />,
+  body: <Dumbbell className="h-4 w-4 text-orange-500" />,
+  mind: <Brain className="h-4 w-4 text-purple-500" />,
+  family: <Users className="h-4 w-4 text-rose-500" />,
+};
+
 export function EditItemModal({
   item,
   open,
@@ -74,7 +82,7 @@ export function EditItemModal({
   const [title, setTitle] = useState("");
   const [type, setType] = useState<ItemType>("task");
   const [notes, setNotes] = useState("");
-  const [module, setModule] = useState("");
+  const [module, setModule] = useState("geral");
   const [dueDate, setDueDate] = useState<Date | undefined>();
   const [ritualSlot, setRitualSlot] = useState<RitualSlot>(null);
   const [projectStatus, setProjectStatus] = useState<ProjectStatus>("active");
@@ -86,7 +94,7 @@ export function EditItemModal({
       setTitle(item.title);
       setType(item.type);
       setNotes(item.notes || "");
-      setModule(item.module || "");
+      setModule(item.module || "geral");
       setDueDate(item.due_date ? new Date(item.due_date) : undefined);
       setRitualSlot(item.ritual_slot);
       setProjectStatus(item.project_status || "active");
@@ -103,11 +111,14 @@ export function EditItemModal({
       .filter(Boolean)
       .map((t) => (t.startsWith("#") ? t : `#${t}`));
 
+    // Ensure module is never null for projects
+    const finalModule = type === "project" && !module ? "geral" : (module || "geral");
+
     await onSave({
       title,
       type,
       notes: notes || null,
-      module: module || null,
+      module: finalModule,
       due_date: dueDate ? format(dueDate, "yyyy-MM-dd") : null,
       ritual_slot: ritualSlot,
       project_status: type === "project" ? projectStatus : null,
@@ -116,6 +127,8 @@ export function EditItemModal({
   };
 
   if (!item) return null;
+
+  const isProject = type === "project";
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -151,6 +164,33 @@ export function EditItemModal({
                 ))}
               </SelectContent>
             </Select>
+          </div>
+
+          {/* Module - Required for projects, optional for others */}
+          <div className="space-y-2">
+            <Label>
+              Módulo {isProject && <span className="text-destructive">*</span>}
+            </Label>
+            <div className="grid grid-cols-4 gap-2">
+              {MODULE_OPTIONS.map(({ value, label }) => (
+                <Button
+                  key={value}
+                  type="button"
+                  variant={module === value ? "default" : "outline"}
+                  size="sm"
+                  className="flex items-center gap-1 h-9"
+                  onClick={() => setModule(value)}
+                >
+                  {MODULE_ICONS[value]}
+                  <span className="text-xs">{label}</span>
+                </Button>
+              ))}
+            </div>
+            {isProject && !module && (
+              <p className="text-xs text-destructive">
+                Projetos precisam de um módulo definido
+              </p>
+            )}
           </div>
 
           {/* Project Status (only for projects) */}
@@ -221,6 +261,7 @@ export function EditItemModal({
                   selected={dueDate}
                   onSelect={setDueDate}
                   initialFocus
+                  className="pointer-events-auto"
                 />
               </PopoverContent>
             </Popover>
@@ -234,17 +275,6 @@ export function EditItemModal({
                 Limpar data
               </Button>
             )}
-          </div>
-
-          {/* Module */}
-          <div className="space-y-2">
-            <Label htmlFor="module">Módulo</Label>
-            <Input
-              id="module"
-              value={module}
-              onChange={(e) => setModule(e.target.value)}
-              placeholder="work, body, mind..."
-            />
           </div>
 
           {/* Tags */}
@@ -275,7 +305,10 @@ export function EditItemModal({
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancelar
           </Button>
-          <Button onClick={handleSave} disabled={!title.trim() || isLoading}>
+          <Button 
+            onClick={handleSave} 
+            disabled={!title.trim() || (isProject && !module) || isLoading}
+          >
             {isLoading ? "Salvando..." : "Salvar"}
           </Button>
         </DialogFooter>

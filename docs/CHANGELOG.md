@@ -56,6 +56,25 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 - **Vibração de sucesso** - Padrão [10, 50, 20]ms ao soltar com sucesso
 - **Vibração de erro** - Feedback pesado (50ms) em caso de falha
 
+#### Module System (UX)
+- **ModuleBadge** - Componente de badge colorido para módulos
+  - Cores distintas: Work (azul), Body (laranja), Mind (roxo), Family (rosa)
+  - Ícones visuais: Briefcase, Dumbbell, Brain, Users
+  - Suporte a tamanhos sm/md e ícone opcional
+- **MacroPicker atualizado:**
+  - Seletor de Módulo obrigatório ao criar projeto
+  - Herança automática do módulo ao selecionar projeto
+  - Override manual do módulo disponível
+- **EditItemModal atualizado:**
+  - Campo Módulo obrigatório para projetos
+  - Seletor visual com 4 opções coloridas
+- **Visualização em Cards:**
+  - ProjectCard exibe ModuleBadge colorido
+  - InboxItemCard exibe ModuleBadge do item
+- **Regra de Negócio:**
+  - Itens sem módulo recebem "geral" automaticamente
+  - Projetos nunca podem ter módulo null
+
 ---
 
 ## [4.0.0-alpha.5] - 2025-12-15

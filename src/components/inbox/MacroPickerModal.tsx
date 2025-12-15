@@ -28,17 +28,22 @@ import {
   Sparkles,
   Sunrise,
   Sun,
-  Sunset
+  Sunset,
+  Briefcase,
+  Dumbbell,
+  Brain,
+  Users
 } from "lucide-react";
 import type { RitualSlot } from "@/types/atom-engine";
 import type { AtomItem, ItemType } from "@/types/atom-engine";
+import { MODULE_OPTIONS, getModuleConfig } from "@/components/shared/ModuleBadge";
 
 interface MacroPickerModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   item: AtomItem | null;
   projects: AtomItem[];
-  onPromote: (itemId: string, projectId: string, projectName: string, type: ItemType, ritualSlot?: RitualSlot) => void;
+  onPromote: (itemId: string, projectId: string, projectName: string, type: ItemType, ritualSlot?: RitualSlot, module?: string) => void;
   onCreateProject: (name: string, module: string | null) => Promise<AtomItem | undefined>;
 }
 
@@ -56,6 +61,13 @@ const RITUAL_SLOT_OPTIONS: { value: RitualSlot | "none"; label: string; icon: Re
   { value: "noite", label: "Noite", icon: <Sunset className="h-4 w-4 text-purple-500" /> },
 ];
 
+const MODULE_ICONS: Record<string, React.ReactNode> = {
+  work: <Briefcase className="h-4 w-4 text-blue-500" />,
+  body: <Dumbbell className="h-4 w-4 text-orange-500" />,
+  mind: <Brain className="h-4 w-4 text-purple-500" />,
+  family: <Users className="h-4 w-4 text-rose-500" />,
+};
+
 export function MacroPickerModal({
   open,
   onOpenChange,
@@ -67,13 +79,16 @@ export function MacroPickerModal({
   const [selectedType, setSelectedType] = useState<ItemType>("task");
   const [selectedProjectId, setSelectedProjectId] = useState<string>("");
   const [selectedRitualSlot, setSelectedRitualSlot] = useState<RitualSlot | "none">("none");
+  const [selectedModule, setSelectedModule] = useState<string>("geral");
   const [isCreatingProject, setIsCreatingProject] = useState(false);
   const [newProjectName, setNewProjectName] = useState("");
+  const [newProjectModule, setNewProjectModule] = useState<string>("work");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Extract module from item tags if present
   const itemModule = useMemo(() => {
     if (!item) return null;
+    if (item.module) return item.module;
     const modTag = item.tags.find(t => t.startsWith("#mod_"));
     return modTag ? modTag.replace("#mod_", "") : null;
   }, [item]);
@@ -100,16 +115,30 @@ export function MacroPickerModal({
     );
   }, [projects, itemModule]);
 
+  // Get selected project
+  const selectedProject = useMemo(() => {
+    return projects.find(p => p.id === selectedProjectId);
+  }, [projects, selectedProjectId]);
+
+  // Auto-inherit module from selected project
+  useEffect(() => {
+    if (selectedProject?.module) {
+      setSelectedModule(selectedProject.module);
+    }
+  }, [selectedProject]);
+
   // Reset state when modal opens with new item
   useEffect(() => {
     if (open && item) {
       setSelectedType(item.type !== "project" ? item.type : "task");
       setSelectedProjectId("");
       setSelectedRitualSlot(item.ritual_slot || "none");
+      setSelectedModule(itemModule || "geral");
       setIsCreatingProject(false);
       setNewProjectName("");
+      setNewProjectModule("work");
     }
-  }, [open, item?.id]);
+  }, [open, item?.id, itemModule]);
 
   const handleConfirm = async () => {
     if (!item) return;
@@ -121,21 +150,24 @@ export function MacroPickerModal({
         ? selectedRitualSlot 
         : undefined;
 
+      // Ensure module is never null
+      const finalModule = selectedModule || "geral";
+
       if (selectedType === "project") {
-        // Converting item to a standalone project
-        onPromote(item.id, "", item.title, "project");
+        // Converting item to a standalone project - module is required
+        onPromote(item.id, "", item.title, "project", undefined, newProjectModule || "work");
         onOpenChange(false);
       } else if (isCreatingProject && newProjectName.trim()) {
-        // Create new project first
-        const newProject = await onCreateProject(newProjectName.trim(), itemModule);
+        // Create new project first with module
+        const newProject = await onCreateProject(newProjectName.trim(), newProjectModule);
         if (newProject) {
-          onPromote(item.id, newProject.id, newProject.title, selectedType, ritualSlot);
+          onPromote(item.id, newProject.id, newProject.title, selectedType, ritualSlot, newProjectModule);
           onOpenChange(false);
         }
       } else if (selectedProjectId) {
         const project = projects.find(p => p.id === selectedProjectId);
         if (project) {
-          onPromote(item.id, selectedProjectId, project.title, selectedType, ritualSlot);
+          onPromote(item.id, selectedProjectId, project.title, selectedType, ritualSlot, finalModule);
           onOpenChange(false);
         }
       }
@@ -205,6 +237,27 @@ export function MacroPickerModal({
             </div>
           )}
 
+          {/* Module Selection - When converting to project */}
+          {selectedType === "project" && (
+            <div className="space-y-3">
+              <Label>Módulo <span className="text-destructive">*</span></Label>
+              <div className="grid grid-cols-4 gap-2">
+                {MODULE_OPTIONS.map(({ value, label, icon }) => (
+                  <Button
+                    key={value}
+                    type="button"
+                    variant={newProjectModule === value ? "default" : "outline"}
+                    className="flex flex-col gap-1 h-auto py-3"
+                    onClick={() => setNewProjectModule(value)}
+                  >
+                    {MODULE_ICONS[value]}
+                    <span className="text-xs">{label}</span>
+                  </Button>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Project Selection - Only show if not converting to project */}
           {selectedType !== "project" && (
             <div className="space-y-3">
@@ -226,12 +279,33 @@ export function MacroPickerModal({
               </div>
 
               {isCreatingProject ? (
-                <Input
-                  value={newProjectName}
-                  onChange={(e) => setNewProjectName(e.target.value)}
-                  placeholder="Nome do novo projeto..."
-                  className="h-10"
-                />
+                <div className="space-y-3">
+                  <Input
+                    value={newProjectName}
+                    onChange={(e) => setNewProjectName(e.target.value)}
+                    placeholder="Nome do novo projeto..."
+                    className="h-10"
+                  />
+                  {/* Module for new project */}
+                  <div className="space-y-2">
+                    <Label className="text-xs text-muted-foreground">Módulo do Projeto <span className="text-destructive">*</span></Label>
+                    <div className="grid grid-cols-4 gap-2">
+                      {MODULE_OPTIONS.map(({ value, label }) => (
+                        <Button
+                          key={value}
+                          type="button"
+                          variant={newProjectModule === value ? "default" : "outline"}
+                          size="sm"
+                          className="flex items-center gap-1"
+                          onClick={() => setNewProjectModule(value)}
+                        >
+                          {MODULE_ICONS[value]}
+                          <span className="text-xs">{label}</span>
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
               ) : (
                 <>
                   {/* Suggestions */}
@@ -281,22 +355,57 @@ export function MacroPickerModal({
                           </Button>
                         </div>
                       ) : (
-                        sortedProjects.map(project => (
-                          <SelectItem key={project.id} value={project.id}>
-                            <div className="flex items-center gap-2">
-                              <FolderKanban className="h-4 w-4 text-muted-foreground" />
-                              <span>{project.title}</span>
-                              {project.module && (
-                                <Badge variant="secondary" className="text-xs ml-1">
-                                  {project.module}
-                                </Badge>
-                              )}
-                            </div>
-                          </SelectItem>
-                        ))
+                        sortedProjects.map(project => {
+                          const moduleConfig = getModuleConfig(project.module);
+                          return (
+                            <SelectItem key={project.id} value={project.id}>
+                              <div className="flex items-center gap-2">
+                                <FolderKanban className="h-4 w-4 text-muted-foreground" />
+                                <span>{project.title}</span>
+                                {project.module && (
+                                  <Badge 
+                                    variant="outline" 
+                                    className={`text-xs ml-1 ${moduleConfig.color} ${moduleConfig.bgColor} ${moduleConfig.borderColor}`}
+                                  >
+                                    {moduleConfig.label}
+                                  </Badge>
+                                )}
+                              </div>
+                            </SelectItem>
+                          );
+                        })
                       )}
                     </SelectContent>
                   </Select>
+
+                  {/* Module override when project is selected */}
+                  {selectedProjectId && (
+                    <div className="space-y-2 pt-2 border-t border-border/50">
+                      <div className="flex items-center justify-between">
+                        <Label className="text-xs text-muted-foreground">
+                          Módulo do Item
+                        </Label>
+                        {selectedProject?.module && selectedModule !== selectedProject.module && (
+                          <span className="text-xs text-amber-500">⚠️ Diferente do projeto</span>
+                        )}
+                      </div>
+                      <div className="grid grid-cols-4 gap-1">
+                        {MODULE_OPTIONS.map(({ value, label }) => (
+                          <Button
+                            key={value}
+                            type="button"
+                            variant={selectedModule === value ? "default" : "outline"}
+                            size="sm"
+                            className="flex items-center gap-1 h-8"
+                            onClick={() => setSelectedModule(value)}
+                          >
+                            {MODULE_ICONS[value]}
+                            <span className="text-xs">{label}</span>
+                          </Button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </>
               )}
 
@@ -313,7 +422,7 @@ export function MacroPickerModal({
           {selectedType === "project" && (
             <div className="rounded-lg border border-primary/30 bg-primary/5 p-4">
               <p className="text-sm text-muted-foreground">
-                Este item será convertido em um <strong>Projeto</strong> independente.
+                Este item será convertido em um <strong>Projeto</strong> independente do módulo <strong>{MODULE_OPTIONS.find(m => m.value === newProjectModule)?.label}</strong>.
               </p>
             </div>
           )}
