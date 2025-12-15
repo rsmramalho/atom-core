@@ -7,7 +7,7 @@ import { LogIn, UserPlus, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface AuthFormProps {
-  onSuccess: () => void;
+  onSuccess?: () => void;
 }
 
 export function AuthForm({ onSuccess }: AuthFormProps) {
@@ -37,7 +37,7 @@ export function AuthForm({ onSuccess }: AuthFormProps) {
         if (error) throw error;
         toast({ title: "Account created", description: "You can now use the debug console." });
       }
-      onSuccess();
+      onSuccess?.();
     } catch (error: any) {
       toast({
         title: "Error",

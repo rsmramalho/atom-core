@@ -1,22 +1,17 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAtomItems } from "@/hooks/useAtomItems";
 import { useEngineLogger } from "@/hooks/useEngineLogger";
 import { parseInput } from "@/lib/parsing-engine";
-import { EngineDebugConsole } from "@/components/EngineDebugConsole";
-import { useDebugConsole } from "@/hooks/useDebugConsole";
 import { InboxItemCard } from "@/components/inbox/InboxItemCard";
 import { MacroPickerModal } from "@/components/inbox/MacroPickerModal";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Inbox as InboxIcon, Terminal } from "lucide-react";
+import { Inbox as InboxIcon, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import type { AtomItem } from "@/types/atom-engine";
 
 export default function Inbox() {
-  const navigate = useNavigate();
-  const { isOpen } = useDebugConsole();
   const { toast } = useToast();
   const { items, isLoading, createItem, updateItem } = useAtomItems();
   const { addLog } = useEngineLogger();
@@ -184,105 +179,72 @@ export default function Inbox() {
     }
   };
 
-  if (!user) {
+  if (isLoading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center space-y-4">
-          <p className="text-muted-foreground">Você precisa estar logado para acessar o Inbox.</p>
-          <Button onClick={() => navigate("/")}>Voltar ao Início</Button>
-        </div>
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="p-4 md:p-8 max-w-3xl mx-auto">
       {/* Header */}
-      <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-40">
-        <div className="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" onClick={() => navigate("/")}>
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-            <div className="flex items-center gap-2">
-              <InboxIcon className="h-5 w-5 text-primary" />
-              <h1 className="text-xl font-semibold">Inbox</h1>
-              <span className="text-sm text-muted-foreground">
-                ({inboxItems.length} itens)
-              </span>
-            </div>
-          </div>
-          <Button 
-            variant="outline" 
-            size="sm"
-            className="gap-2 font-mono text-xs"
-            onClick={() => {
-              const event = new KeyboardEvent('keydown', {
-                key: 'E',
-                ctrlKey: true,
-                shiftKey: true,
-              });
-              window.dispatchEvent(event);
-            }}
-          >
-            <Terminal className="h-3 w-3" />
-            Debug
-          </Button>
-        </div>
+      <header className="mb-8">
+        <h1 className="text-2xl font-bold flex items-center gap-2">
+          <InboxIcon className="h-6 w-6 text-primary" />
+          Inbox
+        </h1>
+        <p className="text-muted-foreground">
+          {inboxItems.length} item{inboxItems.length !== 1 ? "s" : ""} para processar
+        </p>
       </header>
 
-      {/* Main Content */}
-      <main className="max-w-3xl mx-auto px-4 py-8">
-        {/* Capture Input */}
-        <div className="mb-8">
-          <div className="relative">
-            <Input
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="O que está na sua mente? (Enter para capturar)"
-              className="h-14 text-lg px-5 pr-24 bg-card border-2 border-border focus:border-primary transition-colors"
-              disabled={isCreating}
-            />
-            <Button
-              onClick={handleCapture}
-              disabled={!inputValue.trim() || isCreating}
-              className="absolute right-2 top-1/2 -translate-y-1/2"
-              size="sm"
-            >
-              {isCreating ? "..." : "Capturar"}
-            </Button>
-          </div>
-          <p className="text-xs text-muted-foreground mt-2 ml-1">
-            Dica: Use <code className="text-primary">@hoje</code>, <code className="text-primary">@amanha</code>, <code className="text-primary">#tags</code> para organização automática
+      {/* Capture Input */}
+      <div className="mb-8">
+        <div className="relative">
+          <Input
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder="O que está na sua mente? (Enter para capturar)"
+            className="h-14 text-lg px-5 pr-24 bg-card border-2 border-border focus:border-primary transition-colors"
+            disabled={isCreating}
+          />
+          <Button
+            onClick={handleCapture}
+            disabled={!inputValue.trim() || isCreating}
+            className="absolute right-2 top-1/2 -translate-y-1/2"
+            size="sm"
+          >
+            {isCreating ? "..." : "Capturar"}
+          </Button>
+        </div>
+        <p className="text-xs text-muted-foreground mt-2 ml-1">
+          Dica: Use <code className="text-primary">@hoje</code>, <code className="text-primary">@amanha</code>, <code className="text-primary">#tags</code> para organização automática
+        </p>
+      </div>
+
+      {/* Inbox List */}
+      {inboxItems.length === 0 ? (
+        <div className="text-center py-12">
+          <InboxIcon className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
+          <p className="text-muted-foreground">Inbox vazio</p>
+          <p className="text-sm text-muted-foreground/70">
+            Capture pensamentos acima para começar
           </p>
         </div>
-
-        {/* Inbox List */}
-        {isLoading ? (
-          <div className="text-center py-12 text-muted-foreground">
-            Carregando...
-          </div>
-        ) : inboxItems.length === 0 ? (
-          <div className="text-center py-12">
-            <InboxIcon className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
-            <p className="text-muted-foreground">Inbox vazio</p>
-            <p className="text-sm text-muted-foreground/70">
-              Capture pensamentos acima para começar
-            </p>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {inboxItems.map((item) => (
-              <InboxItemCard 
-                key={item.id} 
-                item={item} 
-                onProcess={handleProcess}
-              />
-            ))}
-          </div>
-        )}
-      </main>
+      ) : (
+        <div className="space-y-3">
+          {inboxItems.map((item) => (
+            <InboxItemCard 
+              key={item.id} 
+              item={item} 
+              onProcess={handleProcess}
+            />
+          ))}
+        </div>
+      )}
 
       {/* Macro Picker Modal */}
       <MacroPickerModal
@@ -316,9 +278,6 @@ export default function Inbox() {
           return newProject;
         }}
       />
-
-      {/* Debug Console */}
-      {isOpen && <EngineDebugConsole isOpen={isOpen} onClose={() => {}} />}
     </div>
   );
 }

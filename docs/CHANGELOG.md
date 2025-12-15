@@ -7,6 +7,43 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [4.0.0-alpha.3] - 2025-12-15
+
+### Adicionado
+
+#### Dashboard Engine (B.10)
+- **Hook `useDashboardData`** - Filtros e organização para dashboard
+  - `filterFocus()`: Itens com tag `#focus`
+  - `filterToday()`: Itens com due_date <= hoje (exclui rituais)
+  - `filterRitual()`: Hábitos com ritual_slot do período atual
+  - `filterProjects()`: Projetos ativos com cálculo de progresso
+  - `toggleComplete()`: Ação para completar itens do dashboard
+- **RitualBanner** - Card de ritual ativo baseado na hora do sistema
+- **FocusBlock** - Bloco de destaque para itens #focus
+- **TodayList** - Lista do dia com separação Atrasados/Hoje
+
+#### Project Engine (B.9)
+- **Rota `/projects`** - Visão macro de todos os projetos
+- **ProjectCard** - Card com título, módulo e barra de progresso
+- **Cálculo de Progresso** - (itens completos / total) * 100
+- **Rota `/projects/:id`** - Detalhes do projeto com lista de itens
+
+#### Sistema de Navegação
+- **AppNavigation** - Bottom nav (mobile) + Sidebar (desktop)
+- **AppLayout** - Wrapper com auth handling e navegação
+- **Rotas**: Home (/), Projects (/projects), Inbox (/inbox), Debug (Ctrl+Shift+E)
+
+### Modificado
+- Index.tsx agora é o Dashboard principal (não mais debug-only)
+- Inbox.tsx simplificado (navegação movida para AppLayout)
+- AuthForm.onSuccess agora é opcional
+
+### Corrigido
+- Modal MacroPicker agora fecha após confirmação
+- Conversão para projeto agora define campos project_status, progress_mode, progress
+
+---
+
 ## [4.0.0-alpha.2] - 2025-12-15
 
 ### Adicionado
