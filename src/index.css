@@ -67,6 +67,14 @@
     --sidebar-accent-foreground: 0 0% 92%;
     --sidebar-border: 220 15% 18%;
     --sidebar-ring: 142 70% 50%;
+
+    /* Ritual Themes (B.19) */
+    --ritual-aurora-bg: 38 100% 81%;
+    --ritual-aurora-fg: 25 80% 25%;
+    --ritual-zenite-bg: 50 100% 88%;
+    --ritual-zenite-fg: 45 80% 20%;
+    --ritual-crepusculo-bg: 270 50% 82%;
+    --ritual-crepusculo-fg: 270 60% 25%;
   }
 
   /* No light mode - this is a terminal interface */
