@@ -118,6 +118,22 @@ export function useAtomItems() {
     mutationFn: async ({ id, ...payload }: UpdateItemPayload & { id: string }): Promise<AtomItem> => {
       addLog("MutationEngine", "Updating item", { id });
 
+      // INTEGRITY GUARD: Prevent reflections from being marked as completed
+      // Reflections are non-actionable items per Engine B.3 spec
+      if (payload.completed === true) {
+        // Check if item is a reflection before allowing completion
+        const { data: existingItem } = await supabase
+          .from("items")
+          .select("type")
+          .eq("id", id)
+          .single();
+        
+        if (existingItem?.type === "reflection") {
+          addLog("MutationEngine", "BLOCKED: Attempted to complete reflection", { id });
+          throw new Error("Reflections cannot be marked as completed. They are non-actionable items.");
+        }
+      }
+
       // Build update payload with proper JSON serialization
       const updateData: Record<string, any> = { ...payload };
       if (payload.checklist !== undefined) {

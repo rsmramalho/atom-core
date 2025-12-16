@@ -24,8 +24,10 @@ export default function Inbox() {
   const [user, setUser] = useState<any>(null);
 
   // Get inbox items (items with #inbox tag)
+  // INTEGRITY: Exclude milestones from inbox - they only appear in project context
   const inboxItems = items.filter(item => 
-    item.tags.some(tag => tag.toLowerCase() === "#inbox")
+    item.tags.some(tag => tag.toLowerCase() === "#inbox") &&
+    !item.tags.some(tag => tag.toLowerCase() === "#milestone")
   );
 
   // Get projects for the MacroPicker

@@ -1,4 +1,5 @@
 // Calendar Engine - Hook for fetching calendar items (B.4)
+import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { AtomItem } from "@/types/atom-engine";
@@ -81,20 +82,37 @@ export function useCalendarItems(currentDate: Date) {
     },
   });
 
-  // Group items by date
-  const itemsByDate = (itemsQuery.data || []).reduce((acc, item) => {
-    if (item.due_date) {
-      const dateKey = item.due_date;
-      if (!acc[dateKey]) acc[dateKey] = [];
-      acc[dateKey].push(item);
-    }
-    return acc;
-  }, {} as Record<string, AtomItem[]>);
+  // INTEGRITY: Filter out milestones from general calendar view
+  // Milestones should only appear in project-specific timeline/views
+  const operationalItems = useMemo((): AtomItem[] => {
+    return (itemsQuery.data || []).filter(item => 
+      !item.tags?.some(tag => tag.toLowerCase() === "#milestone")
+    );
+  }, [itemsQuery.data]);
+
+  // INTEGRITY: Filter milestones from overdue items too
+  const operationalOverdueItems = useMemo((): AtomItem[] => {
+    return (overdueQuery.data || []).filter(item => 
+      !item.tags?.some(tag => tag.toLowerCase() === "#milestone")
+    );
+  }, [overdueQuery.data]);
+
+  // Group items by date (excluding milestones)
+  const itemsByDate = useMemo(() => {
+    return operationalItems.reduce((acc, item) => {
+      if (item.due_date) {
+        const dateKey = item.due_date;
+        if (!acc[dateKey]) acc[dateKey] = [];
+        acc[dateKey].push(item);
+      }
+      return acc;
+    }, {} as Record<string, AtomItem[]>);
+  }, [operationalItems]);
 
   return {
-    items: itemsQuery.data || [],
+    items: operationalItems,
     itemsByDate,
-    overdueItems: overdueQuery.data || [],
+    overdueItems: operationalOverdueItems,
     isLoading: itemsQuery.isLoading || overdueQuery.isLoading,
     error: itemsQuery.error || overdueQuery.error,
     refetch: () => {
