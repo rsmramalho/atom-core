@@ -1,4 +1,4 @@
-// Project Sheet - Quick Add Modal for Milestones with Module Inheritance
+// Project Sheet - Quick Add Modal for Milestones with Module Inheritance + Tag Glossary
 import { useState, useEffect } from "react";
 import {
   Dialog,
@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/select";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Diamond, Scale, HelpCircle, Briefcase, Heart, Brain, Users, LayoutGrid } from "lucide-react";
+import { TagGlossary } from "@/components/shared/TagGlossary";
 
 const MODULES = [
   { value: "work", label: "Work", icon: Briefcase, color: "text-blue-500" },
@@ -77,10 +78,13 @@ export function QuickAddMilestoneModal({
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Diamond className="h-5 w-5 text-primary" />
-            Nova Milestone
-          </DialogTitle>
+          <div className="flex items-center justify-between">
+            <DialogTitle className="flex items-center gap-2">
+              <Diamond className="h-5 w-5 text-primary" />
+              Nova Milestone
+            </DialogTitle>
+            <TagGlossary />
+          </div>
         </DialogHeader>
         <div className="space-y-4">
           <p className="text-sm text-muted-foreground">
