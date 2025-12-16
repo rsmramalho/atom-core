@@ -1,5 +1,6 @@
 // Atom Engine 4.0 - Core Types
 // Based on Doc B.3, B.7, B.9
+// Single Table Design - All items in one table
 
 export type ItemType = 
   | "project" 
@@ -22,16 +23,7 @@ export interface ChecklistItem {
   completed: boolean;
 }
 
-// Milestone structure for projects
-export interface Milestone {
-  id: string;
-  title: string;
-  completed: boolean;
-  weight: number;
-  due_date?: string;
-}
-
-// Main AtomItem interface
+// Main AtomItem interface - Single Table Design
 export interface AtomItem {
   id: string;
   user_id: string;
@@ -64,7 +56,9 @@ export interface AtomItem {
   progress_mode: ProgressMode | null;
   progress: number | null;
   deadline: string | null;
-  milestones: Milestone[];
+  
+  // Weight for progress calculation (milestones = 3, tasks = 1)
+  weight: number;
   
   // Ordering
   order_index: number;
@@ -72,6 +66,16 @@ export interface AtomItem {
   // Timestamps
   created_at: string;
   updated_at: string;
+}
+
+// Milestone is just an AtomItem with #milestone tag
+export type Milestone = AtomItem & {
+  tags: string[]; // Must include '#milestone'
+};
+
+// Helper to check if item is a milestone
+export function isMilestone(item: AtomItem): boolean {
+  return item.tags.includes('#milestone');
 }
 
 // Parsed result from ParsingEngine

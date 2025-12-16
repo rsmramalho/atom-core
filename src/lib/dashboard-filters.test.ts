@@ -36,7 +36,7 @@ const createMockItem = (overrides: Partial<AtomItem> = {}): AtomItem => ({
   progress_mode: null,
   progress: null,
   deadline: null,
-  milestones: [],
+  weight: 1,
   order_index: 0,
   created_at: new Date().toISOString(),
   updated_at: new Date().toISOString(),

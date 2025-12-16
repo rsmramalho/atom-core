@@ -1,9 +1,10 @@
 // Atom Engine 4.0 - useAtomItems Hook
 // CRUD operations for AtomItems via Supabase
+// Single Table Design - All item types in one table
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import type { AtomItem, CreateItemPayload, UpdateItemPayload, ItemType, RitualSlot, ProjectStatus, ProgressMode, ChecklistItem, Milestone } from "@/types/atom-engine";
+import type { AtomItem, CreateItemPayload, UpdateItemPayload, ItemType, RitualSlot, ProjectStatus, ProgressMode, ChecklistItem } from "@/types/atom-engine";
 import { useEngineLogger } from "./useEngineLogger";
 import type { Json } from "@/integrations/supabase/types";
 
@@ -29,7 +30,7 @@ function mapRowToAtomItem(row: any): AtomItem {
     progress_mode: row.progress_mode as ProgressMode | null,
     progress: row.progress,
     deadline: row.deadline,
-    milestones: (row.milestones as Milestone[]) || [],
+    weight: row.weight ?? 1,
     order_index: row.order_index ?? 0,
     created_at: row.created_at,
     updated_at: row.updated_at,
@@ -88,7 +89,8 @@ export function useAtomItems() {
         progress_mode: payload.progress_mode,
         progress: payload.progress,
         deadline: payload.deadline,
-        milestones: JSON.parse(JSON.stringify(payload.milestones)) as Json,
+        weight: payload.weight ?? 1,
+        order_index: payload.order_index ?? 0,
       };
 
       const { data, error } = await supabase
@@ -107,6 +109,7 @@ export function useAtomItems() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["atom-items"] });
+      queryClient.invalidateQueries({ queryKey: ["milestones"] });
     },
   });
 
@@ -119,9 +122,6 @@ export function useAtomItems() {
       const updateData: Record<string, any> = { ...payload };
       if (payload.checklist !== undefined) {
         updateData.checklist = JSON.parse(JSON.stringify(payload.checklist));
-      }
-      if (payload.milestones !== undefined) {
-        updateData.milestones = JSON.parse(JSON.stringify(payload.milestones));
       }
 
       const { data, error } = await supabase
@@ -141,6 +141,7 @@ export function useAtomItems() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["atom-items"] });
+      queryClient.invalidateQueries({ queryKey: ["milestones"] });
     },
   });
 
@@ -163,6 +164,7 @@ export function useAtomItems() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["atom-items"] });
+      queryClient.invalidateQueries({ queryKey: ["milestones"] });
     },
   });
 

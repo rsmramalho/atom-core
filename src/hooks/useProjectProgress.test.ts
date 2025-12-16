@@ -1,11 +1,11 @@
 // Atom Engine 4.0 - Project Progress Tests
 // Tests for B.9 specification - Weighted Progress Calculation
+// Single Table Design: Milestones are items with #milestone tag
 
 import { describe, it, expect } from "vitest";
 import { renderHook } from "@testing-library/react";
 import { useProjectProgress } from "./useProjectProgress";
 import type { AtomItem } from "@/types/atom-engine";
-import type { Milestone } from "./useMilestones";
 
 // Helper to create mock task
 const createMockTask = (overrides: Partial<AtomItem> = {}): AtomItem => ({
@@ -28,23 +28,36 @@ const createMockTask = (overrides: Partial<AtomItem> = {}): AtomItem => ({
   progress_mode: null,
   progress: null,
   deadline: null,
-  milestones: [],
+  weight: 1,
   order_index: 0,
   created_at: new Date().toISOString(),
   updated_at: new Date().toISOString(),
   ...overrides,
 });
 
-// Helper to create mock milestone
-const createMockMilestone = (overrides: Partial<Milestone> = {}): Milestone => ({
+// Helper to create mock milestone (task with #milestone tag and weight 3)
+const createMockMilestone = (overrides: Partial<AtomItem> = {}): AtomItem => ({
   id: `milestone-${Math.random()}`,
-  project_id: "project-1",
   user_id: "user-1",
   title: "Test Milestone",
+  type: "task",
+  module: null,
+  tags: ["#milestone"],
+  parent_id: null,
+  project_id: "project-1",
+  due_date: null,
+  recurrence_rule: null,
+  ritual_slot: null,
   completed: false,
   completed_at: null,
+  notes: null,
+  checklist: [],
+  project_status: null,
+  progress_mode: null,
+  progress: null,
+  deadline: null,
   weight: 3,
-  due_date: null,
+  order_index: 0,
   created_at: new Date().toISOString(),
   updated_at: new Date().toISOString(),
   ...overrides,
@@ -52,8 +65,8 @@ const createMockMilestone = (overrides: Partial<Milestone> = {}): Milestone => (
 
 describe("useProjectProgress (B.9)", () => {
   describe("Empty Data", () => {
-    it("should return 0 progress with no items and no milestones", () => {
-      const { result } = renderHook(() => useProjectProgress([], []));
+    it("should return 0 progress with no items", () => {
+      const { result } = renderHook(() => useProjectProgress([]));
 
       expect(result.current.progress).toBe(0);
       expect(result.current.totalWeight).toBe(0);
@@ -72,7 +85,7 @@ describe("useProjectProgress (B.9)", () => {
         createMockTask({ completed: false }),
       ];
 
-      const { result } = renderHook(() => useProjectProgress(tasks, []));
+      const { result } = renderHook(() => useProjectProgress(tasks));
 
       expect(result.current.taskCount).toBe(4);
       expect(result.current.taskCompletedCount).toBe(2);
@@ -87,7 +100,7 @@ describe("useProjectProgress (B.9)", () => {
         createMockTask({ completed: false }),
       ];
 
-      const { result } = renderHook(() => useProjectProgress(tasks, []));
+      const { result } = renderHook(() => useProjectProgress(tasks));
 
       expect(result.current.progress).toBe(0);
     });
@@ -98,7 +111,7 @@ describe("useProjectProgress (B.9)", () => {
         createMockTask({ completed: true }),
       ];
 
-      const { result } = renderHook(() => useProjectProgress(tasks, []));
+      const { result } = renderHook(() => useProjectProgress(tasks));
 
       expect(result.current.progress).toBe(100);
     });
@@ -111,7 +124,7 @@ describe("useProjectProgress (B.9)", () => {
         createMockMilestone({ completed: false, weight: 3 }),
       ];
 
-      const { result } = renderHook(() => useProjectProgress([], milestones));
+      const { result } = renderHook(() => useProjectProgress(milestones));
 
       expect(result.current.milestoneCount).toBe(2);
       expect(result.current.milestoneCompletedCount).toBe(1);
@@ -126,7 +139,7 @@ describe("useProjectProgress (B.9)", () => {
         createMockMilestone({ completed: false, weight: 5 }),
       ];
 
-      const { result } = renderHook(() => useProjectProgress([], milestones));
+      const { result } = renderHook(() => useProjectProgress(milestones));
 
       expect(result.current.totalWeight).toBe(10);
       expect(result.current.completedWeight).toBe(5);
@@ -139,7 +152,7 @@ describe("useProjectProgress (B.9)", () => {
         createMockMilestone({ completed: false, weight: 9 }),
       ];
 
-      const { result } = renderHook(() => useProjectProgress([], milestones));
+      const { result } = renderHook(() => useProjectProgress(milestones));
 
       expect(result.current.totalWeight).toBe(10);
       expect(result.current.completedWeight).toBe(1);
@@ -151,15 +164,13 @@ describe("useProjectProgress (B.9)", () => {
     it("should calculate weighted progress combining tasks and milestones", () => {
       // 2 tasks (weight 1 each) + 1 milestone (weight 3)
       // Total weight = 5
-      const tasks = [
+      const items = [
         createMockTask({ completed: true }),  // weight 1
         createMockTask({ completed: false }), // weight 1
-      ];
-      const milestones = [
         createMockMilestone({ completed: true, weight: 3 }), // weight 3
       ];
 
-      const { result } = renderHook(() => useProjectProgress(tasks, milestones));
+      const { result } = renderHook(() => useProjectProgress(items));
 
       // Completed: 1 task (1) + 1 milestone (3) = 4
       // Total: 2 tasks (2) + 1 milestone (3) = 5
@@ -178,7 +189,7 @@ describe("useProjectProgress (B.9)", () => {
       const milestone = createMockMilestone({ completed: false, weight: 3 });
 
       const { result: beforeResult } = renderHook(() => 
-        useProjectProgress(incompleteTasks, [milestone])
+        useProjectProgress([...incompleteTasks, milestone])
       );
 
       // Before: 0/13 = 0%
@@ -188,9 +199,10 @@ describe("useProjectProgress (B.9)", () => {
       const oneTaskComplete = [
         createMockTask({ completed: true }),
         ...incompleteTasks.slice(1),
+        milestone,
       ];
       const { result: afterOneTask } = renderHook(() => 
-        useProjectProgress(oneTaskComplete, [milestone])
+        useProjectProgress(oneTaskComplete)
       );
       // After 1 task: 1/13 ≈ 8%
       expect(afterOneTask.current.progress).toBe(8);
@@ -198,7 +210,7 @@ describe("useProjectProgress (B.9)", () => {
       // Complete milestone instead of task
       const milestoneComplete = createMockMilestone({ completed: true, weight: 3 });
       const { result: afterMilestone } = renderHook(() => 
-        useProjectProgress(incompleteTasks, [milestoneComplete])
+        useProjectProgress([...incompleteTasks, milestoneComplete])
       );
       // After milestone: 3/13 ≈ 23%
       expect(afterMilestone.current.progress).toBe(23);
@@ -208,20 +220,18 @@ describe("useProjectProgress (B.9)", () => {
 
     it("should handle real-world project scenario", () => {
       // Project with 5 tasks and 3 milestones
-      const tasks = [
+      const items = [
         createMockTask({ completed: true }),
         createMockTask({ completed: true }),
         createMockTask({ completed: false }),
         createMockTask({ completed: false }),
         createMockTask({ completed: false }),
-      ];
-      const milestones = [
         createMockMilestone({ completed: true, weight: 3 }),
         createMockMilestone({ completed: false, weight: 3 }),
         createMockMilestone({ completed: false, weight: 3 }),
       ];
 
-      const { result } = renderHook(() => useProjectProgress(tasks, milestones));
+      const { result } = renderHook(() => useProjectProgress(items));
 
       // Total weight: 5 tasks (5) + 3 milestones (9) = 14
       // Completed: 2 tasks (2) + 1 milestone (3) = 5
@@ -244,7 +254,7 @@ describe("useProjectProgress (B.9)", () => {
         createMockTask({ type: "task", completed: false }),
       ];
 
-      const { result } = renderHook(() => useProjectProgress(items, []));
+      const { result } = renderHook(() => useProjectProgress(items));
 
       // Only the task should count
       expect(result.current.taskCount).toBe(1);
@@ -261,7 +271,7 @@ describe("useProjectProgress (B.9)", () => {
         createMockTask({ completed: false }),
       ];
 
-      const { result } = renderHook(() => useProjectProgress(tasks, []));
+      const { result } = renderHook(() => useProjectProgress(tasks));
 
       // 2/3 = 66.67% → should round to 67%
       expect(result.current.progress).toBe(67);
@@ -269,24 +279,24 @@ describe("useProjectProgress (B.9)", () => {
 
     it("should handle single item", () => {
       const { result: incomplete } = renderHook(() => 
-        useProjectProgress([createMockTask({ completed: false })], [])
+        useProjectProgress([createMockTask({ completed: false })])
       );
       expect(incomplete.current.progress).toBe(0);
 
       const { result: complete } = renderHook(() => 
-        useProjectProgress([createMockTask({ completed: true })], [])
+        useProjectProgress([createMockTask({ completed: true })])
       );
       expect(complete.current.progress).toBe(100);
     });
 
     it("should handle single milestone", () => {
       const { result: incomplete } = renderHook(() => 
-        useProjectProgress([], [createMockMilestone({ completed: false })])
+        useProjectProgress([createMockMilestone({ completed: false })])
       );
       expect(incomplete.current.progress).toBe(0);
 
       const { result: complete } = renderHook(() => 
-        useProjectProgress([], [createMockMilestone({ completed: true })])
+        useProjectProgress([createMockMilestone({ completed: true })])
       );
       expect(complete.current.progress).toBe(100);
     });
