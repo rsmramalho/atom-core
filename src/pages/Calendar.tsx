@@ -14,6 +14,7 @@ import {
 } from "@dnd-kit/core";
 import { Loader2, Calendar as CalendarIcon } from "lucide-react";
 import { useCalendarItems, isMilestone } from "@/hooks/useCalendarItems";
+import { useSwipe } from "@/hooks/useSwipe";
 import { useAtomItems } from "@/hooks/useAtomItems";
 import { CalendarGrid } from "@/components/calendar/CalendarGrid";
 import { WeekGrid } from "@/components/calendar/WeekGrid";
@@ -114,7 +115,16 @@ export default function Calendar() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [handleViewChange, viewMode]);
 
-  // Persist filters to localStorage
+  // Swipe handlers for mobile navigation
+  const swipeHandlers = useSwipe({
+    onSwipeLeft: () => {
+      setCurrentDate(prev => viewMode === "month" ? addMonths(prev, 1) : addWeeks(prev, 1));
+    },
+    onSwipeRight: () => {
+      setCurrentDate(prev => viewMode === "month" ? subMonths(prev, 1) : subWeeks(prev, 1));
+    },
+    threshold: 50,
+  });
   const handleTypeChange = useCallback((type: ItemTypeFilter) => {
     setTypeFilter(type);
     localStorage.setItem("calendar-type-filter", type);
@@ -321,26 +331,31 @@ export default function Calendar() {
           counts={filterCounts}
         />
 
-        {/* Calendar View */}
-        {viewMode === "month" ? (
-          <CalendarGrid
-            currentDate={currentDate}
-            onDateChange={setCurrentDate}
-            itemsByDate={filteredItemsByDate}
-            selectedDate={selectedDate}
-            onSelectDate={setSelectedDate}
-          />
-        ) : (
-          <WeekGrid
-            currentDate={currentDate}
-            onDateChange={setCurrentDate}
-            itemsByDate={filteredItemsByDate}
-            selectedDate={selectedDate}
-            onSelectDate={setSelectedDate}
-            onToggle={handleToggle}
-            onClick={handleItemClick}
-          />
-        )}
+        {/* Calendar View with Swipe Support */}
+        <div
+          {...swipeHandlers}
+          className="touch-pan-y"
+        >
+          {viewMode === "month" ? (
+            <CalendarGrid
+              currentDate={currentDate}
+              onDateChange={setCurrentDate}
+              itemsByDate={filteredItemsByDate}
+              selectedDate={selectedDate}
+              onSelectDate={setSelectedDate}
+            />
+          ) : (
+            <WeekGrid
+              currentDate={currentDate}
+              onDateChange={setCurrentDate}
+              itemsByDate={filteredItemsByDate}
+              selectedDate={selectedDate}
+              onSelectDate={setSelectedDate}
+              onToggle={handleToggle}
+              onClick={handleItemClick}
+            />
+          )}
+        </div>
 
         {/* Day Detail Sheet - only for month view */}
         {viewMode === "month" && (
