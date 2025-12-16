@@ -1,7 +1,7 @@
 // Calendar Engine - Main Page (B.4) with Drag & Drop, Filters, and View Modes
 import { useState, useCallback, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { format } from "date-fns";
+import { format, addMonths, subMonths, addWeeks, subWeeks } from "date-fns";
 import {
   DndContext,
   DragOverlay,
@@ -82,7 +82,7 @@ export default function Calendar() {
     localStorage.setItem("calendar-view-mode", view);
   }, []);
 
-  // Keyboard shortcuts for view toggle (M = month, W = week)
+  // Keyboard shortcuts for view toggle and navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       // Ignore if typing in input/textarea
@@ -90,16 +90,29 @@ export default function Calendar() {
         return;
       }
       
+      // View toggle shortcuts
       if (e.key.toLowerCase() === "m" && !e.metaKey && !e.ctrlKey) {
         handleViewChange("month");
       } else if (e.key.toLowerCase() === "w" && !e.metaKey && !e.ctrlKey) {
         handleViewChange("week");
       }
+      
+      // Arrow navigation (← → for previous/next)
+      if (e.key === "ArrowLeft" && !e.metaKey && !e.ctrlKey) {
+        setCurrentDate(prev => viewMode === "month" ? subMonths(prev, 1) : subWeeks(prev, 1));
+      } else if (e.key === "ArrowRight" && !e.metaKey && !e.ctrlKey) {
+        setCurrentDate(prev => viewMode === "month" ? addMonths(prev, 1) : addWeeks(prev, 1));
+      }
+      
+      // Today shortcut (T)
+      if (e.key.toLowerCase() === "t" && !e.metaKey && !e.ctrlKey) {
+        setCurrentDate(new Date());
+      }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [handleViewChange]);
+  }, [handleViewChange, viewMode]);
 
   // Persist filters to localStorage
   const handleTypeChange = useCallback((type: ItemTypeFilter) => {

@@ -28,6 +28,9 @@ const shortcuts = [
 const calendarShortcuts = [
   { keys: ["M"], description: "Visualização Mensal" },
   { keys: ["W"], description: "Visualização Semanal" },
+  { keys: ["←"], description: "Período Anterior" },
+  { keys: ["→"], description: "Próximo Período" },
+  { keys: ["T"], description: "Ir para Hoje" },
 ];
 
 export function KeyboardShortcutsHelp() {
