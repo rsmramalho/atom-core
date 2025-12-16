@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 📚 Documentação
+    url: https://github.com/your-org/mindmate/blob/main/docs/FULL_DOCUMENTATION.md
+    about: Consulte a documentação completa antes de abrir uma issue
+  - name: 💬 Discussões
+    url: https://github.com/your-org/mindmate/discussions
+    about: Use discussões para perguntas gerais e ideias
