@@ -20,6 +20,7 @@ function mapRowToItem(row: any): AtomItem {
     ritual_slot: row.ritual_slot,
     completed: row.completed,
     completed_at: row.completed_at,
+    completion_log: row.completion_log || [],
     notes: row.notes,
     checklist: row.checklist || [],
     project_status: row.project_status,

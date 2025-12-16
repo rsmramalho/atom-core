@@ -24,6 +24,7 @@ function mapRowToAtomItem(row: any): AtomItem {
     ritual_slot: row.ritual_slot as RitualSlot,
     completed: row.completed,
     completed_at: row.completed_at,
+    completion_log: row.completion_log || [],
     notes: row.notes,
     checklist: (row.checklist as ChecklistItem[]) || [],
     project_status: row.project_status as ProjectStatus | null,
