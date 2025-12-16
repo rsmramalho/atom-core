@@ -23,6 +23,7 @@ import { CalendarViewToggle, CalendarViewMode } from "@/components/calendar/Cale
 import { DayDetailSheet } from "@/components/calendar/DayDetailSheet";
 import { CalendarItem } from "@/components/calendar/CalendarItem";
 import { EditItemModal } from "@/components/shared/EditItemModal";
+import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import type { AtomItem } from "@/types/atom-engine";
 
@@ -60,6 +61,8 @@ export default function Calendar() {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [editingItem, setEditingItem] = useState<AtomItem | null>(null);
   const [activeItem, setActiveItem] = useState<AtomItem | null>(null);
+  const [slideDirection, setSlideDirection] = useState<"left" | "right" | null>(null);
+  const [isAnimating, setIsAnimating] = useState(false);
   
   // View mode with localStorage persistence
   const [viewMode, setViewMode] = useState<CalendarViewMode>(() => {
@@ -83,6 +86,20 @@ export default function Calendar() {
     localStorage.setItem("calendar-view-mode", view);
   }, []);
 
+  // Navigate with animation
+  const navigateWithAnimation = useCallback((direction: "left" | "right", newDate: Date) => {
+    if (isAnimating) return;
+    setSlideDirection(direction);
+    setIsAnimating(true);
+    
+    // After animation starts, change the date
+    setTimeout(() => {
+      setCurrentDate(newDate);
+      setSlideDirection(null);
+      setIsAnimating(false);
+    }, 200);
+  }, [isAnimating]);
+
   // Keyboard shortcuts for view toggle and navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -100,9 +117,11 @@ export default function Calendar() {
       
       // Arrow navigation (← → for previous/next)
       if (e.key === "ArrowLeft" && !e.metaKey && !e.ctrlKey) {
-        setCurrentDate(prev => viewMode === "month" ? subMonths(prev, 1) : subWeeks(prev, 1));
+        const newDate = viewMode === "month" ? subMonths(currentDate, 1) : subWeeks(currentDate, 1);
+        navigateWithAnimation("right", newDate);
       } else if (e.key === "ArrowRight" && !e.metaKey && !e.ctrlKey) {
-        setCurrentDate(prev => viewMode === "month" ? addMonths(prev, 1) : addWeeks(prev, 1));
+        const newDate = viewMode === "month" ? addMonths(currentDate, 1) : addWeeks(currentDate, 1);
+        navigateWithAnimation("left", newDate);
       }
       
       // Today shortcut (T)
@@ -113,15 +132,17 @@ export default function Calendar() {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [handleViewChange, viewMode]);
+  }, [handleViewChange, viewMode, currentDate, navigateWithAnimation]);
 
   // Swipe handlers for mobile navigation
   const { handlers: swipeHandlers, swipeState } = useSwipe({
     onSwipeLeft: () => {
-      setCurrentDate(prev => viewMode === "month" ? addMonths(prev, 1) : addWeeks(prev, 1));
+      const newDate = viewMode === "month" ? addMonths(currentDate, 1) : addWeeks(currentDate, 1);
+      navigateWithAnimation("left", newDate);
     },
     onSwipeRight: () => {
-      setCurrentDate(prev => viewMode === "month" ? subMonths(prev, 1) : subWeeks(prev, 1));
+      const newDate = viewMode === "month" ? subMonths(currentDate, 1) : subWeeks(currentDate, 1);
+      navigateWithAnimation("right", newDate);
     },
     threshold: 50,
   });
@@ -348,25 +369,40 @@ export default function Calendar() {
             </div>
           )}
           
-          {viewMode === "month" ? (
-            <CalendarGrid
-              currentDate={currentDate}
-              onDateChange={setCurrentDate}
-              itemsByDate={filteredItemsByDate}
-              selectedDate={selectedDate}
-              onSelectDate={setSelectedDate}
-            />
-          ) : (
-            <WeekGrid
-              currentDate={currentDate}
-              onDateChange={setCurrentDate}
-              itemsByDate={filteredItemsByDate}
-              selectedDate={selectedDate}
-              onSelectDate={setSelectedDate}
-              onToggle={handleToggle}
-              onClick={handleItemClick}
-            />
-          )}
+        <div 
+            className={cn(
+              "transition-all duration-200 ease-out",
+              slideDirection === "left" && "animate-slide-out-left",
+              slideDirection === "right" && "animate-slide-out-right",
+              !slideDirection && "animate-slide-in"
+            )}
+          >
+            {viewMode === "month" ? (
+              <CalendarGrid
+                currentDate={currentDate}
+                onDateChange={(date) => {
+                  const isNext = date > currentDate;
+                  navigateWithAnimation(isNext ? "left" : "right", date);
+                }}
+                itemsByDate={filteredItemsByDate}
+                selectedDate={selectedDate}
+                onSelectDate={setSelectedDate}
+              />
+            ) : (
+              <WeekGrid
+                currentDate={currentDate}
+                onDateChange={(date) => {
+                  const isNext = date > currentDate;
+                  navigateWithAnimation(isNext ? "left" : "right", date);
+                }}
+                itemsByDate={filteredItemsByDate}
+                selectedDate={selectedDate}
+                onSelectDate={setSelectedDate}
+                onToggle={handleToggle}
+                onClick={handleItemClick}
+              />
+            )}
+          </div>
         </div>
 
         {/* Day Detail Sheet - only for month view */}
