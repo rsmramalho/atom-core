@@ -52,12 +52,12 @@ export default function ProjectDetail() {
   const [taskModalOpen, setTaskModalOpen] = useState(false);
   const [milestoneModalOpen, setMilestoneModalOpen] = useState(false);
 
-  // Get project and its items
+  // Get project and its items (including milestones which are items with #milestone tag)
   const project = projects.find(p => p.id === id);
   const projectItems = items.filter(item => item.project_id === id);
   
-  // Calculate progress with milestones
-  const progressData = useProjectProgress(projectItems, milestones);
+  // Calculate progress (Single Table Design - milestones are items with #milestone tag)
+  const progressData = useProjectProgress(projectItems);
 
   if (isLoading) {
     return (
@@ -124,7 +124,7 @@ export default function ProjectDetail() {
         progress_mode: null,
         progress: null,
         deadline: null,
-        milestones: [],
+        weight: 1,
         order_index: 0,
       });
       toast.success("Task criada!");

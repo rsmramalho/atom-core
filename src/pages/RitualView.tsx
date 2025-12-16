@@ -117,7 +117,7 @@ export default function RitualView() {
         progress_mode: null,
         progress: null,
         deadline: null,
-        milestones: [],
+        weight: 1,
         order_index: 0,
       });
 

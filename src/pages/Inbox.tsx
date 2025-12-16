@@ -70,7 +70,7 @@ export default function Inbox() {
         progress_mode: null,
         progress: null,
         deadline: null,
-        milestones: [],
+        weight: 1,
         order_index: 0,
       });
       
@@ -281,7 +281,7 @@ export default function Inbox() {
             progress_mode: "auto",
             progress: 0,
             deadline: null,
-            milestones: [],
+            weight: 1,
             order_index: 0,
           });
           addLog("MacroPicker", "project_created", { name, module });

@@ -1,9 +1,9 @@
 // Atom Engine 4.0 - Project Progress Hook (B.9)
-// Hybrid progress calculation: Tasks + Milestones with weights
+// Single Table Design: All items have weight, milestones identified by #milestone tag
 
 import { useMemo } from "react";
 import type { AtomItem } from "@/types/atom-engine";
-import type { Milestone } from "./useMilestones";
+import { isMilestone } from "@/types/atom-engine";
 
 interface ProgressResult {
   progress: number;
@@ -15,25 +15,27 @@ interface ProgressResult {
   milestoneCompletedCount: number;
 }
 
-export function useProjectProgress(
-  projectItems: AtomItem[],
-  milestones: Milestone[]
-): ProgressResult {
+export function useProjectProgress(projectItems: AtomItem[]): ProgressResult {
   return useMemo(() => {
-    // Tasks weight = 1 each
-    const tasks = projectItems.filter(i => i.type === "task");
+    // Separate milestones from regular tasks
+    const milestones = projectItems.filter(isMilestone);
+    const tasks = projectItems.filter(i => i.type === "task" && !isMilestone(i));
+
+    // Task stats
     const taskCount = tasks.length;
     const taskCompletedCount = tasks.filter(t => t.completed).length;
-    const taskWeight = taskCount; // Each task = 1
-    const taskCompletedWeight = taskCompletedCount;
+    const taskWeight = tasks.reduce((sum, t) => sum + (t.weight ?? 1), 0);
+    const taskCompletedWeight = tasks
+      .filter(t => t.completed)
+      .reduce((sum, t) => sum + (t.weight ?? 1), 0);
 
-    // Milestones with variable weight
+    // Milestone stats
     const milestoneCount = milestones.length;
     const milestoneCompletedCount = milestones.filter(m => m.completed).length;
-    const milestoneWeight = milestones.reduce((sum, m) => sum + m.weight, 0);
+    const milestoneWeight = milestones.reduce((sum, m) => sum + (m.weight ?? 3), 0);
     const milestoneCompletedWeight = milestones
       .filter(m => m.completed)
-      .reduce((sum, m) => sum + m.weight, 0);
+      .reduce((sum, m) => sum + (m.weight ?? 3), 0);
 
     // Total weighted progress
     const totalWeight = taskWeight + milestoneWeight;
@@ -52,5 +54,5 @@ export function useProjectProgress(
       milestoneCount,
       milestoneCompletedCount,
     };
-  }, [projectItems, milestones]);
+  }, [projectItems]);
 }

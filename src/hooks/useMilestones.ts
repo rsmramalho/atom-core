@@ -1,21 +1,12 @@
 // Atom Engine 4.0 - Milestones Hook (B.9)
-// CRUD operations for project milestones
+// Single Table Design: Milestones are items with #milestone tag
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import type { AtomItem } from "@/types/atom-engine";
 
-export interface Milestone {
-  id: string;
-  project_id: string;
-  user_id: string;
-  title: string;
-  completed: boolean;
-  completed_at: string | null;
-  weight: number;
-  due_date: string | null;
-  created_at: string;
-  updated_at: string;
-}
+// Milestone is an AtomItem with #milestone tag
+export type Milestone = AtomItem;
 
 export type CreateMilestonePayload = {
   project_id: string;
@@ -33,10 +24,39 @@ export type UpdateMilestonePayload = {
   due_date?: string | null;
 };
 
+// Map database row to AtomItem
+function mapRowToMilestone(row: any): Milestone {
+  return {
+    id: row.id,
+    user_id: row.user_id,
+    title: row.title,
+    type: row.type,
+    module: row.module,
+    tags: row.tags || [],
+    parent_id: row.parent_id,
+    project_id: row.project_id,
+    due_date: row.due_date,
+    recurrence_rule: row.recurrence_rule,
+    ritual_slot: row.ritual_slot,
+    completed: row.completed,
+    completed_at: row.completed_at,
+    notes: row.notes,
+    checklist: row.checklist || [],
+    project_status: row.project_status,
+    progress_mode: row.progress_mode,
+    progress: row.progress,
+    deadline: row.deadline,
+    weight: row.weight ?? 1,
+    order_index: row.order_index ?? 0,
+    created_at: row.created_at,
+    updated_at: row.updated_at,
+  };
+}
+
 export function useMilestones(projectId?: string) {
   const queryClient = useQueryClient();
 
-  // Fetch milestones for a project
+  // Fetch milestones for a project (items with #milestone tag)
   const milestonesQuery = useQuery({
     queryKey: ["milestones", projectId],
     queryFn: async () => {
@@ -46,38 +66,45 @@ export function useMilestones(projectId?: string) {
       if (!user) throw new Error("Not authenticated");
 
       const { data, error } = await supabase
-        .from("project_milestones")
+        .from("items")
         .select("*")
         .eq("project_id", projectId)
+        .contains("tags", ["#milestone"])
         .order("created_at", { ascending: true });
 
       if (error) throw error;
-      return data as Milestone[];
+      return (data || []).map(mapRowToMilestone);
     },
     enabled: !!projectId,
   });
 
-  // Create milestone
+  // Create milestone (creates an item with #milestone tag)
   const createMutation = useMutation({
     mutationFn: async (payload: CreateMilestonePayload) => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
       const { data, error } = await supabase
-        .from("project_milestones")
+        .from("items")
         .insert({
-          ...payload,
+          title: payload.title,
+          type: "task",
+          project_id: payload.project_id,
           user_id: user.id,
-          weight: payload.weight || 3, // Default weight for milestones = 3x
+          tags: ["#milestone"],
+          weight: payload.weight ?? 3, // Default weight for milestones = 3x
+          due_date: payload.due_date || null,
+          completed: false,
         })
         .select()
         .single();
 
       if (error) throw error;
-      return data as Milestone;
+      return mapRowToMilestone(data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["milestones", projectId] });
+      queryClient.invalidateQueries({ queryKey: ["atom-items"] });
     },
   });
 
@@ -87,17 +114,18 @@ export function useMilestones(projectId?: string) {
       const { id, ...updates } = payload;
       
       const { data, error } = await supabase
-        .from("project_milestones")
+        .from("items")
         .update(updates)
         .eq("id", id)
         .select()
         .single();
 
       if (error) throw error;
-      return data as Milestone;
+      return mapRowToMilestone(data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["milestones", projectId] });
+      queryClient.invalidateQueries({ queryKey: ["atom-items"] });
     },
   });
 
@@ -105,7 +133,7 @@ export function useMilestones(projectId?: string) {
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
       const { error } = await supabase
-        .from("project_milestones")
+        .from("items")
         .delete()
         .eq("id", id);
 
@@ -113,6 +141,7 @@ export function useMilestones(projectId?: string) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["milestones", projectId] });
+      queryClient.invalidateQueries({ queryKey: ["atom-items"] });
     },
   });
 

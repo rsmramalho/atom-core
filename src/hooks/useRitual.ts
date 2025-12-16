@@ -71,7 +71,7 @@ export function useRitual(overridePeriod?: RitualPeriod) {
         ...item,
         tags: item.tags || [],
         checklist: (item.checklist || []) as unknown as AtomItem["checklist"],
-        milestones: (item.milestones || []) as unknown as AtomItem["milestones"],
+        weight: item.weight ?? 1,
       })) as AtomItem[];
     },
   });
