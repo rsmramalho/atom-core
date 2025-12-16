@@ -28,6 +28,7 @@ const createMockItem = (overrides: Partial<AtomItem> = {}): AtomItem => ({
   parent_id: null,
   project_id: null,
   due_date: null,
+  completion_log: [],
   recurrence_rule: null,
   ritual_slot: null,
   completed: false,

@@ -47,6 +47,9 @@ export interface AtomItem {
   completed: boolean;
   completed_at: string | null;
   
+  // Recurrence completion tracking (array of ISO date strings)
+  completion_log: string[];
+  
   // Content
   notes: string | null;
   checklist: ChecklistItem[];
@@ -102,6 +105,6 @@ export interface EngineLogEntry {
   details?: Record<string, unknown>;
 }
 
-// Create/Update item payload
-export type CreateItemPayload = Omit<AtomItem, 'id' | 'user_id' | 'created_at' | 'updated_at'>;
+// Create/Update item payload - completion_log is optional (defaults to [] in DB)
+export type CreateItemPayload = Omit<AtomItem, 'id' | 'user_id' | 'created_at' | 'updated_at' | 'completion_log'> & { completion_log?: string[] };
 export type UpdateItemPayload = Partial<Omit<AtomItem, 'id' | 'user_id' | 'created_at' | 'updated_at'>>;

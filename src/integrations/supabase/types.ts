@@ -19,6 +19,7 @@ export type Database = {
           checklist: Json | null
           completed: boolean
           completed_at: string | null
+          completion_log: Json | null
           created_at: string
           deadline: string | null
           due_date: string | null
@@ -45,6 +46,7 @@ export type Database = {
           checklist?: Json | null
           completed?: boolean
           completed_at?: string | null
+          completion_log?: Json | null
           created_at?: string
           deadline?: string | null
           due_date?: string | null
@@ -71,6 +73,7 @@ export type Database = {
           checklist?: Json | null
           completed?: boolean
           completed_at?: string | null
+          completion_log?: Json | null
           created_at?: string
           deadline?: string | null
           due_date?: string | null
