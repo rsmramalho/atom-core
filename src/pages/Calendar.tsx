@@ -58,9 +58,26 @@ export default function Calendar() {
   const [editingItem, setEditingItem] = useState<AtomItem | null>(null);
   const [activeItem, setActiveItem] = useState<AtomItem | null>(null);
   
-  // Filter state
-  const [typeFilter, setTypeFilter] = useState<ItemTypeFilter>("all");
-  const [moduleFilter, setModuleFilter] = useState<ModuleFilter>("all");
+  // Filter state with localStorage persistence
+  const [typeFilter, setTypeFilter] = useState<ItemTypeFilter>(() => {
+    const saved = localStorage.getItem("calendar-type-filter");
+    return (saved as ItemTypeFilter) || "all";
+  });
+  const [moduleFilter, setModuleFilter] = useState<ModuleFilter>(() => {
+    const saved = localStorage.getItem("calendar-module-filter");
+    return (saved as ModuleFilter) || "all";
+  });
+
+  // Persist filters to localStorage
+  const handleTypeChange = useCallback((type: ItemTypeFilter) => {
+    setTypeFilter(type);
+    localStorage.setItem("calendar-type-filter", type);
+  }, []);
+
+  const handleModuleChange = useCallback((module: ModuleFilter) => {
+    setModuleFilter(module);
+    localStorage.setItem("calendar-module-filter", module);
+  }, []);
 
   const { itemsByDate, overdueItems, isLoading, refetch } = useCalendarItems(currentDate);
   const { updateItem } = useAtomItems();
@@ -210,8 +227,8 @@ export default function Calendar() {
         <CalendarFilters
           typeFilter={typeFilter}
           moduleFilter={moduleFilter}
-          onTypeChange={setTypeFilter}
-          onModuleChange={setModuleFilter}
+          onTypeChange={handleTypeChange}
+          onModuleChange={handleModuleChange}
         />
 
         {/* Calendar Grid */}
