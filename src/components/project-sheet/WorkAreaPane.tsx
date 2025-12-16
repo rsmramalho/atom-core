@@ -1,5 +1,5 @@
 // Project Sheet - Work Area Pane (Tasks & Habits) with Tag Engine Lite (B.15) + Drag & Drop
-import { useState } from "react";
+import { useState, forwardRef } from "react";
 import { 
   CheckCircle2, 
   Circle, 
@@ -241,42 +241,46 @@ function SortableTaskItem({
   );
 }
 
-// Drag overlay item (floating preview)
-function DragOverlayItem({ item, isSection }: { item: AtomItem; isSection: boolean }) {
-  const displayTitle = isSection 
-    ? item.title.replace(/#scope_macro/gi, "").trim() 
-    : item.title;
+// Drag overlay item (floating preview) - uses forwardRef to avoid React warning
+const DragOverlayItem = forwardRef<HTMLDivElement, { item: AtomItem; isSection: boolean }>(
+  ({ item, isSection }, ref) => {
+    const displayTitle = isSection 
+      ? item.title.replace(/#scope_macro/gi, "").trim() 
+      : item.title;
 
-  if (isSection) {
-    return (
-      <div className="flex items-center gap-2 py-2 px-2 rounded-lg bg-primary/20 border-2 border-primary shadow-2xl scale-[1.02] rotate-[1deg]">
-        <div className="p-1 text-primary cursor-grabbing">
-          <GripVertical className="h-4 w-4" />
+    if (isSection) {
+      return (
+        <div ref={ref} className="flex items-center gap-2 py-2 px-2 rounded-lg bg-primary/20 border-2 border-primary shadow-2xl scale-[1.02] rotate-[1deg]">
+          <div className="p-1 text-primary cursor-grabbing">
+            <GripVertical className="h-4 w-4" />
+          </div>
+          <Layers className="h-4 w-4 text-primary" />
+          <span className="font-semibold text-sm text-primary">
+            {displayTitle}
+          </span>
         </div>
-        <Layers className="h-4 w-4 text-primary" />
-        <span className="font-semibold text-sm text-primary">
-          {displayTitle}
-        </span>
+      );
+    }
+
+    return (
+      <div ref={ref} className="flex items-center gap-2 w-full p-2 rounded-lg bg-background shadow-2xl border-2 border-primary scale-[1.02] rotate-[1deg]">
+        <div className="p-1 -ml-1 text-primary cursor-grabbing">
+          <GripVertical className="h-3 w-3" />
+        </div>
+        <div className="flex-shrink-0">
+          {item.completed ? (
+            <CheckCircle2 className="h-4 w-4 text-primary" />
+          ) : (
+            <Circle className="h-4 w-4 text-primary" />
+          )}
+        </div>
+        <span className="truncate text-sm">{displayTitle}</span>
       </div>
     );
   }
+);
 
-  return (
-    <div className="flex items-center gap-2 w-full p-2 rounded-lg bg-background shadow-2xl border-2 border-primary scale-[1.02] rotate-[1deg]">
-      <div className="p-1 -ml-1 text-primary cursor-grabbing">
-        <GripVertical className="h-3 w-3" />
-      </div>
-      <div className="flex-shrink-0">
-        {item.completed ? (
-          <CheckCircle2 className="h-4 w-4 text-primary" />
-        ) : (
-          <Circle className="h-4 w-4 text-primary" />
-        )}
-      </div>
-      <span className="truncate text-sm">{displayTitle}</span>
-    </div>
-  );
-}
+DragOverlayItem.displayName = "DragOverlayItem";
 
 export function WorkAreaPane({ items, onToggle }: WorkAreaPaneProps) {
   const { updateItem } = useAtomItems();
