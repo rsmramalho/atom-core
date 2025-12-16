@@ -25,6 +25,11 @@ const shortcuts = [
   { keys: ["Ctrl", "⇧", "E"], description: "Debug Console" },
 ];
 
+const calendarShortcuts = [
+  { keys: ["M"], description: "Visualização Mensal" },
+  { keys: ["W"], description: "Visualização Semanal" },
+];
+
 export function KeyboardShortcutsHelp() {
   const [open, setOpen] = useState(false);
 
@@ -57,7 +62,30 @@ export function KeyboardShortcutsHelp() {
         </DialogHeader>
 
         <div className="space-y-3 py-4">
+          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Navegação</p>
           {shortcuts.map((shortcut, index) => (
+            <div
+              key={index}
+              className="flex items-center justify-between rounded-lg bg-muted/50 px-3 py-2"
+            >
+              <span className="text-sm text-muted-foreground">
+                {shortcut.description}
+              </span>
+              <div className="flex items-center gap-1">
+                {shortcut.keys.map((key, keyIndex) => (
+                  <kbd
+                    key={keyIndex}
+                    className="inline-flex h-6 min-w-[24px] items-center justify-center rounded border border-border bg-background px-1.5 text-xs font-medium text-foreground shadow-sm"
+                  >
+                    {key}
+                  </kbd>
+                ))}
+              </div>
+            </div>
+          ))}
+          
+          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide pt-2">Calendário</p>
+          {calendarShortcuts.map((shortcut, index) => (
             <div
               key={index}
               className="flex items-center justify-between rounded-lg bg-muted/50 px-3 py-2"
