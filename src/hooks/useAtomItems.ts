@@ -1,11 +1,15 @@
 // Atom Engine 4.0 - useAtomItems Hook
 // CRUD operations for AtomItems via Supabase
 // Single Table Design - All item types in one table
+// With offline support
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { AtomItem, CreateItemPayload, UpdateItemPayload, ItemType, RitualSlot, ProjectStatus, ProgressMode, ChecklistItem } from "@/types/atom-engine";
 import { useEngineLogger } from "./useEngineLogger";
+import { useNetworkStatus } from "./useNetworkStatus";
+import { addToQueue } from "@/lib/offline-queue";
+import { toast } from "sonner";
 import type { Json, TablesInsert } from "@/integrations/supabase/types";
 
 // Helper to map database row to AtomItem
@@ -41,6 +45,7 @@ function mapRowToAtomItem(row: any): AtomItem {
 export function useAtomItems() {
   const queryClient = useQueryClient();
   const { addLog } = useEngineLogger();
+  const { isOnline } = useNetworkStatus();
 
   // Fetch all items for the current user
   const itemsQuery = useQuery({
@@ -61,6 +66,8 @@ export function useAtomItems() {
       addLog("QueryEngine", `Fetched ${data?.length || 0} items`);
       return (data || []).map(mapRowToAtomItem);
     },
+    staleTime: 1000 * 60 * 5, // 5 minutes - helps with offline
+    gcTime: 1000 * 60 * 30, // 30 minutes cache
   });
 
   // Create a new item
@@ -94,6 +101,24 @@ export function useAtomItems() {
         order_index: payload.order_index ?? 0,
       };
 
+      // Offline support: queue operation if offline
+      if (!isOnline) {
+        const tempId = crypto.randomUUID();
+        await addToQueue({
+          type: 'insert',
+          table: 'items',
+          data: { ...insertData, id: tempId },
+        });
+        
+        // Return optimistic item
+        const optimisticItem: AtomItem = {
+          ...mapRowToAtomItem({ ...insertData, id: tempId, created_at: new Date().toISOString(), updated_at: new Date().toISOString() }),
+        };
+        
+        addLog("MutationEngine", "Item queued for offline sync", { id: tempId });
+        return optimisticItem;
+      }
+
       const { data, error } = await supabase
         .from("items")
         .insert(insertData)
@@ -121,7 +146,7 @@ export function useAtomItems() {
 
       // INTEGRITY GUARD: Prevent reflections from being marked as completed
       // Reflections are non-actionable items per Engine B.3 spec
-      if (payload.completed === true) {
+      if (payload.completed === true && isOnline) {
         // Check if item is a reflection before allowing completion
         const { data: existingItem } = await supabase
           .from("items")
@@ -141,6 +166,37 @@ export function useAtomItems() {
         updateData.checklist = JSON.parse(JSON.stringify(payload.checklist));
       }
 
+      // Offline support: queue operation if offline
+      if (!isOnline) {
+        await addToQueue({
+          type: 'update',
+          table: 'items',
+          data: { id, ...updateData },
+        });
+        
+        // Return optimistic update from cache
+        const cachedItems = queryClient.getQueryData<AtomItem[]>(["atom-items"]) || [];
+        const existingItem = cachedItems.find(item => item.id === id);
+        
+        if (existingItem) {
+          const optimisticItem: AtomItem = {
+            ...existingItem,
+            ...payload,
+            updated_at: new Date().toISOString(),
+          };
+          
+          // Optimistically update the cache
+          queryClient.setQueryData<AtomItem[]>(["atom-items"], 
+            cachedItems.map(item => item.id === id ? optimisticItem : item)
+          );
+          
+          addLog("MutationEngine", "Item update queued for offline sync", { id });
+          return optimisticItem;
+        }
+        
+        throw new Error("Item not found in cache");
+      }
+
       const { data, error } = await supabase
         .from("items")
         .update(updateData)
@@ -157,8 +213,10 @@ export function useAtomItems() {
       return mapRowToAtomItem(data);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["atom-items"] });
-      queryClient.invalidateQueries({ queryKey: ["milestones"] });
+      if (isOnline) {
+        queryClient.invalidateQueries({ queryKey: ["atom-items"] });
+        queryClient.invalidateQueries({ queryKey: ["milestones"] });
+      }
     },
   });
 
@@ -166,6 +224,24 @@ export function useAtomItems() {
   const deleteMutation = useMutation({
     mutationFn: async (id: string): Promise<void> => {
       addLog("MutationEngine", "Deleting item", { id });
+
+      // Offline support: queue operation if offline
+      if (!isOnline) {
+        await addToQueue({
+          type: 'delete',
+          table: 'items',
+          data: { id },
+        });
+        
+        // Optimistically remove from cache
+        const cachedItems = queryClient.getQueryData<AtomItem[]>(["atom-items"]) || [];
+        queryClient.setQueryData<AtomItem[]>(["atom-items"], 
+          cachedItems.filter(item => item.id !== id)
+        );
+        
+        addLog("MutationEngine", "Item delete queued for offline sync", { id });
+        return;
+      }
 
       const { error } = await supabase
         .from("items")
@@ -180,8 +256,10 @@ export function useAtomItems() {
       addLog("MutationEngine", "Item deleted successfully", { id });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["atom-items"] });
-      queryClient.invalidateQueries({ queryKey: ["milestones"] });
+      if (isOnline) {
+        queryClient.invalidateQueries({ queryKey: ["atom-items"] });
+        queryClient.invalidateQueries({ queryKey: ["milestones"] });
+      }
     },
   });
 
