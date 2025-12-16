@@ -1,8 +1,9 @@
-// Calendar Engine - Calendar Item Component
+// Calendar Engine - Draggable Calendar Item
+import { useDraggable } from "@dnd-kit/core";
 import { memo } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
-import { Diamond, CheckSquare, RefreshCw, FileText } from "lucide-react";
+import { Diamond, CheckSquare, RefreshCw, FileText, GripVertical } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { AtomItem } from "@/types/atom-engine";
 import { isMilestone } from "@/hooks/useCalendarItems";
@@ -12,6 +13,7 @@ interface CalendarItemProps {
   onToggle: (item: AtomItem) => void;
   onClick: (item: AtomItem) => void;
   compact?: boolean;
+  draggable?: boolean;
 }
 
 export const CalendarItem = memo(function CalendarItem({
@@ -19,10 +21,24 @@ export const CalendarItem = memo(function CalendarItem({
   onToggle,
   onClick,
   compact = false,
+  draggable = false,
 }: CalendarItemProps) {
   const milestone = isMilestone(item);
   const isHabit = item.type === "habit";
   const isNote = item.type === "note";
+
+  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
+    id: item.id,
+    data: { item },
+    disabled: !draggable,
+  });
+
+  const style = transform
+    ? {
+        transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
+        zIndex: isDragging ? 50 : undefined,
+      }
+    : undefined;
 
   const getIcon = () => {
     if (milestone) return <Diamond className="h-3.5 w-3.5 text-amber-500 fill-amber-500" />;
@@ -53,14 +69,31 @@ export const CalendarItem = memo(function CalendarItem({
 
   return (
     <div
+      ref={draggable ? setNodeRef : undefined}
+      style={style}
       className={cn(
-        "group flex items-center gap-3 p-3 rounded-lg border transition-all cursor-pointer",
+        "group flex items-center gap-3 p-3 rounded-lg border transition-all",
         item.completed && "opacity-60",
         milestone && "border-amber-500/50 bg-amber-500/10 hover:bg-amber-500/20",
         isHabit && !milestone && "border-green-500/30 bg-green-500/5 hover:bg-green-500/10",
-        !milestone && !isHabit && "border-border bg-card hover:bg-muted/50"
+        !milestone && !isHabit && "border-border bg-card hover:bg-muted/50",
+        isDragging && "opacity-50 ring-2 ring-primary"
       )}
     >
+      {/* Drag handle */}
+      {draggable && (
+        <button
+          {...listeners}
+          {...attributes}
+          className={cn(
+            "p-1 -ml-1 text-muted-foreground hover:text-foreground cursor-grab active:cursor-grabbing",
+            "opacity-0 group-hover:opacity-100 transition-opacity touch-none"
+          )}
+        >
+          <GripVertical className="h-4 w-4" />
+        </button>
+      )}
+
       <Checkbox
         checked={item.completed}
         onCheckedChange={() => onToggle(item)}
@@ -72,7 +105,7 @@ export const CalendarItem = memo(function CalendarItem({
       />
 
       <div 
-        className="flex-1 min-w-0"
+        className="flex-1 min-w-0 cursor-pointer"
         onClick={() => onClick(item)}
       >
         <div className="flex items-center gap-2">

@@ -1,4 +1,4 @@
-// Calendar Engine - Day Detail Sheet
+// Calendar Engine - Day Detail Sheet with Draggable Items
 import { format, isToday } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { X, CalendarDays, Sun } from "lucide-react";
@@ -65,6 +65,11 @@ export function DayDetailSheet({
         </Button>
       </div>
 
+      {/* Drag hint */}
+      <div className="px-4 py-2 bg-muted/30 text-xs text-muted-foreground border-b border-border">
+        💡 Arraste itens para o calendário para reagendar
+      </div>
+
       {/* Content */}
       <ScrollArea className="flex-1 p-4">
         {/* Overdue Section - Only show on today */}
@@ -103,6 +108,7 @@ export function DayDetailSheet({
                   item={item}
                   onToggle={onToggle}
                   onClick={onClick}
+                  draggable
                 />
               ))}
             </div>
@@ -127,6 +133,7 @@ export function DayDetailSheet({
                   item={item}
                   onToggle={onToggle}
                   onClick={onClick}
+                  draggable
                 />
               ))}
             </div>
@@ -149,6 +156,7 @@ export function DayDetailSheet({
                   item={item}
                   onToggle={onToggle}
                   onClick={onClick}
+                  draggable
                 />
               ))}
             </div>
@@ -171,6 +179,7 @@ export function DayDetailSheet({
                   item={item}
                   onToggle={onToggle}
                   onClick={onClick}
+                  draggable
                 />
               ))}
             </div>
