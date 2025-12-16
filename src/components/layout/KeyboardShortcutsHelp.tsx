@@ -31,6 +31,7 @@ const calendarShortcuts = [
   { keys: ["←"], description: "Período Anterior" },
   { keys: ["→"], description: "Próximo Período" },
   { keys: ["T"], description: "Ir para Hoje" },
+  { keys: ["👆"], description: "Swipe ← → (mobile)" },
 ];
 
 export function KeyboardShortcutsHelp() {
