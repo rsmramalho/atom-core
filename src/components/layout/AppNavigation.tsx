@@ -18,6 +18,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { getCacheTimestamp, formatCacheAge, clearLocalCache, exportCacheAsBackup, importCacheFromBackup } from "@/lib/local-cache";
 import { useOfflineSyncContext } from "@/components/pwa/OfflineSyncContext";
+import { PendingOperationsModal } from "@/components/pwa/PendingOperationsModal";
 const navItems = [
   { title: "Home", url: "/", icon: Home },
   { title: "Projetos", url: "/projects", icon: FolderKanban },
@@ -32,6 +33,7 @@ export function AppNavigation() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [lastSync, setLastSync] = useState<string>('');
   const [showClearCacheDialog, setShowClearCacheDialog] = useState(false);
+  const [showPendingModal, setShowPendingModal] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { isOnline, isSyncing, pendingCount, syncPendingOperations } = useOfflineSyncContext();
 
@@ -155,7 +157,12 @@ export function AppNavigation() {
                       <RefreshCw className="h-3 w-3" />
                       <span>Sync: {lastSync}</span>
                       {pendingCount > 0 && (
-                        <span className="text-amber-500">({pendingCount})</span>
+                        <button
+                          onClick={() => setShowPendingModal(true)}
+                          className="text-amber-500 hover:text-amber-400 hover:underline"
+                        >
+                          ({pendingCount})
+                        </button>
                       )}
                     </div>
                     <Button
@@ -307,7 +314,12 @@ export function AppNavigation() {
                 <RefreshCw className="h-3 w-3" />
                 <span>Sync: {lastSync}</span>
                 {pendingCount > 0 && (
-                  <span className="text-amber-500">({pendingCount})</span>
+                  <button
+                    onClick={() => setShowPendingModal(true)}
+                    className="text-amber-500 hover:text-amber-400 hover:underline"
+                  >
+                    ({pendingCount})
+                  </button>
                 )}
               </div>
               <Button
@@ -404,6 +416,12 @@ export function AppNavigation() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Pending Operations Modal */}
+      <PendingOperationsModal
+        open={showPendingModal}
+        onOpenChange={setShowPendingModal}
+      />
     </>
   );
 }
