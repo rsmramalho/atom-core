@@ -1,4 +1,4 @@
-// Calendar Engine - Calendar Grid Component
+// Calendar Engine - Calendar Grid Component (Droppable zones only)
 import { useMemo } from "react";
 import {
   startOfMonth,
@@ -13,7 +13,7 @@ import {
 import { ptBR } from "date-fns/locale";
 import { ChevronLeft, ChevronRight, CalendarDays } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { DayCell } from "./DayCell";
+import { DroppableDayCell } from "./DroppableDayCell";
 import type { AtomItem } from "@/types/atom-engine";
 
 interface CalendarGridProps {
@@ -89,7 +89,7 @@ export function CalendarGrid({
           const items = itemsByDate[dateKey] || [];
 
           return (
-            <DayCell
+            <DroppableDayCell
               key={dateKey}
               date={date}
               currentMonth={currentDate}
