@@ -83,11 +83,13 @@ function isSectionHeader(item: AtomItem): boolean {
 function SortableTaskItem({ 
   item, 
   onToggle,
-  isSection = false
+  isSection = false,
+  isRecentlyConverted = false
 }: { 
   item: AtomItem; 
   onToggle: (id: string) => void;
   isSection?: boolean;
+  isRecentlyConverted?: boolean;
 }) {
   const { updateItem, deleteItem, isUpdating, isDeleting } = useAtomItems();
   const [editModalOpen, setEditModalOpen] = useState(false);
@@ -199,7 +201,8 @@ function SortableTaskItem({
           "flex items-center gap-2 w-full p-2 rounded-lg hover:bg-muted/50",
           "transition-all duration-200 ease-out group",
           isDragging && "opacity-40 scale-[0.98] border border-primary/30 bg-primary/5 z-0",
-          item.completed && "opacity-60"
+          item.completed && "opacity-60",
+          isRecentlyConverted && "animate-[pulse_0.5s_ease-in-out] ring-2 ring-primary/50 bg-primary/10"
         )}
       >
         {/* Drag handle */}
@@ -326,10 +329,12 @@ function DroppableSection({
 // Sortable Habit Item Component
 function SortableHabitItem({ 
   item, 
-  onToggle 
+  onToggle,
+  isRecentlyConverted = false
 }: { 
   item: AtomItem; 
   onToggle: (id: string) => void;
+  isRecentlyConverted?: boolean;
 }) {
   const { updateItem, deleteItem, isUpdating, isDeleting } = useAtomItems();
   const [editModalOpen, setEditModalOpen] = useState(false);
@@ -389,7 +394,8 @@ function SortableHabitItem({
           "flex items-center gap-2 w-full p-2 rounded-lg hover:bg-muted/50",
           "transition-all duration-200 ease-out group",
           isDragging && "opacity-40 scale-[0.98] border border-green-500/30 bg-green-500/5 z-0",
-          item.completed && "opacity-60"
+          item.completed && "opacity-60",
+          isRecentlyConverted && "animate-[pulse_0.5s_ease-in-out] ring-2 ring-green-500/50 bg-green-500/10"
         )}
       >
         {/* Drag handle */}
@@ -457,6 +463,7 @@ export function WorkAreaPane({ items, onToggle }: WorkAreaPaneProps) {
     targetType: ItemType;
   } | null>(null);
   const [selectedRitualSlot, setSelectedRitualSlot] = useState<RitualSlot | null>(null);
+  const [recentlyConvertedId, setRecentlyConvertedId] = useState<string | null>(null);
 
   // Filter out milestones (type='task' but with #milestone tag) - Single Table Design
   const tasks = items.filter(i => i.type === "task" && !i.tags.includes("#milestone"));
@@ -612,6 +619,11 @@ export function WorkAreaPane({ items, onToggle }: WorkAreaPaneProps) {
         ...(isToHabit && selectedRitualSlot ? { ritual_slot: selectedRitualSlot } : {})
       });
       hapticFeedback.success();
+      
+      // Show animation on converted item
+      setRecentlyConvertedId(item.id);
+      setTimeout(() => setRecentlyConvertedId(null), 1500);
+      
       toast({
         title: isToHabit ? "Convertido para Hábito" : "Convertido para Task",
         description: `"${item.title}" agora é ${isToHabit ? "um hábito" : "uma task"}.`,
@@ -675,6 +687,7 @@ export function WorkAreaPane({ items, onToggle }: WorkAreaPaneProps) {
                       item={task} 
                       onToggle={onToggle}
                       isSection={isSectionHeader(task)}
+                      isRecentlyConverted={task.id === recentlyConvertedId}
                     />
                   ))}
                 </div>
@@ -741,6 +754,7 @@ export function WorkAreaPane({ items, onToggle }: WorkAreaPaneProps) {
                       key={habit.id} 
                       item={habit} 
                       onToggle={onToggle}
+                      isRecentlyConverted={habit.id === recentlyConvertedId}
                     />
                   ))}
                 </div>
