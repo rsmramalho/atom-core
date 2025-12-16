@@ -1,7 +1,7 @@
 # MindMate - Atom Engine 4.0
 # Documentação Completa
 
-**Versão:** 4.0.0-alpha.9  
+**Versão:** 4.0.0-alpha.10  
 **Data:** 2025-12-16  
 **Gerado em:** 2025-12-16
 
@@ -84,9 +84,21 @@ Na tela de login, clique em **"Não tem conta? Cadastre-se"**
 | `⌘P` | Projetos |
 | `⌘R` | Ritual |
 | `⌘J` | Journal |
+| `⌘L` | Calendário |
 | `⌘N` | Novo Item |
 | `/` | Buscar no Journal |
 | `Ctrl+Shift+E` | Debug Console |
+
+#### Atalhos do Calendário
+
+| Atalho | Ação |
+|--------|------|
+| `M` | Visualização Mensal |
+| `W` | Visualização Semanal |
+| `←` | Mês/Semana anterior |
+| `→` | Próximo mês/semana |
+| `T` | Ir para hoje |
+| `👆 Swipe ← →` | Navegação mobile |
 
 ---
 
@@ -476,10 +488,52 @@ Sistema de journaling e reflexões.
 | `/inbox` | Inbox.tsx | Captura e processamento |
 | `/projects` | Projects.tsx | Lista de projetos |
 | `/projects/:id` | ProjectDetail.tsx | Project Sheet |
+| `/calendar` | Calendar.tsx | Calendário com drag & drop |
 | `/ritual` | RitualView.tsx | Ritual imersivo (sem nav) |
 | `/journal` | Journal.tsx | Página de reflexões |
 
 ---
+
+## 📅 Calendar Engine (B.4)
+
+**Arquivo:** `src/pages/Calendar.tsx`
+
+Visualização de itens no calendário com navegação avançada.
+
+### Funcionalidades
+
+- **Visualizações:** Mensal e Semanal
+- **Filtros:** Por tipo (task, milestone, habit) e módulo
+- **Drag & Drop:** Arrastar itens para reagendar
+- **Overdue Section:** Itens atrasados destacados
+
+### Navegação
+
+| Método | Ação |
+|--------|------|
+| `M` | Visualização mensal |
+| `W` | Visualização semanal |
+| `←` / `→` | Mês/Semana anterior/próximo |
+| `T` | Ir para hoje |
+| Swipe | Navegação touch (mobile) |
+
+### Hook useSwipe
+
+```typescript
+const { handlers, swipeState } = useSwipe({
+  onSwipeLeft: () => { /* próximo */ },
+  onSwipeRight: () => { /* anterior */ },
+  threshold: 50,
+});
+
+// swipeState: { isSwiping, direction, offsetX, offsetY }
+```
+
+### Feedback Visual (Mobile)
+
+Durante o swipe, indicadores visuais aparecem nas laterais:
+- **Swipe esquerda:** Seta direita com gradiente (→ próximo)
+- **Swipe direita:** Seta esquerda com gradiente (← anterior)
 ---
 ---
 

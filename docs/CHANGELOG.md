@@ -7,6 +7,32 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [4.0.0-alpha.10] - 2025-12-16
+
+### Adicionado
+
+#### Calendar Engine - Navegação Avançada
+- **Atalhos de Teclado para Visualização:**
+  - `M` - Alterna para visualização mensal
+  - `W` - Alterna para visualização semanal
+  - Hints visuais nos botões de toggle
+- **Navegação por Setas:**
+  - `←` - Mês/Semana anterior
+  - `→` - Próximo mês/semana
+  - `T` - Ir para hoje
+- **Suporte a Touch/Swipe (Mobile):**
+  - Swipe esquerda → Próximo mês/semana
+  - Swipe direita → Mês/semana anterior
+  - **Feedback Visual:** Indicadores de seta com gradiente durante swipe
+  - Hook `useSwipe` retorna `swipeState` com direção e offset
+
+### Modificado
+- **`useSwipe.ts`:** Refatorado para retornar `handlers` e `swipeState` separados
+- **`Calendar.tsx`:** Integrado feedback visual de swipe
+- **`KeyboardShortcutsHelp.tsx`:** Adicionada seção "Calendário" com todos os novos atalhos
+
+---
+
 ## [4.0.0-alpha.9] - 2025-12-16
 
 ### Adicionado
