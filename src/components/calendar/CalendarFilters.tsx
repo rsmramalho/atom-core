@@ -1,4 +1,4 @@
-// Calendar Engine - Filters Component
+// Calendar Engine - Filters Component with Counts
 import { Diamond, CheckSquare, RefreshCw, Briefcase, Heart, Brain, Users, Sparkles } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -6,11 +6,17 @@ import { cn } from "@/lib/utils";
 export type ItemTypeFilter = "all" | "task" | "habit" | "milestone";
 export type ModuleFilter = "all" | "work" | "body" | "mind" | "family" | "geral";
 
+export interface FilterCounts {
+  types: Record<ItemTypeFilter, number>;
+  modules: Record<ModuleFilter, number>;
+}
+
 interface CalendarFiltersProps {
   typeFilter: ItemTypeFilter;
   moduleFilter: ModuleFilter;
   onTypeChange: (type: ItemTypeFilter) => void;
   onModuleChange: (module: ModuleFilter) => void;
+  counts?: FilterCounts;
 }
 
 const TYPE_OPTIONS: { value: ItemTypeFilter; label: string; icon: React.ReactNode; color: string }[] = [
@@ -34,6 +40,7 @@ export function CalendarFilters({
   moduleFilter,
   onTypeChange,
   onModuleChange,
+  counts,
 }: CalendarFiltersProps) {
   return (
     <div className="flex flex-col sm:flex-row gap-3 mb-4">
@@ -41,23 +48,36 @@ export function CalendarFilters({
       <div className="flex items-center gap-2">
         <span className="text-xs text-muted-foreground font-medium">Tipo:</span>
         <div className="flex flex-wrap gap-1">
-          {TYPE_OPTIONS.map((option) => (
-            <button
-              key={option.value}
-              onClick={() => onTypeChange(option.value)}
-              className={cn(
-                "flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition-all",
-                typeFilter === option.value
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground"
-              )}
-            >
-              <span className={typeFilter !== option.value ? option.color : ""}>
-                {option.icon}
-              </span>
-              {option.label}
-            </button>
-          ))}
+          {TYPE_OPTIONS.map((option) => {
+            const count = counts?.types[option.value] ?? 0;
+            return (
+              <button
+                key={option.value}
+                onClick={() => onTypeChange(option.value)}
+                className={cn(
+                  "flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition-all",
+                  typeFilter === option.value
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground"
+                )}
+              >
+                <span className={typeFilter !== option.value ? option.color : ""}>
+                  {option.icon}
+                </span>
+                {option.label}
+                {counts && (
+                  <span className={cn(
+                    "ml-0.5 text-[10px] px-1.5 py-0.5 rounded-full min-w-[18px] text-center",
+                    typeFilter === option.value
+                      ? "bg-primary-foreground/20"
+                      : "bg-muted-foreground/20"
+                  )}>
+                    {count}
+                  </span>
+                )}
+              </button>
+            );
+          })}
         </div>
       </div>
 
@@ -65,23 +85,36 @@ export function CalendarFilters({
       <div className="flex items-center gap-2">
         <span className="text-xs text-muted-foreground font-medium">Módulo:</span>
         <div className="flex flex-wrap gap-1">
-          {MODULE_OPTIONS.map((option) => (
-            <button
-              key={option.value}
-              onClick={() => onModuleChange(option.value)}
-              className={cn(
-                "flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition-all",
-                moduleFilter === option.value
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground"
-              )}
-            >
-              <span className={moduleFilter !== option.value ? option.color : ""}>
-                {option.icon}
-              </span>
-              {option.label}
-            </button>
-          ))}
+          {MODULE_OPTIONS.map((option) => {
+            const count = counts?.modules[option.value] ?? 0;
+            return (
+              <button
+                key={option.value}
+                onClick={() => onModuleChange(option.value)}
+                className={cn(
+                  "flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition-all",
+                  moduleFilter === option.value
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground"
+                )}
+              >
+                <span className={moduleFilter !== option.value ? option.color : ""}>
+                  {option.icon}
+                </span>
+                {option.label}
+                {counts && (
+                  <span className={cn(
+                    "ml-0.5 text-[10px] px-1.5 py-0.5 rounded-full min-w-[18px] text-center",
+                    moduleFilter === option.value
+                      ? "bg-primary-foreground/20"
+                      : "bg-muted-foreground/20"
+                  )}>
+                    {count}
+                  </span>
+                )}
+              </button>
+            );
+          })}
         </div>
       </div>
 
