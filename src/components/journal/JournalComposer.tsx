@@ -1,15 +1,17 @@
 // Journal Composer - Auto-expanding textarea for reflections
 // Zen-focused input with minimal distraction
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { useAtomItems } from "@/hooks/useAtomItems";
 import { toast } from "sonner";
-import { Feather } from "lucide-react";
+import { Feather, Sparkles, RefreshCw } from "lucide-react";
+import { reflectionPrompts, getRandomPrompt, ReflectionPrompt } from "@/lib/reflection-prompts";
 
 export function JournalComposer() {
   const [content, setContent] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const [currentPrompt, setCurrentPrompt] = useState<ReflectionPrompt>(() => getRandomPrompt());
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { createItem } = useAtomItems();
 
@@ -21,6 +23,20 @@ export function JournalComposer() {
       textarea.style.height = `${Math.max(120, textarea.scrollHeight)}px`;
     }
   }, [content]);
+
+  const shufflePrompt = () => {
+    let newPrompt = getRandomPrompt();
+    // Avoid showing the same prompt twice in a row
+    while (newPrompt.text === currentPrompt.text && reflectionPrompts.length > 1) {
+      newPrompt = getRandomPrompt();
+    }
+    setCurrentPrompt(newPrompt);
+  };
+
+  const usePrompt = () => {
+    setContent(currentPrompt.text + "\n\n");
+    textareaRef.current?.focus();
+  };
 
   const handleSave = async () => {
     const trimmedContent = content.trim();
@@ -64,6 +80,7 @@ export function JournalComposer() {
         description: "Seu pensamento foi registrado.",
       });
       setContent("");
+      shufflePrompt(); // New prompt for next reflection
     } catch (error) {
       toast.error("Erro ao salvar", {
         description: "Tente novamente.",
@@ -83,6 +100,39 @@ export function JournalComposer() {
 
   return (
     <div className="w-full max-w-2xl mx-auto">
+      {/* Prompt suggestion */}
+      {!content && (
+        <div className="mb-4 p-4 rounded-lg bg-muted/30 border border-border/50">
+          <div className="flex items-start gap-3">
+            <Sparkles className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+            <div className="flex-1 min-w-0">
+              <p className="text-sm text-foreground/80 italic">
+                "{currentPrompt.text}"
+              </p>
+              <div className="flex items-center gap-2 mt-3">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={usePrompt}
+                  className="h-7 text-xs gap-1.5"
+                >
+                  Usar este prompt
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={shufflePrompt}
+                  className="h-7 text-xs gap-1.5 text-muted-foreground"
+                >
+                  <RefreshCw className="h-3 w-3" />
+                  Outro
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="relative group">
         <textarea
           ref={textareaRef}
