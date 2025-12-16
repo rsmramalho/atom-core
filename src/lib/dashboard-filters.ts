@@ -5,6 +5,26 @@ import { isToday, isBefore, startOfDay } from "date-fns";
 import type { AtomItem, RitualSlot } from "@/types/atom-engine";
 
 /**
+ * INTEGRITY HELPER: Check if item is a milestone
+ * Milestones are items with #milestone tag per Engine B.3 spec
+ */
+export function isMilestone(item: AtomItem): boolean {
+  return item.tags?.some((tag) => tag.toLowerCase() === "#milestone") || false;
+}
+
+/**
+ * INTEGRITY HELPER: Check if item should be excluded from operational lists
+ * Excludes: reflections, milestones (per Engine B.3 spec)
+ */
+export function isOperationalItem(item: AtomItem): boolean {
+  // Reflections are non-actionable
+  if (item.type === "reflection") return false;
+  // Milestones only appear in project-specific views
+  if (isMilestone(item)) return false;
+  return true;
+}
+
+/**
  * Get current ritual slot based on time of day
  * Aurora: 5:00 - 11:59 (manha)
  * Zênite: 12:00 - 17:59 (meio_dia)
@@ -20,18 +40,20 @@ export function getCurrentRitualSlot(date: Date = new Date()): RitualSlot {
 /**
  * Filter items with #focus tag
  * Returns active (non-completed) items that have #focus tag
+ * EXCLUDES milestones per Engine B.3 spec
  */
 export function filterFocus(items: AtomItem[]): AtomItem[] {
   return items.filter(
     (item) =>
       !item.completed &&
+      isOperationalItem(item) &&
       item.tags.some((tag) => tag.toLowerCase() === "#focus")
   );
 }
 
 /**
  * Filter items due today or overdue
- * Excludes ritual items and projects
+ * Excludes ritual items, projects, milestones, and reflections
  */
 export function filterToday(
   items: AtomItem[],
@@ -42,6 +64,8 @@ export function filterToday(
   return items.filter((item) => {
     // Must be active
     if (item.completed) return false;
+    // Exclude non-operational items (milestones, reflections)
+    if (!isOperationalItem(item)) return false;
     // Exclude items with ritual_slot
     if (item.ritual_slot) return false;
     // Exclude projects
