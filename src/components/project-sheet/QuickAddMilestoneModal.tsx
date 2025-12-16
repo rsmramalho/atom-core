@@ -8,12 +8,14 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Diamond } from "lucide-react";
+import { Label } from "@/components/ui/label";
+import { Slider } from "@/components/ui/slider";
+import { Diamond, Scale } from "lucide-react";
 
 interface QuickAddMilestoneModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSubmit: (title: string) => void;
+  onSubmit: (title: string, weight: number) => void;
   projectTitle: string;
 }
 
@@ -24,16 +26,25 @@ export function QuickAddMilestoneModal({
   projectTitle 
 }: QuickAddMilestoneModalProps) {
   const [title, setTitle] = useState("");
+  const [weight, setWeight] = useState(3);
 
   const handleSubmit = () => {
     if (!title.trim()) return;
-    onSubmit(title.trim());
+    if (weight < 1) return;
+    onSubmit(title.trim(), weight);
     setTitle("");
+    setWeight(3);
+    onOpenChange(false);
+  };
+
+  const handleClose = () => {
+    setTitle("");
+    setWeight(3);
     onOpenChange(false);
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
@@ -45,22 +56,48 @@ export function QuickAddMilestoneModal({
           <p className="text-sm text-muted-foreground">
             Adicionando ao projeto: <strong>{projectTitle}</strong>
           </p>
-          <div className="p-3 bg-primary/10 rounded-lg text-sm">
-            <strong>Dica:</strong> Milestones são "Capítulos" grandes do projeto. 
-            Peso 3x = avançam o progresso mais rápido que tasks.
+          
+          <div className="space-y-2">
+            <Label htmlFor="milestone-title">Título</Label>
+            <Input
+              id="milestone-title"
+              placeholder="Ex: Lançamento Beta, MVP Pronto..."
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
+              autoFocus
+            />
           </div>
-          <Input
-            placeholder="Ex: Lançamento Beta, MVP Pronto..."
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
-            autoFocus
-          />
+
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <Label className="flex items-center gap-2">
+                <Scale className="h-4 w-4 text-muted-foreground" />
+                Peso da Milestone
+              </Label>
+              <span className="text-lg font-bold text-primary">{weight}x</span>
+            </div>
+            <Slider
+              value={[weight]}
+              onValueChange={(v) => setWeight(v[0])}
+              min={1}
+              max={10}
+              step={1}
+              className="w-full"
+            />
+            <p className="text-xs text-muted-foreground">
+              Peso define a importância. {weight === 1 && "Igual a uma task normal."}
+              {weight === 3 && "Padrão: avança o progresso 3x mais rápido."}
+              {weight > 3 && weight < 7 && "Milestone importante!"}
+              {weight >= 7 && "Marco crucial do projeto!"}
+            </p>
+          </div>
+
           <div className="flex justify-end gap-2">
-            <Button variant="outline" onClick={() => onOpenChange(false)}>
+            <Button variant="outline" onClick={handleClose}>
               Cancelar
             </Button>
-            <Button onClick={handleSubmit} disabled={!title.trim()}>
+            <Button onClick={handleSubmit} disabled={!title.trim() || weight < 1}>
               Criar Milestone
             </Button>
           </div>
