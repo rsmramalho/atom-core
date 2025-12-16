@@ -3,6 +3,7 @@
 <div align="center">
 
 [![Tests](https://github.com/YOUR_USERNAME/YOUR_REPO/actions/workflows/test.yml/badge.svg)](https://github.com/YOUR_USERNAME/YOUR_REPO/actions/workflows/test.yml)
+[![codecov](https://codecov.io/gh/YOUR_USERNAME/YOUR_REPO/graph/badge.svg)](https://codecov.io/gh/YOUR_USERNAME/YOUR_REPO)
 
 ![Version](https://img.shields.io/badge/version-4.0.0--alpha.8-blue?style=for-the-badge)
 ![Status](https://img.shields.io/badge/status-alpha-orange?style=for-the-badge)
