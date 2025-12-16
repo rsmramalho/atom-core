@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
 import { NavLink } from "@/components/NavLink";
-import { Home, FolderKanban, Inbox, Terminal, LogOut, Menu, Command, BookOpen, Calendar, ListChecks, RefreshCw } from "lucide-react";
+import { Home, FolderKanban, Inbox, Terminal, LogOut, Menu, Command, BookOpen, Calendar, ListChecks, RefreshCw, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { getCacheTimestamp, formatCacheAge } from "@/lib/local-cache";
+import { useOfflineSyncContext } from "@/components/pwa/OfflineSyncContext";
 const navItems = [
   { title: "Home", url: "/", icon: Home },
   { title: "Projetos", url: "/projects", icon: FolderKanban },
@@ -20,6 +21,7 @@ export function AppNavigation() {
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [lastSync, setLastSync] = useState<string>('');
+  const { isOnline, isSyncing, pendingCount, syncPendingOperations } = useOfflineSyncContext();
 
   // Update sync time every minute
   useEffect(() => {
@@ -96,9 +98,27 @@ export function AppNavigation() {
 
                 {/* Sync Status */}
                 <div className="px-4 py-2 border-t border-border">
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                    <RefreshCw className="h-3 w-3" />
-                    <span>Última sync: {lastSync}</span>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <RefreshCw className="h-3 w-3" />
+                      <span>Sync: {lastSync}</span>
+                      {pendingCount > 0 && (
+                        <span className="text-amber-500">({pendingCount})</span>
+                      )}
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-7 px-2 text-xs"
+                      onClick={syncPendingOperations}
+                      disabled={!isOnline || isSyncing}
+                    >
+                      {isSyncing ? (
+                        <Loader2 className="h-3 w-3 animate-spin" />
+                      ) : (
+                        <RefreshCw className="h-3 w-3" />
+                      )}
+                    </Button>
                   </div>
                 </div>
 
@@ -188,9 +208,28 @@ export function AppNavigation() {
 
           {/* Sync Status */}
           <div className="mt-auto pt-4 border-t border-border">
-            <div className="flex items-center gap-2 px-3 py-2 text-xs text-muted-foreground">
-              <RefreshCw className="h-3 w-3" />
-              <span>Última sync: {lastSync}</span>
+            <div className="flex items-center justify-between px-3 py-2">
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <RefreshCw className="h-3 w-3" />
+                <span>Sync: {lastSync}</span>
+                {pendingCount > 0 && (
+                  <span className="text-amber-500">({pendingCount})</span>
+                )}
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-7 px-2 text-xs"
+                onClick={syncPendingOperations}
+                disabled={!isOnline || isSyncing}
+                title={!isOnline ? 'Offline' : 'Sincronizar agora'}
+              >
+                {isSyncing ? (
+                  <Loader2 className="h-3 w-3 animate-spin" />
+                ) : (
+                  <RefreshCw className="h-3 w-3" />
+                )}
+              </Button>
             </div>
           </div>
 
