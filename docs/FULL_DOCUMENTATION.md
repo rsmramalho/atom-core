@@ -1,9 +1,9 @@
 # MindMate - Atom Engine 4.0
 # Documentação Completa Consolidada
 
-**Versão:** 4.0.0-alpha.10  
+**Versão:** 4.0.0-alpha.11  
 **Data:** 2025-12-16  
-**Status:** Core Engine + Inbox + MacroPicker + Dashboard + Ritual + Project Sheet + Reflection Engine + Calendar Engine
+**Status:** Core Engine + Inbox + MacroPicker + Dashboard + Ritual + Project Sheet + Reflection Engine + Calendar Engine + Integrity Guards
 
 ---
 
@@ -15,11 +15,12 @@
 4. [Arquitetura](#arquitetura)
 5. [Modelo de Dados](#modelo-de-dados)
 6. [Engines](#engines)
-7. [API Reference](#api-reference)
-8. [Rotas](#rotas)
-9. [Design System](#design-system)
-10. [Guia de Contribuição](#guia-de-contribuição)
-11. [Changelog](#changelog)
+7. [Integrity Guards (B.3)](#integrity-guards-b3)
+8. [API Reference](#api-reference)
+9. [Rotas](#rotas)
+10. [Design System](#design-system)
+11. [Guia de Contribuição](#guia-de-contribuição)
+12. [Changelog](#changelog)
 
 ---
 
@@ -444,6 +445,109 @@ Sistema de journaling e reflexões.
 
 ---
 
+# INTEGRITY GUARDS (B.3)
+
+O Atom Engine implementa guardas de integridade críticas que garantem a consistência semântica dos dados. Estas regras são aplicadas na camada de dados e não podem ser contornadas pela UI.
+
+## 1. Reflection Lock (Trava de Reflexão)
+
+**Regra:** Itens com `type === 'reflection'` NUNCA podem ter `completed = true`.
+
+**Justificativa:** Reflexões são itens não-acionáveis por natureza. Elas representam pensamentos, sentimentos e insights - não tarefas a serem concluídas.
+
+**Implementação:**
+```typescript
+// src/hooks/useAtomItems.ts - updateMutation
+if (payload.completed === true) {
+  const { data: existingItem } = await supabase
+    .from("items")
+    .select("type")
+    .eq("id", id)
+    .single();
+  
+  if (existingItem?.type === "reflection") {
+    throw new Error("Reflections cannot be marked as completed.");
+  }
+}
+```
+
+**UI:** O JournalFeed e JournalEntry não renderizam checkboxes de conclusão.
+
+## 2. Milestone Isolation (Isolamento de Milestones)
+
+**Regra:** Itens com tag `#milestone` são EXCLUÍDOS de listas operacionais (Inbox, Today, Focus, Calendar geral). Eles só aparecem em contextos de projeto.
+
+**Justificativa:** Milestones representam marcos de projeto, não tarefas do dia-a-dia. Misturá-los com tarefas operacionais polui a visão diária do usuário.
+
+**Implementação:**
+```typescript
+// src/lib/dashboard-filters.ts
+export function isMilestone(item: AtomItem): boolean {
+  return item.tags?.some((tag) => tag.toLowerCase() === "#milestone") || false;
+}
+
+export function isOperationalItem(item: AtomItem): boolean {
+  if (item.type === "reflection") return false;
+  if (isMilestone(item)) return false;
+  return true;
+}
+
+// Aplicado em filterFocus(), filterToday(), useCalendarItems()
+```
+
+**Locais afetados:**
+| Função/Hook | Comportamento |
+|-------------|---------------|
+| `filterFocus()` | Exclui milestones |
+| `filterToday()` | Exclui milestones e reflections |
+| `useCalendarItems()` | Filtra milestones de `items` e `overdueItems` |
+| `Inbox.tsx` | Exclui itens com `#milestone` da lista |
+
+## 3. Atomic MacroPicker Cleanup
+
+**Regra:** Ao promover um item do Inbox para Projeto, a tag `#inbox` é removida na MESMA operação que adiciona o `project_id`.
+
+**Justificativa:** Garante atomicidade da transição. O item nunca fica em estado inconsistente (com #inbox E project_id ao mesmo tempo).
+
+**Implementação:**
+```typescript
+// src/pages/Inbox.tsx - handlePromote
+// Remove #inbox tag
+let updatedTags = item.tags.filter(t => t.toLowerCase() !== "#inbox");
+
+// Add #macro:ProjectName tag
+updatedTags = [...updatedTags, `#macro:${projectName.replace(/\s+/g, "_")}`];
+
+// Single atomic update
+await updateItem({
+  id: itemId,
+  type: newType,
+  project_id: projectId,
+  tags: updatedTags,  // ← Tags já limpas
+  ritual_slot: ritualSlot || null,
+  module: finalModule,
+});
+```
+
+## Testes de Integridade
+
+Arquivo: `src/lib/dashboard-filters.test.ts`
+
+```typescript
+describe("Integrity Guards (Engine B.3)", () => {
+  // isMilestone - 5 testes
+  // isOperationalItem - 5 testes  
+  // Milestone Isolation in filterFocus - 2 testes
+  // Milestone Isolation in filterToday - 3 testes
+  // Reflection Lock - 3 testes
+  // Edge Cases - 3 testes
+});
+```
+
+Total: **21 testes de integridade**
+
+---
+
 # API REFERENCE
 
 ## Tipos
@@ -625,6 +729,19 @@ Use `Ctrl+Shift+E` para:
 
 # CHANGELOG
 
+## [4.0.0-alpha.11] - 2025-12-16
+
+### Adicionado
+
+#### Integrity Guards (B.3) - Correções Críticas
+- **Reflection Lock:** Guard em `useAtomItems` que impede `completed=true` para reflections
+- **Milestone Isolation:** Filtros em `filterFocus`, `filterToday`, `useCalendarItems`, `Inbox` que excluem itens com `#milestone`
+- **Atomic MacroPicker:** Remoção de `#inbox` na mesma operação que adiciona `project_id`
+- **Helper Functions:** `isMilestone()` e `isOperationalItem()` em `dashboard-filters.ts`
+- **21 Testes de Integridade:** Validação completa das guardas
+
+---
+
 ## [4.0.0-alpha.10] - 2025-12-16
 
 ### Adicionado
@@ -730,6 +847,7 @@ Use `Ctrl+Shift+E` para:
 - [x] Ritual Engine (B.19)
 - [x] Project Engine (B.9/B.13)
 - [x] Reflection Engine (B.11)
+- [x] **Integrity Guards (B.3)** ← NOVO
 
 ## ✅ UI Implementada
 - [x] Dashboard com Focus/Today/Ritual
