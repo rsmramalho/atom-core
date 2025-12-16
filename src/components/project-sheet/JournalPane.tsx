@@ -11,8 +11,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Feather, Plus, Search, X } from "lucide-react";
+import { Feather, Plus, Search, X, Sparkles, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
+import { projectReflectionPrompts, getRandomProjectPrompt } from "@/lib/reflection-prompts";
 
 function formatReflectionDate(dateString: string): string {
   const date = parseISO(dateString);
@@ -113,7 +114,22 @@ export function JournalPane({ projectId, projectTitle, projectModule }: JournalP
   const [content, setContent] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [currentPrompt, setCurrentPrompt] = useState(() => getRandomProjectPrompt());
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const shufflePrompt = () => {
+    let newPrompt = getRandomProjectPrompt();
+    while (newPrompt === currentPrompt && projectReflectionPrompts.length > 1) {
+      newPrompt = getRandomProjectPrompt();
+    }
+    setCurrentPrompt(newPrompt);
+  };
+
+  const usePrompt = () => {
+    setContent(currentPrompt + "\n\n");
+    textareaRef.current?.focus();
+  };
 
   // Keyboard shortcut: "/" to focus search
   useEffect(() => {
@@ -232,7 +248,40 @@ export function JournalPane({ projectId, projectTitle, projectModule }: JournalP
       {isComposing ? (
         <Card>
           <CardContent className="p-4 space-y-3">
+            {/* Prompt suggestion */}
+            {!content && (
+              <div className="p-3 rounded-md bg-muted/30 border border-border/50 mb-2">
+                <div className="flex items-start gap-2">
+                  <Sparkles className="h-3.5 w-3.5 text-primary mt-0.5 flex-shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs text-foreground/80 italic">
+                      "{currentPrompt}"
+                    </p>
+                    <div className="flex items-center gap-2 mt-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={usePrompt}
+                        className="h-6 text-[10px] px-2 gap-1"
+                      >
+                        Usar
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={shufflePrompt}
+                        className="h-6 text-[10px] px-2 gap-1 text-muted-foreground"
+                      >
+                        <RefreshCw className="h-2.5 w-2.5" />
+                        Outro
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
             <textarea
+              ref={textareaRef}
               value={content}
               onChange={(e) => setContent(e.target.value)}
               placeholder="Decisões, ideias, bloqueios..."
