@@ -10,7 +10,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
-import { Diamond, Scale } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { Diamond, Scale, HelpCircle } from "lucide-react";
 
 interface QuickAddMilestoneModalProps {
   open: boolean;
@@ -74,6 +75,22 @@ export function QuickAddMilestoneModal({
               <Label className="flex items-center gap-2">
                 <Scale className="h-4 w-4 text-muted-foreground" />
                 Peso da Milestone
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <HelpCircle className="h-4 w-4 text-muted-foreground/60 cursor-help" />
+                  </TooltipTrigger>
+                  <TooltipContent side="top" className="max-w-[280px]">
+                    <p className="text-sm font-medium">
+                      O peso define a importância no progresso.
+                    </p>
+                    <p className="text-xs mt-1 text-muted-foreground">
+                      Fórmula: (Soma dos pesos concluídos ÷ Soma total dos pesos) × 100%
+                    </p>
+                    <p className="text-xs mt-1">
+                      Ex: Milestone peso 3x concluída = +3 pontos. Task normal = +1 ponto.
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
               </Label>
               <span className="text-lg font-bold text-primary">{weight}x</span>
             </div>
@@ -86,7 +103,8 @@ export function QuickAddMilestoneModal({
               className="w-full"
             />
             <p className="text-xs text-muted-foreground">
-              Peso define a importância. {weight === 1 && "Igual a uma task normal."}
+              {weight === 1 && "Igual a uma task normal."}
+              {weight === 2 && "Levemente mais importante."}
               {weight === 3 && "Padrão: avança o progresso 3x mais rápido."}
               {weight > 3 && weight < 7 && "Milestone importante!"}
               {weight >= 7 && "Marco crucial do projeto!"}

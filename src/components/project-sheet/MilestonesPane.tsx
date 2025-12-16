@@ -6,13 +6,15 @@ import {
   Diamond,
   Calendar,
   Sparkles,
-  Scale
+  Scale,
+  HelpCircle
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { ItemContextMenu, DeleteConfirmDialog } from "@/components/shared";
 import { cn } from "@/lib/utils";
 import { toast } from "@/hooks/use-toast";
@@ -132,6 +134,20 @@ export function MilestonesPane({
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Scale className="h-4 w-4" />
                   <span>Peso:</span>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <HelpCircle className="h-3.5 w-3.5 text-muted-foreground/60 cursor-help" />
+                    </TooltipTrigger>
+                    <TooltipContent side="top" className="max-w-[260px]">
+                      <p className="text-sm font-medium">Impacto no progresso</p>
+                      <p className="text-xs mt-1 text-muted-foreground">
+                        Peso concluídos ÷ Peso total × 100%
+                      </p>
+                      <p className="text-xs mt-1">
+                        Peso 3x = avança 3x mais que uma task normal.
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
                 </div>
                 <Slider
                   value={[newWeight]}
@@ -223,12 +239,21 @@ export function MilestonesPane({
                             {milestone.title}
                           </p>
                           <div className="flex items-center gap-3 mt-1">
-                            <Badge 
-                              variant={milestone.completed ? "default" : "secondary"} 
-                              className="text-xs py-0"
-                            >
-                              Peso: {milestone.weight}x
-                            </Badge>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Badge 
+                                  variant={milestone.completed ? "default" : "secondary"} 
+                                  className="text-xs py-0 cursor-help"
+                                >
+                                  Peso: {milestone.weight}x
+                                </Badge>
+                              </TooltipTrigger>
+                              <TooltipContent side="top" className="max-w-[220px]">
+                                <p className="text-xs">
+                                  Esta milestone vale <strong>{milestone.weight} pontos</strong> no cálculo de progresso.
+                                </p>
+                              </TooltipContent>
+                            </Tooltip>
                             {milestone.due_date && (
                               <span className="text-xs text-muted-foreground flex items-center gap-1">
                                 <Calendar className="h-3 w-3" />
