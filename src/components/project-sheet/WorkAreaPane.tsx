@@ -383,6 +383,23 @@ function SortableHabitItem({
     }
   };
 
+  const handleRitualSlotChange = async (slot: RitualSlot | null) => {
+    try {
+      await updateItem({ id: item.id, ritual_slot: slot });
+      const slotNames: Record<string, string> = {
+        manha: "Manhã",
+        meio_dia: "Meio-dia",
+        noite: "Noite"
+      };
+      toast({ 
+        title: slot ? `Período: ${slotNames[slot]}` : "Período removido",
+        description: `"${item.title}" atualizado.`
+      });
+    } catch {
+      toast({ title: "Erro ao atualizar período", variant: "destructive" });
+    }
+  };
+
   const RitualIcon = item.ritual_slot ? RITUAL_ICONS[item.ritual_slot] : null;
 
   return (
@@ -432,7 +449,13 @@ function SortableHabitItem({
         )}
 
         {/* Context menu */}
-        <ItemContextMenu onEdit={handleEdit} onDelete={handleDelete} />
+        <ItemContextMenu 
+          onEdit={handleEdit} 
+          onDelete={handleDelete}
+          isHabit
+          onRitualSlotChange={handleRitualSlotChange}
+          currentRitualSlot={item.ritual_slot}
+        />
       </div>
 
       <EditItemModal
