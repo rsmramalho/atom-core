@@ -7,6 +7,48 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [4.0.0-alpha.13] - 2025-12-16
+
+### Adicionado
+
+#### WorkArea Drag & Drop Avançado
+- **Conversão de Tipo via Drag:** Arrastar task para seção Hábitos converte para habit (e vice-versa)
+- **Modal de Confirmação:** Dialog antes de converter com opção de cancelar
+- **Seletor de Ritual Slot:** Ao converter para hábito, permite selecionar período (Manhã, Meio-dia, Noite)
+- **Animação de Sucesso:** Pulse animation + ring colorido no item recém-convertido (1.5s)
+- **Feedback Háptico:** Vibração em mobile ao arrastar e soltar
+
+#### Context Menu Avançado para Hábitos
+- **Submenu "Período do Ritual":** Opções Manhã, Meio-dia, Noite
+- **Highlight do Período Ativo:** Visual colorido no item selecionado
+- **Opção "Remover Período":** Permite desvincular hábito do ritual
+
+#### Visual Badges de Ritual Slot
+- **Badge Colorido por Período:**
+  - Manhã: Amber/laranja com ícone Sunrise
+  - Meio-dia: Amarelo com ícone Sun
+  - Noite: Roxo com ícone Sunset
+- **Responsivo:** Nome do período visível em telas maiores (sm:inline)
+
+#### Project Status Visual Treatment
+- **Cards de Projeto (ProjectCard.tsx):**
+  - Pausado: opacity-60, borda amber, badge "Pausado"
+  - Concluído: borda azul, badge "Concluído", ícone azul
+  - Arquivado: opacity-50, borda slate, badge "Arquivado"
+- **Project Detail:** Container com opacity reduzida para pausados
+- **Toast de Conclusão Aprimorado:**
+  - Sugestão de criar reflexão de encerramento
+  - Botão de ação direta "Criar Reflexão"
+  - Navega para aba Journal do projeto
+
+### Modificado
+- **`ItemContextMenu.tsx`:** Suporte a isHabit, onRitualSlotChange, currentRitualSlot
+- **`WorkAreaPane.tsx`:** DndContext unificado para tasks e hábitos
+- **`ProjectCard.tsx`:** STATUS_BADGE_CONFIG com visual por status
+- **`ProjectDetail.tsx`:** isProjectPaused + toast com ação
+
+---
+
 ## [4.0.0-alpha.12] - 2025-12-16
 
 ### Adicionado

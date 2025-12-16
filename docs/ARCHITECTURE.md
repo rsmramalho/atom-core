@@ -2,9 +2,9 @@
 
 ## Arquitetura do Sistema
 
-**Versão:** 4.0.0-alpha.8  
-**Data:** 2025-12-15  
-**Status:** Core Engine + Inbox + MacroPicker + Dashboard + Ritual + Project Sheet + Reflection Engine
+**Versão:** 4.0.0-alpha.13  
+**Data:** 2025-12-16  
+**Status:** Core Engine + Inbox + MacroPicker + Dashboard + Ritual + Project Sheet + Reflection Engine + Project Intelligence
 
 ---
 
@@ -83,9 +83,9 @@ src/
 
 ## 🗄️ Modelo de Dados
 
-### Tabela: `items`
+### Tabela: `items` (Single Table Design)
 
-Single Table Design para todos os tipos de itens (Doc B.3, B.9).
+Todos os tipos de itens em uma única tabela (Doc B.3, B.9).
 
 | Coluna | Tipo | Descrição |
 |--------|------|-----------|
@@ -93,42 +93,48 @@ Single Table Design para todos os tipos de itens (Doc B.3, B.9).
 | `user_id` | uuid | FK para auth.users |
 | `title` | text | Título do item |
 | `type` | item_type | Tipo: project, task, habit, note, **reflection**, resource, list |
-| `module` | text | Módulo (work, body, mind, etc) |
-| `tags` | text[] | Array de tags |
+| `module` | text | Módulo (work, body, mind, family, geral) |
+| `tags` | text[] | Array de tags (inclui #milestone para milestones) |
 | `parent_id` | uuid | FK para item pai |
 | `project_id` | uuid | FK para projeto container |
 | `due_date` | date | Data de vencimento |
 | `ritual_slot` | ritual_slot | Slot de ritual (manha, meio_dia, noite) |
 | `completed` | boolean | Estado de conclusão |
 | `notes` | text | Conteúdo/notas |
+| `weight` | integer | Peso para progresso (default: 1, milestones: 3) |
+| `order_index` | integer | Índice para ordenação drag & drop |
+| `project_status` | project_status | Status do projeto (apenas type='project') |
+| `progress_mode` | progress_mode | Modo de cálculo de progresso |
+| `progress` | integer | Progresso manual (0-100) |
+| `deadline` | date | Deadline do projeto |
 | `created_at` | timestamptz | Timestamp de criação |
 | `updated_at` | timestamptz | Timestamp de atualização |
 
-### Tabela: `project_milestones`
+### Milestones (Single Table Design)
 
-Milestones como entidades independentes (Doc B.9/B.13).
+Milestones são items com `type='task'` e tag `#milestone`. Não há tabela separada.
 
-| Coluna | Tipo | Descrição |
-|--------|------|-----------|
-| `id` | uuid | Chave primária |
-| `project_id` | uuid | FK para items (projeto) |
-| `user_id` | uuid | FK para auth.users |
-| `title` | text | Título da milestone |
-| `completed` | boolean | Estado de conclusão |
-| `weight` | integer | Peso no progresso (default: 3) |
-| `due_date` | date | Data de entrega |
+```typescript
+// Exemplo de milestone
+{
+  type: "task",
+  tags: ["#milestone", "#work"],
+  weight: 3, // Peso maior que tasks normais
+  project_id: "uuid-do-projeto"
+}
+```
 
 ### Enums
 
 ```sql
 CREATE TYPE item_type AS ENUM (
   'project', 'task', 'habit', 'note', 
-  'reflection', 'resource', 'list'  -- reflection é o tipo para Journal
+  'reflection', 'resource', 'list'
 );
 
 CREATE TYPE ritual_slot AS ENUM ('manha', 'meio_dia', 'noite');
 CREATE TYPE project_status AS ENUM ('draft', 'active', 'paused', 'completed', 'archived');
-CREATE TYPE progress_mode AS ENUM ('auto', 'manual');
+CREATE TYPE progress_mode AS ENUM ('auto', 'milestone', 'manual');
 ```
 
 ---
@@ -199,18 +205,41 @@ Experiência imersiva para hábitos diários com check-in integrado.
 
 ---
 
-### 6. Project Engine (B.9/B.13)
+### 6. Project Engine (B.9/B.13) - Project Intelligence
 
 **Arquivos:** `src/hooks/useProjectProgress.ts`, `src/pages/ProjectDetail.tsx`
 
-Gestão de projetos com milestones e agora também **Journal integrado**.
+Gestão de projetos com State Machine, Progress Engine Híbrido e Journal integrado.
+
+#### State Machine (Ciclo de Vida)
+
+| Status | Descrição | Transições Válidas |
+|--------|-----------|-------------------|
+| `draft` | Rascunho inicial | → active, archived |
+| `active` | Em andamento | → paused, completed, archived |
+| `paused` | Suspenso (excluído de métricas) | → active, archived |
+| `completed` | Finalizado (bloqueado) | → archived, active |
+| `archived` | Histórico | → active |
+
+**Regras Visuais:**
+- Pausado: opacity-60, borda amber
+- Concluído: confetti + toast com sugestão de reflexão
+- Arquivado: opacity-50, borda slate
+
+#### Progress Engine Híbrido
+
+| Modo | Fórmula | Uso |
+|------|---------|-----|
+| `auto` | (Tasks + Milestones concluídos) / Total * 100 | Default |
+| `milestone` | Apenas milestones (ignora tasks) | Projetos orientados a entregas |
+| `manual` | Valor definido pelo usuário (0-100) | Controle total |
 
 #### Abas da Project Sheet
 
-1. **Trabalho** - Tasks e Hábitos
+1. **Trabalho** - Tasks e Hábitos (com drag & drop para conversão de tipo)
 2. **Jornada** - Timeline de Milestones
 3. **Notas** - Notes e Resources
-4. **Journal** - Reflexões do projeto ⭐ NOVO
+4. **Journal** - Reflexões do projeto
 
 ---
 
@@ -277,9 +306,9 @@ Sistema de journaling e reflexões.
 
 ## 📋 Roadmap
 
-### ✅ Implementado (v4.0.0-alpha.8)
+### ✅ Implementado (v4.0.0-alpha.13)
 
-- [x] Modelo de dados (items + project_milestones)
+- [x] Modelo de dados (Single Table Design)
 - [x] Tipos TypeScript completos
 - [x] Parsing Engine (B.7)
 - [x] Inbox Engine (B.6)
@@ -287,14 +316,20 @@ Sistema de journaling e reflexões.
 - [x] Dashboard Engine (B.10)
 - [x] Ritual View (B.19) com Check-in
 - [x] Project Sheet (A.13) com aba Journal
-- [x] **Reflection Engine (B.11)** ⭐
+- [x] Reflection Engine (B.11)
+- [x] **Project Intelligence (B.9)** - State Machine + Progress Híbrido
+- [x] **WorkArea Drag & Drop** - Conversão de tipo task↔hábito
+- [x] **Ritual Slot via Context Menu** - Edição rápida de período
+- [x] **Visual Badges** - Status de projeto e ritual slot
 - [x] Sistema de navegação + Command Palette
 - [x] Debug Console (God Mode)
 - [x] Autenticação + RLS
 
 ### 🔲 Próximas Etapas
 
-- [ ] CRUD completo para reflexões (editar/excluir)
+- [ ] Gráfico de evolução de progresso
+- [ ] Alertas de deadline para milestones
+- [ ] Dashboard de métricas globais
 - [ ] Exportação do Journal em Markdown
 - [ ] Recorrência de hábitos (RRULE)
 - [ ] Notificações e lembretes
