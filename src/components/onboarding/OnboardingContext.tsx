@@ -8,6 +8,10 @@ interface OnboardingStep {
   route?: string;
 }
 
+interface ChecklistProgress {
+  [key: string]: boolean;
+}
+
 interface OnboardingContextType {
   hasCompletedWelcome: boolean;
   hasCompletedTour: boolean;
@@ -15,6 +19,8 @@ interface OnboardingContextType {
   tourSteps: OnboardingStep[];
   showWelcome: boolean;
   showTour: boolean;
+  showChecklist: boolean;
+  checklistProgress: ChecklistProgress;
   setShowWelcome: (show: boolean) => void;
   completeWelcome: () => void;
   startTour: () => void;
@@ -23,6 +29,8 @@ interface OnboardingContextType {
   skipTour: () => void;
   completeTour: () => void;
   resetOnboarding: () => void;
+  markChecklistItem: (itemId: string) => void;
+  dismissChecklist: () => void;
 }
 
 const tourSteps: OnboardingStep[] = [
@@ -67,6 +75,8 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
   const [hasCompletedTour, setHasCompletedTour] = useState(true);
   const [showWelcome, setShowWelcome] = useState(false);
   const [showTour, setShowTour] = useState(false);
+  const [showChecklist, setShowChecklist] = useState(false);
+  const [checklistProgress, setChecklistProgress] = useState<ChecklistProgress>({});
   const [currentTourStep, setCurrentTourStep] = useState(0);
 
   useEffect(() => {
@@ -75,6 +85,8 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
       const data = JSON.parse(stored);
       setHasCompletedWelcome(data.hasCompletedWelcome ?? false);
       setHasCompletedTour(data.hasCompletedTour ?? false);
+      setShowChecklist(data.showChecklist ?? false);
+      setChecklistProgress(data.checklistProgress ?? {});
     } else {
       // First time user
       setHasCompletedWelcome(false);
@@ -83,17 +95,21 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const saveState = (welcome: boolean, tour: boolean) => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({
-      hasCompletedWelcome: welcome,
-      hasCompletedTour: tour,
-    }));
+  const saveState = (updates: Partial<{
+    hasCompletedWelcome: boolean;
+    hasCompletedTour: boolean;
+    showChecklist: boolean;
+    checklistProgress: ChecklistProgress;
+  }>) => {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    const current = stored ? JSON.parse(stored) : {};
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...current, ...updates }));
   };
 
   const completeWelcome = () => {
     setHasCompletedWelcome(true);
     setShowWelcome(false);
-    saveState(true, hasCompletedTour);
+    saveState({ hasCompletedWelcome: true });
   };
 
   const startTour = () => {
@@ -119,13 +135,26 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
   const skipTour = () => {
     setShowTour(false);
     setHasCompletedTour(true);
-    saveState(hasCompletedWelcome, true);
+    setShowChecklist(true);
+    saveState({ hasCompletedTour: true, showChecklist: true });
   };
 
   const completeTour = () => {
     setShowTour(false);
     setHasCompletedTour(true);
-    saveState(hasCompletedWelcome, true);
+    setShowChecklist(true);
+    saveState({ hasCompletedTour: true, showChecklist: true });
+  };
+
+  const markChecklistItem = (itemId: string) => {
+    const updated = { ...checklistProgress, [itemId]: true };
+    setChecklistProgress(updated);
+    saveState({ checklistProgress: updated });
+  };
+
+  const dismissChecklist = () => {
+    setShowChecklist(false);
+    saveState({ showChecklist: false });
   };
 
   const resetOnboarding = () => {
@@ -134,6 +163,8 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
     setHasCompletedTour(false);
     setShowWelcome(true);
     setShowTour(false);
+    setShowChecklist(false);
+    setChecklistProgress({});
     setCurrentTourStep(0);
   };
 
@@ -145,6 +176,8 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
       tourSteps,
       showWelcome,
       showTour,
+      showChecklist,
+      checklistProgress,
       setShowWelcome,
       completeWelcome,
       startTour,
@@ -153,6 +186,8 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
       skipTour,
       completeTour,
       resetOnboarding,
+      markChecklistItem,
+      dismissChecklist,
     }}>
       {children}
     </OnboardingContext.Provider>
