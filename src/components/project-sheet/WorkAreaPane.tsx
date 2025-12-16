@@ -15,6 +15,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ItemContextMenu, EditItemModal, DeleteConfirmDialog } from "@/components/shared";
+import { StreakBadge } from "@/components/shared/StreakBadge";
 import { useAtomItems } from "@/hooks/useAtomItems";
 import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
@@ -462,6 +463,11 @@ function SortableHabitItem({
               {item.ritual_slot === "noite" && "Noite"}
             </span>
           </Badge>
+        )}
+
+        {/* Streak badge */}
+        {item.completion_log && item.completion_log.length > 0 && (
+          <StreakBadge completionLog={item.completion_log} compact />
         )}
 
         {/* Context menu */}

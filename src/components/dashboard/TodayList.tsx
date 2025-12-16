@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { CalendarDays, AlertTriangle, CheckCircle2, Circle } from "lucide-react";
+import { CalendarDays, AlertTriangle, CheckCircle2, Circle, Repeat } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ItemContextMenu, EditItemModal, DeleteConfirmDialog } from "@/components/shared";
+import { StreakBadge } from "@/components/shared/StreakBadge";
 import { useAtomItems } from "@/hooks/useAtomItems";
 import { toast } from "@/hooks/use-toast";
 import type { AtomItem } from "@/types/atom-engine";
@@ -65,26 +66,34 @@ function TaskItem({ item, onToggle, isOverdue = false }: {
     }
   };
 
+  const isHabit = item.type === "habit";
+  const isRecurrent = !!item.recurrence_rule;
+
   return (
     <>
       <div
         className={`flex items-center gap-3 w-full p-3 rounded-lg transition-colors group ${
           isOverdue 
             ? "bg-destructive/10 hover:bg-destructive/20" 
+            : isHabit
+            ? "bg-green-500/5 hover:bg-green-500/10 border border-green-500/20"
             : "bg-muted/30 hover:bg-muted/50"
         }`}
       >
         <button onClick={() => onToggle(item.id)} className="flex-shrink-0">
           {item.completed ? (
-            <CheckCircle2 className="h-5 w-5 text-primary" />
+            <CheckCircle2 className={`h-5 w-5 ${isHabit ? "text-green-500" : "text-primary"}`} />
           ) : (
-            <Circle className={`h-5 w-5 ${isOverdue ? "text-destructive" : "text-muted-foreground"} hover:text-primary transition-colors`} />
+            <Circle className={`h-5 w-5 ${isOverdue ? "text-destructive" : isHabit ? "text-green-500/60" : "text-muted-foreground"} hover:text-primary transition-colors`} />
           )}
         </button>
         <div className="flex-1 min-w-0">
-          <p className={`truncate ${item.completed ? "line-through text-muted-foreground" : ""}`}>
-            {item.title}
-          </p>
+          <div className="flex items-center gap-2">
+            {isHabit && <Repeat className="h-3.5 w-3.5 text-green-500 shrink-0" />}
+            <p className={`truncate ${item.completed ? "line-through text-muted-foreground" : ""}`}>
+              {item.title}
+            </p>
+          </div>
           <div className="flex items-center gap-2 mt-0.5">
             {item.due_date && (
               <span className={`text-xs ${isOverdue ? "text-destructive" : "text-muted-foreground"}`}>
@@ -98,6 +107,12 @@ function TaskItem({ item, onToggle, isOverdue = false }: {
             )}
           </div>
         </div>
+        
+        {/* Streak badge for habits */}
+        {isHabit && item.completion_log && item.completion_log.length > 0 && (
+          <StreakBadge completionLog={item.completion_log} compact />
+        )}
+        
         <ItemContextMenu
           onEdit={handleEdit}
           onDelete={handleDelete}
