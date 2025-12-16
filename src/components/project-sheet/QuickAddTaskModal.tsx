@@ -1,4 +1,4 @@
-// Project Sheet - Quick Add Modal for Tasks with Module Inheritance
+// Project Sheet - Quick Add Modal for Tasks with Module Inheritance + Tag Glossary
 import { useState, useEffect } from "react";
 import {
   Dialog,
@@ -17,6 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ListTodo, Briefcase, Heart, Brain, Users, LayoutGrid } from "lucide-react";
+import { TagGlossary } from "@/components/shared/TagGlossary";
 
 const MODULES = [
   { value: "work", label: "Work", icon: Briefcase, color: "text-blue-500" },
@@ -71,10 +72,13 @@ export function QuickAddTaskModal({
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <ListTodo className="h-5 w-5 text-blue-500" />
-            Nova Task
-          </DialogTitle>
+          <div className="flex items-center justify-between">
+            <DialogTitle className="flex items-center gap-2">
+              <ListTodo className="h-5 w-5 text-blue-500" />
+              Nova Task
+            </DialogTitle>
+            <TagGlossary />
+          </div>
         </DialogHeader>
         <div className="space-y-4">
           <p className="text-sm text-muted-foreground">
