@@ -1,5 +1,5 @@
-// Calendar Engine - Main Page (B.4) with Drag & Drop
-import { useState, useCallback } from "react";
+// Calendar Engine - Main Page (B.4) with Drag & Drop and Filters
+import { useState, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import {
@@ -13,14 +13,43 @@ import {
   DragEndEvent,
 } from "@dnd-kit/core";
 import { Loader2, Calendar as CalendarIcon } from "lucide-react";
-import { useCalendarItems } from "@/hooks/useCalendarItems";
+import { useCalendarItems, isMilestone } from "@/hooks/useCalendarItems";
 import { useAtomItems } from "@/hooks/useAtomItems";
 import { CalendarGrid } from "@/components/calendar/CalendarGrid";
+import { CalendarFilters, ItemTypeFilter, ModuleFilter } from "@/components/calendar/CalendarFilters";
 import { DayDetailSheet } from "@/components/calendar/DayDetailSheet";
 import { CalendarItem } from "@/components/calendar/CalendarItem";
 import { EditItemModal } from "@/components/shared/EditItemModal";
 import { toast } from "sonner";
 import type { AtomItem } from "@/types/atom-engine";
+
+// Filter items based on type and module
+function filterItems(
+  items: AtomItem[],
+  typeFilter: ItemTypeFilter,
+  moduleFilter: ModuleFilter
+): AtomItem[] {
+  return items.filter((item) => {
+    // Type filter
+    if (typeFilter !== "all") {
+      if (typeFilter === "milestone") {
+        if (!isMilestone(item)) return false;
+      } else if (typeFilter === "task") {
+        if (item.type !== "task" || isMilestone(item)) return false;
+      } else if (typeFilter === "habit") {
+        if (item.type !== "habit") return false;
+      }
+    }
+
+    // Module filter
+    if (moduleFilter !== "all") {
+      const itemModule = item.module?.toLowerCase() || "geral";
+      if (itemModule !== moduleFilter) return false;
+    }
+
+    return true;
+  });
+}
 
 export default function Calendar() {
   const navigate = useNavigate();
@@ -28,9 +57,30 @@ export default function Calendar() {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [editingItem, setEditingItem] = useState<AtomItem | null>(null);
   const [activeItem, setActiveItem] = useState<AtomItem | null>(null);
+  
+  // Filter state
+  const [typeFilter, setTypeFilter] = useState<ItemTypeFilter>("all");
+  const [moduleFilter, setModuleFilter] = useState<ModuleFilter>("all");
 
   const { itemsByDate, overdueItems, isLoading, refetch } = useCalendarItems(currentDate);
   const { updateItem } = useAtomItems();
+
+  // Apply filters to itemsByDate
+  const filteredItemsByDate = useMemo(() => {
+    const filtered: Record<string, AtomItem[]> = {};
+    for (const [date, items] of Object.entries(itemsByDate)) {
+      const filteredItems = filterItems(items, typeFilter, moduleFilter);
+      if (filteredItems.length > 0) {
+        filtered[date] = filteredItems;
+      }
+    }
+    return filtered;
+  }, [itemsByDate, typeFilter, moduleFilter]);
+
+  // Apply filters to overdue items
+  const filteredOverdueItems = useMemo(() => {
+    return filterItems(overdueItems, typeFilter, moduleFilter);
+  }, [overdueItems, typeFilter, moduleFilter]);
 
   // Configure sensors for drag
   const sensors = useSensors(
@@ -41,17 +91,16 @@ export default function Calendar() {
     })
   );
 
-  // Get items for selected date
+  // Get items for selected date (filtered)
   const selectedDateKey = selectedDate ? format(selectedDate, "yyyy-MM-dd") : "";
-  const selectedDateItems = selectedDateKey ? (itemsByDate[selectedDateKey] || []) : [];
+  const selectedDateItems = selectedDateKey ? (filteredItemsByDate[selectedDateKey] || []) : [];
 
-  // Find item by ID across all dates
+  // Find item by ID across all dates (unfiltered for drag)
   const findItemById = useCallback((id: string): AtomItem | null => {
     for (const items of Object.values(itemsByDate)) {
       const found = items.find((item) => item.id === id);
       if (found) return found;
     }
-    // Also check overdue items
     return overdueItems.find((item) => item.id === id) || null;
   }, [itemsByDate, overdueItems]);
 
@@ -112,7 +161,6 @@ export default function Calendar() {
     const newDateKey = over.id as string;
     const item = findItemById(itemId);
 
-    // Only reschedule if dropping on a different date
     if (item && item.due_date !== newDateKey) {
       try {
         await updateItem({
@@ -144,7 +192,7 @@ export default function Calendar() {
     >
       <div className="p-4 md:p-8 max-w-6xl mx-auto">
         {/* Header */}
-        <header className="mb-6">
+        <header className="mb-4">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-primary/10 rounded-lg">
               <CalendarIcon className="h-6 w-6 text-primary" />
@@ -158,11 +206,19 @@ export default function Calendar() {
           </div>
         </header>
 
+        {/* Filters */}
+        <CalendarFilters
+          typeFilter={typeFilter}
+          moduleFilter={moduleFilter}
+          onTypeChange={setTypeFilter}
+          onModuleChange={setModuleFilter}
+        />
+
         {/* Calendar Grid */}
         <CalendarGrid
           currentDate={currentDate}
           onDateChange={setCurrentDate}
-          itemsByDate={itemsByDate}
+          itemsByDate={filteredItemsByDate}
           selectedDate={selectedDate}
           onSelectDate={setSelectedDate}
         />
@@ -171,7 +227,7 @@ export default function Calendar() {
         <DayDetailSheet
           date={selectedDate}
           items={selectedDateItems}
-          overdueItems={overdueItems}
+          overdueItems={filteredOverdueItems}
           onClose={() => setSelectedDate(null)}
           onToggle={handleToggle}
           onClick={handleItemClick}
