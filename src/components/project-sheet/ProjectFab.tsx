@@ -1,15 +1,16 @@
 // Project Sheet - FAB (Floating Action Button) for quick item creation
 import { useState } from "react";
-import { Plus, ListTodo, Diamond, X } from "lucide-react";
+import { Plus, ListTodo, Diamond, X, ListChecks } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 interface ProjectFabProps {
   onCreateTask: () => void;
   onCreateMilestone: () => void;
+  onCreateList?: () => void;
 }
 
-export function ProjectFab({ onCreateTask, onCreateMilestone }: ProjectFabProps) {
+export function ProjectFab({ onCreateTask, onCreateMilestone, onCreateList }: ProjectFabProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -30,6 +31,19 @@ export function ProjectFab({ onCreateTask, onCreateMilestone }: ProjectFabProps)
           <ListTodo className="h-4 w-4" />
           Nova Task
         </Button>
+        {onCreateList && (
+          <Button
+            onClick={() => {
+              onCreateList();
+              setIsOpen(false);
+            }}
+            className="gap-2 shadow-lg"
+            variant="secondary"
+          >
+            <ListChecks className="h-4 w-4" />
+            Nova Lista
+          </Button>
+        )}
         <Button
           onClick={() => {
             onCreateMilestone();
