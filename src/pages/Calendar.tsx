@@ -13,9 +13,10 @@ import {
   DragEndEvent,
 } from "@dnd-kit/core";
 import { Loader2, Calendar as CalendarIcon, ChevronLeft, ChevronRight } from "lucide-react";
-import { useCalendarItems, isMilestone } from "@/hooks/useCalendarItems";
+import { useCalendarItems, isMilestone, type CalendarItemWithInstance } from "@/hooks/useCalendarItems";
 import { useSwipe } from "@/hooks/useSwipe";
 import { useAtomItems } from "@/hooks/useAtomItems";
+import { useRecurrence } from "@/hooks/useRecurrence";
 import { CalendarGrid } from "@/components/calendar/CalendarGrid";
 import { WeekGrid } from "@/components/calendar/WeekGrid";
 import { CalendarFilters, ItemTypeFilter, ModuleFilter, FilterCounts } from "@/components/calendar/CalendarFilters";
@@ -29,10 +30,10 @@ import type { AtomItem } from "@/types/atom-engine";
 
 // Filter items based on type and module
 function filterItems(
-  items: AtomItem[],
+  items: CalendarItemWithInstance[],
   typeFilter: ItemTypeFilter,
   moduleFilter: ModuleFilter
-): AtomItem[] {
+): CalendarItemWithInstance[] {
   return items.filter((item) => {
     // Type filter
     if (typeFilter !== "all") {
@@ -157,11 +158,12 @@ export default function Calendar() {
   }, []);
 
   const { itemsByDate, overdueItems, isLoading, refetch } = useCalendarItems(currentDate);
-  const { updateItem } = useAtomItems();
+  const { updateItem, items: allAtomItems } = useAtomItems();
+  const { toggleInstanceCompletion } = useRecurrence({ items: allAtomItems });
 
   // Get all items flat for counting
   const allItems = useMemo(() => {
-    const items: AtomItem[] = [];
+    const items: CalendarItemWithInstance[] = [];
     for (const dateItems of Object.values(itemsByDate)) {
       items.push(...dateItems);
     }
@@ -201,7 +203,7 @@ export default function Calendar() {
 
   // Apply filters to itemsByDate
   const filteredItemsByDate = useMemo(() => {
-    const filtered: Record<string, AtomItem[]> = {};
+    const filtered: Record<string, CalendarItemWithInstance[]> = {};
     for (const [date, items] of Object.entries(itemsByDate)) {
       const filteredItems = filterItems(items, typeFilter, moduleFilter);
       if (filteredItems.length > 0) {
@@ -230,7 +232,7 @@ export default function Calendar() {
   const selectedDateItems = selectedDateKey ? (filteredItemsByDate[selectedDateKey] || []) : [];
 
   // Find item by ID across all dates (unfiltered for drag)
-  const findItemById = useCallback((id: string): AtomItem | null => {
+  const findItemById = useCallback((id: string): CalendarItemWithInstance | null => {
     for (const items of Object.values(itemsByDate)) {
       const found = items.find((item) => item.id === id);
       if (found) return found;
@@ -238,9 +240,19 @@ export default function Calendar() {
     return overdueItems.find((item) => item.id === id) || null;
   }, [itemsByDate, overdueItems]);
 
-  // Toggle item completion
-  const handleToggle = useCallback(async (item: AtomItem) => {
+  // Toggle item completion (handles both regular items and recurrence instances)
+  const handleToggle = useCallback(async (item: CalendarItemWithInstance, instanceDate?: string) => {
     try {
+      // If it's a virtual instance, toggle completion in the log
+      if (item.isVirtualInstance && item.parentItemId && instanceDate) {
+        const success = await toggleInstanceCompletion(item.parentItemId, instanceDate);
+        if (success) {
+          refetch();
+        }
+        return;
+      }
+
+      // Regular item toggle
       await updateItem({
         id: item.id,
         completed: !item.completed,
@@ -251,16 +263,23 @@ export default function Calendar() {
     } catch (error) {
       toast.error("Erro ao atualizar item");
     }
-  }, [updateItem, refetch]);
+  }, [updateItem, toggleInstanceCompletion, refetch]);
 
-  // Click on item to edit
-  const handleItemClick = useCallback((item: AtomItem) => {
-    if (item.project_id) {
+  // Click on item to edit (navigate for project items, or open edit for regular items)
+  const handleItemClick = useCallback((item: CalendarItemWithInstance) => {
+    // For virtual instances, navigate to parent project if exists
+    if (item.isVirtualInstance && item.project_id) {
+      navigate(`/projects/${item.project_id}`);
+    } else if (item.project_id) {
       navigate(`/projects/${item.project_id}`);
     } else {
-      setEditingItem(item);
+      // Open edit modal - but for virtual instances, edit the parent item
+      const itemToEdit = item.isVirtualInstance && item.parentItemId 
+        ? allAtomItems.find(i => i.id === item.parentItemId) || item
+        : item;
+      setEditingItem(itemToEdit);
     }
-  }, [navigate]);
+  }, [navigate, allAtomItems]);
 
   // Save edited item
   const handleSaveItem = useCallback(async (updates: Partial<AtomItem>) => {

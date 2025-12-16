@@ -17,17 +17,16 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { CalendarItem } from "./CalendarItem";
 import { cn } from "@/lib/utils";
-import type { AtomItem } from "@/types/atom-engine";
-import { isMilestone } from "@/hooks/useCalendarItems";
+import { isMilestone, type CalendarItemWithInstance } from "@/hooks/useCalendarItems";
 
 interface WeekGridProps {
   currentDate: Date;
   onDateChange: (date: Date) => void;
-  itemsByDate: Record<string, AtomItem[]>;
+  itemsByDate: Record<string, CalendarItemWithInstance[]>;
   selectedDate: Date | null;
   onSelectDate: (date: Date) => void;
-  onToggle: (item: AtomItem) => void;
-  onClick: (item: AtomItem) => void;
+  onToggle: (item: CalendarItemWithInstance, instanceDate?: string) => void;
+  onClick: (item: CalendarItemWithInstance) => void;
 }
 
 // Droppable day column component
@@ -40,11 +39,11 @@ function DroppableDayColumn({
   onClick,
 }: {
   date: Date;
-  items: AtomItem[];
+  items: CalendarItemWithInstance[];
   isSelected: boolean;
   onSelectDate: (date: Date) => void;
-  onToggle: (item: AtomItem) => void;
-  onClick: (item: AtomItem) => void;
+  onToggle: (item: CalendarItemWithInstance, instanceDate?: string) => void;
+  onClick: (item: CalendarItemWithInstance) => void;
 }) {
   const dateKey = format(date, "yyyy-MM-dd");
   const today = isToday(date);
