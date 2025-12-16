@@ -2,6 +2,8 @@
 
 <div align="center">
 
+[![Tests](https://github.com/YOUR_USERNAME/YOUR_REPO/actions/workflows/test.yml/badge.svg)](https://github.com/YOUR_USERNAME/YOUR_REPO/actions/workflows/test.yml)
+
 ![Version](https://img.shields.io/badge/version-4.0.0--alpha.8-blue?style=for-the-badge)
 ![Status](https://img.shields.io/badge/status-alpha-orange?style=for-the-badge)
 ![License](https://img.shields.io/badge/license-MIT-green?style=for-the-badge)
