@@ -12,7 +12,7 @@ import {
   DragStartEvent,
   DragEndEvent,
 } from "@dnd-kit/core";
-import { Loader2, Calendar as CalendarIcon } from "lucide-react";
+import { Loader2, Calendar as CalendarIcon, ChevronLeft, ChevronRight } from "lucide-react";
 import { useCalendarItems, isMilestone } from "@/hooks/useCalendarItems";
 import { useSwipe } from "@/hooks/useSwipe";
 import { useAtomItems } from "@/hooks/useAtomItems";
@@ -116,7 +116,7 @@ export default function Calendar() {
   }, [handleViewChange, viewMode]);
 
   // Swipe handlers for mobile navigation
-  const swipeHandlers = useSwipe({
+  const { handlers: swipeHandlers, swipeState } = useSwipe({
     onSwipeLeft: () => {
       setCurrentDate(prev => viewMode === "month" ? addMonths(prev, 1) : addWeeks(prev, 1));
     },
@@ -334,8 +334,20 @@ export default function Calendar() {
         {/* Calendar View with Swipe Support */}
         <div
           {...swipeHandlers}
-          className="touch-pan-y"
+          className="touch-pan-y relative"
         >
+          {/* Swipe feedback indicators */}
+          {swipeState.isSwiping && swipeState.direction === "left" && (
+            <div className="absolute inset-y-0 right-0 w-16 flex items-center justify-center bg-gradient-to-l from-primary/20 to-transparent z-10 pointer-events-none animate-fade-in">
+              <ChevronRight className="h-8 w-8 text-primary animate-pulse" />
+            </div>
+          )}
+          {swipeState.isSwiping && swipeState.direction === "right" && (
+            <div className="absolute inset-y-0 left-0 w-16 flex items-center justify-center bg-gradient-to-r from-primary/20 to-transparent z-10 pointer-events-none animate-fade-in">
+              <ChevronLeft className="h-8 w-8 text-primary animate-pulse" />
+            </div>
+          )}
+          
           {viewMode === "month" ? (
             <CalendarGrid
               currentDate={currentDate}
