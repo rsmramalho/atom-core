@@ -4,7 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AppLayout } from "@/components/layout/AppLayout";
-import { OnboardingProvider, WelcomeModal, TourOverlay } from "@/components/onboarding";
+import { OnboardingProvider, WelcomeModal, TourOverlay, FirstStepsChecklist } from "@/components/onboarding";
 import Index from "./pages/Index";
 import Inbox from "./pages/Inbox";
 import Projects from "./pages/Projects";
@@ -30,6 +30,7 @@ const App = () => (
         <BrowserRouter>
           <WelcomeModal />
           <TourOverlay />
+          <FirstStepsChecklist />
           <Routes>
             {/* Immersive Ritual View - NO AppLayout */}
             <Route path="/ritual" element={<RitualView />} />
