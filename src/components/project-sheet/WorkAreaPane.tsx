@@ -1,4 +1,4 @@
-// Project Sheet - Work Area Pane (Tasks & Habits) with Tag Engine Lite (B.15) + Drag & Drop
+// Project Sheet - Work Area Pane (Tasks, Habits & Lists) with Tag Engine Lite (B.15) + Drag & Drop
 import { useState, forwardRef } from "react";
 import { 
   CheckCircle2, 
@@ -10,17 +10,19 @@ import {
   Sunset,
   Layers,
   GripVertical,
-  ArrowRightLeft
+  ArrowRightLeft,
+  ListChecks
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ItemContextMenu, EditItemModal, DeleteConfirmDialog } from "@/components/shared";
 import { StreakBadge } from "@/components/shared/StreakBadge";
 import { HabitHeatmap } from "@/components/shared/HabitHeatmap";
+import { ListCard } from "@/components/lists";
 import { useAtomItems } from "@/hooks/useAtomItems";
 import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
-import type { AtomItem, RitualSlot, ItemType } from "@/types/atom-engine";
+import type { AtomItem, RitualSlot, ItemType, ChecklistItem } from "@/types/atom-engine";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -505,7 +507,7 @@ function SortableHabitItem({
 }
 
 export function WorkAreaPane({ items, onToggle }: WorkAreaPaneProps) {
-  const { updateItem } = useAtomItems();
+  const { updateItem, deleteItem } = useAtomItems();
   const [activeId, setActiveId] = useState<string | null>(null);
   const [overSection, setOverSection] = useState<string | null>(null);
   const [pendingConversion, setPendingConversion] = useState<{
@@ -518,6 +520,7 @@ export function WorkAreaPane({ items, onToggle }: WorkAreaPaneProps) {
   // Filter out milestones (type='task' but with #milestone tag) - Single Table Design
   const tasks = items.filter(i => i.type === "task" && !i.tags.includes("#milestone"));
   const habits = items.filter(i => i.type === "habit");
+  const lists = items.filter(i => i.type === "list");
 
   // Sort by order_index
   const sortedTasks = [...tasks].sort((a, b) => 
@@ -833,6 +836,50 @@ export function WorkAreaPane({ items, onToggle }: WorkAreaPaneProps) {
           </CardContent>
         </Card>
       </div>
+
+      {/* Lists Section */}
+      {lists.length > 0 && (
+        <div className="mt-6">
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-base">
+                <ListChecks className="h-5 w-5 text-primary" />
+                Listas
+                <Badge variant="secondary" className="ml-auto">
+                  {lists.length} listas
+                </Badge>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {lists.map((list) => (
+                <ListCard
+                  key={list.id}
+                  list={list}
+                  compact
+                  onUpdate={async (id, checklist) => {
+                    try {
+                      await updateItem({ id, checklist });
+                    } catch {
+                      toast({ title: "Erro ao atualizar lista", variant: "destructive" });
+                    }
+                  }}
+                  onEdit={(listItem) => {
+                    toast({ title: "Clique na lista para editar itens" });
+                  }}
+                  onDelete={async (id) => {
+                    try {
+                      await deleteItem(id);
+                      toast({ title: "Lista excluída" });
+                    } catch {
+                      toast({ title: "Erro ao excluir lista", variant: "destructive" });
+                    }
+                  }}
+                />
+              ))}
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
       {/* Drag overlay for smooth animation */}
       <DragOverlay dropAnimation={{

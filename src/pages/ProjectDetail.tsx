@@ -30,10 +30,11 @@ import { EmptyProjectStart } from "@/components/empty-states";
 import { ProjectFab } from "@/components/project-sheet/ProjectFab";
 import { QuickAddTaskModal } from "@/components/project-sheet/QuickAddTaskModal";
 import { QuickAddMilestoneModal } from "@/components/project-sheet/QuickAddMilestoneModal";
+import { QuickAddListModal } from "@/components/lists";
 import { Confetti } from "@/components/shared/Confetti";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import type { ProjectStatus, ProgressMode } from "@/types/atom-engine";
+import type { ProjectStatus, ProgressMode, ChecklistItem } from "@/types/atom-engine";
 
 type ProjectTab = "work" | "milestones" | "notes" | "journal";
 
@@ -62,6 +63,7 @@ export default function ProjectDetail() {
   // Modal states
   const [taskModalOpen, setTaskModalOpen] = useState(false);
   const [milestoneModalOpen, setMilestoneModalOpen] = useState(false);
+  const [listModalOpen, setListModalOpen] = useState(false);
   const [settingsModalOpen, setSettingsModalOpen] = useState(false);
   
   // Celebration state
@@ -228,6 +230,42 @@ export default function ProjectDetail() {
     }
   };
 
+  const handleCreateList = async (title: string, checklist: ChecklistItem[]) => {
+    if (isProjectLocked) {
+      toast.error("Projeto concluído não permite novas listas");
+      return;
+    }
+    
+    const finalModule = project?.module ?? null;
+    try {
+      await createItem({
+        title,
+        type: "list",
+        project_id: id!,
+        module: finalModule,
+        tags: finalModule ? [`#${finalModule.toLowerCase()}`] : [],
+        parent_id: null,
+        due_date: null,
+        recurrence_rule: null,
+        ritual_slot: null,
+        completed: false,
+        completed_at: null,
+        notes: null,
+        checklist,
+        project_status: null,
+        progress_mode: null,
+        progress: null,
+        deadline: null,
+        weight: 1,
+        order_index: 0,
+      });
+      toast.success("Lista criada!");
+      setListModalOpen(false);
+    } catch (error) {
+      toast.error("Erro ao criar lista");
+    }
+  };
+
   return (
     <div className={cn(
       "p-4 md:p-8 max-w-4xl mx-auto space-y-6 pb-24 transition-opacity",
@@ -391,6 +429,7 @@ export default function ProjectDetail() {
         <ProjectFab
           onCreateTask={() => setTaskModalOpen(true)}
           onCreateMilestone={() => setMilestoneModalOpen(true)}
+          onCreateList={() => setListModalOpen(true)}
         />
       )}
 
@@ -408,6 +447,13 @@ export default function ProjectDetail() {
         onSubmit={handleCreateMilestone}
         projectTitle={project.title}
         defaultModule={project.module}
+      />
+      <QuickAddListModal
+        open={listModalOpen}
+        onOpenChange={setListModalOpen}
+        onSave={handleCreateList}
+        projectId={id}
+        projectModule={project?.module ?? undefined}
       />
       <ProjectSettingsModal
         open={settingsModalOpen}
