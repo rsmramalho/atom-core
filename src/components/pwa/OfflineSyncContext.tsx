@@ -10,7 +10,7 @@ interface OfflineSyncContextType {
     table: string,
     data: Record<string, unknown>
   ) => Promise<string | null>;
-  syncPendingOperations: () => Promise<void>;
+  syncPendingOperations: (isAutoSync?: boolean) => Promise<void>;
 }
 
 const OfflineSyncContext = createContext<OfflineSyncContextType | null>(null);
