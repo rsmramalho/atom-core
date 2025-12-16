@@ -23,7 +23,7 @@ import type { Milestone } from "@/hooks/useMilestones";
 interface MilestonesPaneProps {
   milestones: Milestone[];
   onToggle: (milestone: Milestone) => void;
-  onCreate: (title: string, weight: number) => void;
+  onCreate?: (title: string, weight: number) => void;
   onDelete: (id: string) => void;
   onUpdate?: (id: string, updates: Partial<Milestone>) => void;
   isCreating: boolean;
@@ -46,7 +46,7 @@ export function MilestonesPane({
   const [milestoneToDelete, setMilestoneToDelete] = useState<Milestone | null>(null);
 
   const handleAdd = () => {
-    if (!newTitle.trim()) return;
+    if (!newTitle.trim() || !onCreate) return;
     if (newWeight < 1) return;
     onCreate(newTitle.trim(), newWeight);
     setNewTitle("");
@@ -107,15 +107,17 @@ export function MilestonesPane({
                 {milestones.filter(m => m.completed).length}/{milestones.length}
               </Badge>
             </CardTitle>
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => setIsAdding(!isAdding)}
-              className="border-primary/30 hover:bg-primary/10"
-            >
-              <Plus className="h-4 w-4 mr-1" />
-              Milestone
-            </Button>
+            {onCreate && (
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => setIsAdding(!isAdding)}
+                className="border-primary/30 hover:bg-primary/10"
+              >
+                <Plus className="h-4 w-4 mr-1" />
+                Milestone
+              </Button>
+            )}
           </div>
         </CardHeader>
         <CardContent className="relative">

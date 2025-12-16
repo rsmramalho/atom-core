@@ -126,7 +126,7 @@ export type Database = {
         | "reflection"
         | "resource"
         | "list"
-      progress_mode: "auto" | "manual"
+      progress_mode: "auto" | "manual" | "milestone"
       project_status: "draft" | "active" | "paused" | "completed" | "archived"
       ritual_slot: "manha" | "meio_dia" | "noite"
     }
@@ -265,7 +265,7 @@ export const Constants = {
         "resource",
         "list",
       ],
-      progress_mode: ["auto", "manual"],
+      progress_mode: ["auto", "manual", "milestone"],
       project_status: ["draft", "active", "paused", "completed", "archived"],
       ritual_slot: ["manha", "meio_dia", "noite"],
     },

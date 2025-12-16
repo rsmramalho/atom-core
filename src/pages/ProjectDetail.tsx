@@ -1,5 +1,5 @@
-// Project Sheet (A.13) - Full project detail view with milestones
-import { useState } from "react";
+// Project Sheet (A.13/A.9/A.18) - Full project detail view with state machine and hybrid progress
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import { useMilestones } from "@/hooks/useMilestones";
@@ -9,12 +9,11 @@ import {
   ArrowLeft, 
   FolderKanban, 
   Loader2,
-  Pause,
-  Play,
   ListTodo,
   Flag,
   BookOpen,
-  Feather
+  Feather,
+  Settings2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -25,19 +24,30 @@ import { MilestonesPane } from "@/components/project-sheet/MilestonesPane";
 import { WorkAreaPane } from "@/components/project-sheet/WorkAreaPane";
 import { NotesPane } from "@/components/project-sheet/NotesPane";
 import { JournalPane } from "@/components/project-sheet/JournalPane";
+import { ProjectStatusDropdown } from "@/components/project-sheet/ProjectStatusDropdown";
+import { ProjectSettingsModal } from "@/components/project-sheet/ProjectSettingsModal";
 import { EmptyProjectStart } from "@/components/empty-states";
 import { ProjectFab } from "@/components/project-sheet/ProjectFab";
 import { QuickAddTaskModal } from "@/components/project-sheet/QuickAddTaskModal";
 import { QuickAddMilestoneModal } from "@/components/project-sheet/QuickAddMilestoneModal";
+import { Confetti } from "@/components/shared/Confetti";
 import { toast } from "sonner";
+import type { ProjectStatus, ProgressMode } from "@/types/atom-engine";
 
 type ProjectTab = "work" | "milestones" | "notes" | "journal";
+
+// Progress mode labels
+const PROGRESS_MODE_LABELS: Record<ProgressMode, string> = {
+  auto: "Auto",
+  milestone: "Milestones",
+  manual: "Manual",
+};
 
 export default function ProjectDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { projects, items, toggleComplete, isLoading } = useDashboardData();
-  const { createItem } = useAtomItems();
+  const { projects, items, toggleComplete, isLoading, refetch } = useDashboardData();
+  const { createItem, updateItem } = useAtomItems();
   const [activeTab, setActiveTab] = useState<ProjectTab>("work");
   const { 
     milestones, 
@@ -51,13 +61,71 @@ export default function ProjectDetail() {
   // Modal states
   const [taskModalOpen, setTaskModalOpen] = useState(false);
   const [milestoneModalOpen, setMilestoneModalOpen] = useState(false);
+  const [settingsModalOpen, setSettingsModalOpen] = useState(false);
+  
+  // Celebration state
+  const [showConfetti, setShowConfetti] = useState(false);
 
   // Get project and its items (including milestones which are items with #milestone tag)
   const project = projects.find(p => p.id === id);
   const projectItems = items.filter(item => item.project_id === id);
   
+  // Derive progress mode and manual progress from project
+  const progressMode: ProgressMode = project?.progress_mode || "auto";
+  const manualProgress = project?.progress || 0;
+  
   // Calculate progress (Single Table Design - milestones are items with #milestone tag)
-  const progressData = useProjectProgress(projectItems);
+  const progressData = useProjectProgress(projectItems, { mode: progressMode, manualProgress });
+
+  // Check if project is completed (locked)
+  const isProjectCompleted = project?.project_status === "completed";
+  const isProjectArchived = project?.project_status === "archived";
+  const isProjectLocked = isProjectCompleted || isProjectArchived;
+
+  // Handle status change
+  const handleStatusChange = async (newStatus: ProjectStatus) => {
+    if (!project) return;
+
+    try {
+      await updateItem({
+        id: project.id,
+        project_status: newStatus,
+      });
+
+      // Trigger confetti on completion
+      if (newStatus === "completed") {
+        setShowConfetti(true);
+        toast.success("🎉 Projeto concluído! Parabéns pela conquista!");
+      } else if (newStatus === "active") {
+        toast.success("Projeto reativado");
+      } else if (newStatus === "paused") {
+        toast.info("Projeto pausado");
+      } else if (newStatus === "archived") {
+        toast.info("Projeto arquivado");
+      }
+
+      refetch();
+    } catch (error) {
+      toast.error("Erro ao atualizar status");
+    }
+  };
+
+  // Handle settings save
+  const handleSettingsSave = async (newMode: ProgressMode, newManualProgress?: number) => {
+    if (!project) return;
+
+    try {
+      await updateItem({
+        id: project.id,
+        progress_mode: newMode,
+        progress: newMode === "manual" ? (newManualProgress ?? 0) : project.progress,
+      });
+      toast.success("Configurações salvas");
+      refetch();
+    } catch (error) {
+      toast.error("Erro ao salvar configurações");
+    }
+  };
 
   if (isLoading) {
     return (
@@ -79,6 +147,11 @@ export default function ProjectDetail() {
   }
 
   const handleCreateMilestone = async (title: string, weight: number = 3, module: string | null = null) => {
+    if (isProjectLocked) {
+      toast.error("Projeto concluído não permite novas milestones");
+      return;
+    }
+    
     try {
       await createMilestone({ 
         project_id: id!, 
@@ -110,6 +183,11 @@ export default function ProjectDetail() {
   };
 
   const handleCreateTask = async (title: string, module: string | null = null) => {
+    if (isProjectLocked) {
+      toast.error("Projeto concluído não permite novas tasks");
+      return;
+    }
+    
     const finalModule = module ?? project?.module ?? null;
     try {
       await createItem({
@@ -141,6 +219,9 @@ export default function ProjectDetail() {
 
   return (
     <div className="p-4 md:p-8 max-w-4xl mx-auto space-y-6 pb-24">
+      {/* Confetti celebration */}
+      <Confetti trigger={showConfetti} onComplete={() => setShowConfetti(false)} />
+
       {/* Header & Meta */}
       <header className="space-y-4">
         <Button 
@@ -164,28 +245,37 @@ export default function ProjectDetail() {
                     {project.module}
                   </Badge>
                 )}
-                <Badge 
-                  variant={project.project_status === "active" ? "default" : "outline"}
-                  className="gap-1"
-                >
-                  {project.project_status === "active" ? (
-                    <><Play className="h-3 w-3" /> Ativo</>
-                  ) : (
-                    <><Pause className="h-3 w-3" /> Pausado</>
-                  )}
-                </Badge>
+                <ProjectStatusDropdown
+                  status={project.project_status || "active"}
+                  onStatusChange={handleStatusChange}
+                />
               </div>
             </div>
           </div>
+          
+          {/* Settings button */}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setSettingsModalOpen(true)}
+            className="flex-shrink-0"
+          >
+            <Settings2 className="h-5 w-5" />
+          </Button>
         </div>
 
         {/* Progress Card */}
         <Card className="bg-gradient-to-r from-primary/10 to-transparent border-primary/20">
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-3">
-              <span className="text-sm font-medium text-muted-foreground">
-                Progresso Geral
-              </span>
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium text-muted-foreground">
+                  Progresso
+                </span>
+                <Badge variant="outline" className="text-xs">
+                  {PROGRESS_MODE_LABELS[progressMode]}
+                </Badge>
+              </div>
               <span className="text-3xl font-bold text-primary">
                 {progressData.progress}%
               </span>
@@ -200,19 +290,34 @@ export default function ProjectDetail() {
                 <strong className="text-foreground">{progressData.milestoneCompletedCount}</strong>
                 /{progressData.milestoneCount} milestones
               </span>
-              <span className="ml-auto">
-                Peso: {progressData.completedWeight}/{progressData.totalWeight}
-              </span>
+              {progressMode !== "manual" && (
+                <span className="ml-auto">
+                  Peso: {progressData.completedWeight}/{progressData.totalWeight}
+                </span>
+              )}
             </div>
           </CardContent>
         </Card>
       </header>
 
+      {/* Locked project notice */}
+      {isProjectLocked && (
+        <Card className="border-amber-500/50 bg-amber-500/10">
+          <CardContent className="p-4 text-center">
+            <p className="text-sm text-amber-600 dark:text-amber-400">
+              {isProjectCompleted 
+                ? "Este projeto foi concluído. Criação de novas tasks está desabilitada."
+                : "Este projeto foi arquivado."}
+            </p>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Empty state when no content */}
       {projectItems.length === 0 && milestones.length === 0 ? (
         <EmptyProjectStart 
-          onCreateMilestone={() => setMilestoneModalOpen(true)}
-          onCreateTask={() => setTaskModalOpen(true)}
+          onCreateMilestone={isProjectLocked ? undefined : () => setMilestoneModalOpen(true)}
+          onCreateTask={isProjectLocked ? undefined : () => setTaskModalOpen(true)}
         />
       ) : (
         <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as ProjectTab)} className="w-full">
@@ -246,7 +351,7 @@ export default function ProjectDetail() {
             <MilestonesPane
               milestones={milestones}
               onToggle={toggleMilestone}
-              onCreate={handleCreateMilestone}
+              onCreate={isProjectLocked ? undefined : handleCreateMilestone}
               onDelete={handleDeleteMilestone}
               onUpdate={handleUpdateMilestone}
               isCreating={isCreatingMilestone}
@@ -267,11 +372,13 @@ export default function ProjectDetail() {
         </Tabs>
       )}
 
-      {/* FAB */}
-      <ProjectFab
-        onCreateTask={() => setTaskModalOpen(true)}
-        onCreateMilestone={() => setMilestoneModalOpen(true)}
-      />
+      {/* FAB - Hidden when project is locked */}
+      {!isProjectLocked && (
+        <ProjectFab
+          onCreateTask={() => setTaskModalOpen(true)}
+          onCreateMilestone={() => setMilestoneModalOpen(true)}
+        />
+      )}
 
       {/* Modals */}
       <QuickAddTaskModal
@@ -287,6 +394,13 @@ export default function ProjectDetail() {
         onSubmit={handleCreateMilestone}
         projectTitle={project.title}
         defaultModule={project.module}
+      />
+      <ProjectSettingsModal
+        open={settingsModalOpen}
+        onOpenChange={setSettingsModalOpen}
+        progressMode={progressMode}
+        manualProgress={manualProgress}
+        onSave={handleSettingsSave}
       />
     </div>
   );
