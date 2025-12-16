@@ -7,6 +7,40 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [4.0.0-alpha.12] - 2025-12-16
+
+### Adicionado
+
+#### Project Intelligence (A.9/A.18)
+- **State Machine (Ciclo de Vida de Projetos):**
+  - Status: `draft`, `active`, `paused`, `completed`, `archived`
+  - `ProjectStatusDropdown` com ícones e confirmação para transições sensíveis
+  - Projetos `paused` excluídos de estatísticas globais de produtividade
+  - Transição para `completed` dispara animação de confetti
+  - Projetos `completed` ou `archived` bloqueiam criação de novas tasks/milestones
+
+- **Progress Engine Híbrido:**
+  - Modo `auto`: (Tasks + Milestones concluídos) / Total * 100
+  - Modo `milestone`: Apenas milestones contam (ignora tasks)
+  - Modo `manual`: Valor arbitrário definido pelo usuário (0-100)
+  - `ProjectSettingsModal` para configurar modo de progresso
+  - Enum `progress_mode` atualizado no banco de dados
+
+#### Componentes UI
+- `ProjectStatusDropdown.tsx` - Dropdown de status com transições válidas
+- `ProjectSettingsModal.tsx` - Modal de configurações de progresso
+
+### Modificado
+- **`useProjectProgress.ts`:** Refatorado para suportar 3 modos de cálculo
+- **`ProjectDetail.tsx`:** Integrado State Machine e Progress Engine
+- **`MilestonesPane.tsx`:** `onCreate` agora é opcional (bloqueado em projetos finalizados)
+- **`useAtomItems.ts`:** Type assertion para compatibilidade com `progress_mode`
+
+### Migração de Banco de Dados
+- Adicionado `'milestone'` ao enum `progress_mode`
+
+---
+
 ## [4.0.0-alpha.10] - 2025-12-16
 
 ### Adicionado
