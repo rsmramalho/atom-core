@@ -1,5 +1,6 @@
 import { Sunrise, Sun, Moon, CheckCircle2, Circle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { StreakBadge } from "@/components/shared/StreakBadge";
 import type { AtomItem, RitualSlot } from "@/types/atom-engine";
 
 interface RitualBannerProps {
@@ -43,20 +44,27 @@ export function RitualBanner({ items, currentSlot, onToggle }: RitualBannerProps
       <CardContent>
         <div className="space-y-2">
           {items.map((item) => (
-            <button
+            <div
               key={item.id}
-              onClick={() => onToggle(item.id)}
-              className="flex items-center gap-3 w-full p-2 rounded-lg hover:bg-background/50 transition-colors text-left"
+              className="flex items-center gap-3 w-full p-2 rounded-lg hover:bg-background/50 transition-colors"
             >
-              {item.completed ? (
-                <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0" />
-              ) : (
-                <Circle className="h-5 w-5 text-muted-foreground flex-shrink-0" />
-              )}
-              <span className={item.completed ? "line-through text-muted-foreground" : ""}>
+              <button
+                onClick={() => onToggle(item.id)}
+                className="flex-shrink-0"
+              >
+                {item.completed ? (
+                  <CheckCircle2 className="h-5 w-5 text-primary" />
+                ) : (
+                  <Circle className="h-5 w-5 text-muted-foreground hover:text-primary transition-colors" />
+                )}
+              </button>
+              <span className={`flex-1 text-left ${item.completed ? "line-through text-muted-foreground" : ""}`}>
                 {item.title}
               </span>
-            </button>
+              {item.completion_log && item.completion_log.length > 0 && (
+                <StreakBadge completionLog={item.completion_log} compact />
+              )}
+            </div>
           ))}
         </div>
       </CardContent>
