@@ -8,16 +8,15 @@ import { Badge } from "@/components/ui/badge";
 import { CalendarItem } from "./CalendarItem";
 import { OverdueSection } from "./OverdueSection";
 import { cn } from "@/lib/utils";
-import type { AtomItem } from "@/types/atom-engine";
-import { isMilestone } from "@/hooks/useCalendarItems";
+import { isMilestone, type CalendarItemWithInstance } from "@/hooks/useCalendarItems";
 
 interface DayDetailSheetProps {
   date: Date | null;
-  items: AtomItem[];
-  overdueItems: AtomItem[];
+  items: CalendarItemWithInstance[];
+  overdueItems: CalendarItemWithInstance[];
   onClose: () => void;
-  onToggle: (item: AtomItem) => void;
-  onClick: (item: AtomItem) => void;
+  onToggle: (item: CalendarItemWithInstance, instanceDate?: string) => void;
+  onClick: (item: CalendarItemWithInstance) => void;
 }
 
 export function DayDetailSheet({

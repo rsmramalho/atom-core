@@ -5,12 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { CalendarItem } from "./CalendarItem";
 import { cn } from "@/lib/utils";
-import type { AtomItem } from "@/types/atom-engine";
+import type { CalendarItemWithInstance } from "@/hooks/useCalendarItems";
 
 interface OverdueSectionProps {
-  items: AtomItem[];
-  onToggle: (item: AtomItem) => void;
-  onClick: (item: AtomItem) => void;
+  items: CalendarItemWithInstance[];
+  onToggle: (item: CalendarItemWithInstance, instanceDate?: string) => void;
+  onClick: (item: CalendarItemWithInstance) => void;
 }
 
 export function OverdueSection({ items, onToggle, onClick }: OverdueSectionProps) {

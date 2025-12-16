@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from "react";
 import { format } from "date-fns";
-import { Calendar as CalendarIcon, Briefcase, Dumbbell, Brain, Users } from "lucide-react";
+import { Calendar as CalendarIcon, Briefcase, Dumbbell, Brain, Users, Repeat } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -30,6 +30,8 @@ import {
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { MODULE_OPTIONS } from "./ModuleBadge";
+import { RecurrencePickerModal } from "./RecurrencePickerModal";
+import { describeRRule } from "@/lib/recurrence-engine";
 import type { AtomItem, ItemType, RitualSlot, ProjectStatus } from "@/types/atom-engine";
 
 interface EditItemModalProps {
@@ -87,6 +89,8 @@ export function EditItemModal({
   const [ritualSlot, setRitualSlot] = useState<RitualSlot>(null);
   const [projectStatus, setProjectStatus] = useState<ProjectStatus>("active");
   const [tags, setTags] = useState("");
+  const [recurrenceRule, setRecurrenceRule] = useState<string | null>(null);
+  const [showRecurrencePicker, setShowRecurrencePicker] = useState(false);
 
   // Load item data when modal opens
   useEffect(() => {
@@ -99,6 +103,7 @@ export function EditItemModal({
       setRitualSlot(item.ritual_slot);
       setProjectStatus(item.project_status || "active");
       setTags(item.tags.filter(t => !t.startsWith("#inbox")).join(", "));
+      setRecurrenceRule(item.recurrence_rule || null);
     }
   }, [item]);
 
@@ -123,6 +128,7 @@ export function EditItemModal({
       ritual_slot: ritualSlot,
       project_status: type === "project" ? projectStatus : null,
       tags: parsedTags,
+      recurrence_rule: dueDate ? recurrenceRule : null,
     });
   };
 
@@ -269,13 +275,35 @@ export function EditItemModal({
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => setDueDate(undefined)}
+                onClick={() => {
+                  setDueDate(undefined);
+                  setRecurrenceRule(null);
+                }}
                 className="text-xs text-muted-foreground"
               >
                 Limpar data
               </Button>
             )}
           </div>
+
+          {/* Recurrence (only when due_date is set) */}
+          {dueDate && (
+            <div className="space-y-2">
+              <Label>Recorrência</Label>
+              <Button
+                type="button"
+                variant="outline"
+                className={cn(
+                  "w-full justify-start text-left font-normal",
+                  recurrenceRule && "text-primary border-primary"
+                )}
+                onClick={() => setShowRecurrencePicker(true)}
+              >
+                <Repeat className="mr-2 h-4 w-4" />
+                {recurrenceRule ? describeRRule(recurrenceRule) : "Não se repete"}
+              </Button>
+            </div>
+          )}
 
           {/* Tags */}
           <div className="space-y-2">
@@ -312,6 +340,14 @@ export function EditItemModal({
             {isLoading ? "Salvando..." : "Salvar"}
           </Button>
         </DialogFooter>
+
+        {/* Recurrence Picker Modal */}
+        <RecurrencePickerModal
+          open={showRecurrencePicker}
+          onOpenChange={setShowRecurrencePicker}
+          currentRule={recurrenceRule}
+          onSave={setRecurrenceRule}
+        />
       </DialogContent>
     </Dialog>
   );

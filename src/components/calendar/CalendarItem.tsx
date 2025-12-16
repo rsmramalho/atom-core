@@ -3,15 +3,15 @@ import { useDraggable } from "@dnd-kit/core";
 import { memo } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
-import { Diamond, CheckSquare, RefreshCw, FileText, GripVertical } from "lucide-react";
+import { Diamond, CheckSquare, RefreshCw, FileText, GripVertical, Repeat } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { AtomItem } from "@/types/atom-engine";
-import { isMilestone } from "@/hooks/useCalendarItems";
+import { isMilestone, type CalendarItemWithInstance } from "@/hooks/useCalendarItems";
 
 interface CalendarItemProps {
-  item: AtomItem;
-  onToggle: (item: AtomItem) => void;
-  onClick: (item: AtomItem) => void;
+  item: CalendarItemWithInstance;
+  onToggle: (item: CalendarItemWithInstance, instanceDate?: string) => void;
+  onClick: (item: CalendarItemWithInstance) => void;
   compact?: boolean;
   draggable?: boolean;
 }
@@ -26,6 +26,7 @@ export const CalendarItem = memo(function CalendarItem({
   const milestone = isMilestone(item);
   const isHabit = item.type === "habit";
   const isNote = item.type === "note";
+  const isRecurrent = !!item.recurrence_rule || item.isVirtualInstance;
 
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: item.id,
@@ -42,6 +43,7 @@ export const CalendarItem = memo(function CalendarItem({
 
   const getIcon = () => {
     if (milestone) return <Diamond className="h-3.5 w-3.5 text-amber-500 fill-amber-500" />;
+    if (isRecurrent && !isHabit) return <Repeat className="h-3.5 w-3.5 text-violet-500" />;
     if (isHabit) return <RefreshCw className="h-3.5 w-3.5 text-green-500" />;
     if (isNote) return <FileText className="h-3.5 w-3.5 text-blue-500" />;
     return <CheckSquare className="h-3.5 w-3.5 text-muted-foreground" />;
@@ -55,12 +57,14 @@ export const CalendarItem = memo(function CalendarItem({
           "w-full text-left px-1.5 py-0.5 rounded text-xs truncate transition-colors",
           item.completed && "line-through opacity-50",
           milestone && "bg-amber-500/20 text-amber-700 dark:text-amber-400 font-medium",
+          isRecurrent && !milestone && !isHabit && "bg-violet-500/10 text-violet-700 dark:text-violet-400",
           isHabit && !milestone && "bg-green-500/10 text-green-700 dark:text-green-400",
-          !milestone && !isHabit && "bg-muted/50 hover:bg-muted"
+          !milestone && !isHabit && !isRecurrent && "bg-muted/50 hover:bg-muted"
         )}
       >
         <span className="flex items-center gap-1">
           {milestone && <Diamond className="h-2.5 w-2.5 fill-current" />}
+          {isRecurrent && !milestone && !isHabit && <Repeat className="h-2.5 w-2.5" />}
           {item.title}
         </span>
       </button>
@@ -69,19 +73,20 @@ export const CalendarItem = memo(function CalendarItem({
 
   return (
     <div
-      ref={draggable ? setNodeRef : undefined}
+      ref={draggable && !item.isVirtualInstance ? setNodeRef : undefined}
       style={style}
       className={cn(
         "group flex items-center gap-3 p-3 rounded-lg border transition-all",
         item.completed && "opacity-60",
         milestone && "border-amber-500/50 bg-amber-500/10 hover:bg-amber-500/20",
+        isRecurrent && !milestone && !isHabit && "border-violet-500/30 bg-violet-500/5 hover:bg-violet-500/10",
         isHabit && !milestone && "border-green-500/30 bg-green-500/5 hover:bg-green-500/10",
-        !milestone && !isHabit && "border-border bg-card hover:bg-muted/50",
+        !milestone && !isHabit && !isRecurrent && "border-border bg-card hover:bg-muted/50",
         isDragging && "opacity-50 ring-2 ring-primary"
       )}
     >
-      {/* Drag handle */}
-      {draggable && (
+      {/* Drag handle (not for virtual instances) */}
+      {draggable && !item.isVirtualInstance && (
         <button
           {...listeners}
           {...attributes}
@@ -96,10 +101,11 @@ export const CalendarItem = memo(function CalendarItem({
 
       <Checkbox
         checked={item.completed}
-        onCheckedChange={() => onToggle(item)}
+        onCheckedChange={() => onToggle(item, item.instanceDate)}
         onClick={(e) => e.stopPropagation()}
         className={cn(
           milestone && "border-amber-500 data-[state=checked]:bg-amber-500",
+          isRecurrent && !milestone && !isHabit && "border-violet-500 data-[state=checked]:bg-violet-500",
           isHabit && !milestone && "border-green-500 data-[state=checked]:bg-green-500"
         )}
       />
@@ -138,6 +144,14 @@ export const CalendarItem = memo(function CalendarItem({
       {milestone && (
         <Badge className="bg-amber-500 text-amber-950 text-[10px]">
           Milestone
+        </Badge>
+      )}
+      
+      {/* Recurrence indicator */}
+      {isRecurrent && !milestone && (
+        <Badge variant="outline" className="border-violet-500/50 text-violet-600 dark:text-violet-400 text-[10px]">
+          <Repeat className="h-2.5 w-2.5 mr-1" />
+          Recorrente
         </Badge>
       )}
     </div>
