@@ -160,6 +160,23 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
     return () => subscription.unsubscribe();
   }, []);
 
+  const trackEvent = async (eventType: string, eventData: Record<string, unknown> = {}) => {
+    if (!userId) return;
+
+    // Type assertion needed until types are regenerated
+    const { error } = await (supabase
+      .from('onboarding_analytics' as any)
+      .insert({
+        user_id: userId,
+        event_type: eventType,
+        event_data: eventData
+      } as any));
+
+    if (error) {
+      console.error('Error tracking analytics:', error);
+    }
+  };
+
   const saveState = async (updates: {
     has_completed_welcome?: boolean;
     has_completed_tour?: boolean;
@@ -182,17 +199,21 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
     setHasCompletedWelcome(true);
     setShowWelcome(false);
     saveState({ has_completed_welcome: true });
+    trackEvent('welcome_completed');
   };
 
   const startTour = () => {
     setShowWelcome(false);
     setShowTour(true);
     setCurrentTourStep(0);
+    trackEvent('tour_started');
   };
 
   const nextTourStep = () => {
     if (currentTourStep < tourSteps.length - 1) {
-      setCurrentTourStep(prev => prev + 1);
+      const nextStep = currentTourStep + 1;
+      setCurrentTourStep(nextStep);
+      trackEvent('tour_step_viewed', { step: nextStep, stepId: tourSteps[nextStep].id });
     } else {
       completeTour();
     }
@@ -209,6 +230,7 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
     setHasCompletedTour(true);
     setShowChecklist(true);
     saveState({ has_completed_tour: true, show_checklist: true });
+    trackEvent('tour_skipped', { skippedAtStep: currentTourStep });
   };
 
   const completeTour = () => {
@@ -216,17 +238,27 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
     setHasCompletedTour(true);
     setShowChecklist(true);
     saveState({ has_completed_tour: true, show_checklist: true });
+    trackEvent('tour_completed');
   };
 
   const markChecklistItem = (itemId: string) => {
     const updated = { ...checklistProgress, [itemId]: true };
     setChecklistProgress(updated);
     saveState({ checklist_progress: updated });
+    trackEvent('checklist_item_completed', { itemId });
+    
+    // Track when all checklist items are completed
+    const allItemIds = ['create_project', 'add_task', 'complete_ritual', 'write_reflection'];
+    const completedCount = allItemIds.filter(id => updated[id]).length;
+    if (completedCount === allItemIds.length) {
+      trackEvent('checklist_all_completed');
+    }
   };
 
   const dismissChecklist = () => {
     setShowChecklist(false);
     saveState({ show_checklist: false });
+    trackEvent('checklist_dismissed');
   };
 
   const resetOnboarding = async () => {
