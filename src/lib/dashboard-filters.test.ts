@@ -1,5 +1,5 @@
 // Atom Engine 4.0 - Dashboard Filters Tests
-// Tests for B.10 specification
+// Tests for B.10 specification + B.3 Integrity Guards
 
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import {
@@ -11,6 +11,8 @@ import {
   filterProjects,
   getProjectItems,
   calculateSimpleProgress,
+  isMilestone,
+  isOperationalItem,
 } from "./dashboard-filters";
 import { format, subDays, addDays } from "date-fns";
 import type { AtomItem } from "@/types/atom-engine";
@@ -367,6 +369,200 @@ describe("Dashboard Filters (B.10)", () => {
       // 1/3 = 33.33% → 33%
       const result = calculateSimpleProgress(items);
       expect(result).toBe(33);
+    });
+  });
+
+  // ============================================
+  // INTEGRITY GUARDS TESTS (Engine B.3)
+  // ============================================
+
+  describe("isMilestone - Integrity Helper", () => {
+    it("should return true for items with #milestone tag", () => {
+      const item = createMockItem({ tags: ["#milestone"] });
+      expect(isMilestone(item)).toBe(true);
+    });
+
+    it("should handle #milestone tag case-insensitively", () => {
+      expect(isMilestone(createMockItem({ tags: ["#MILESTONE"] }))).toBe(true);
+      expect(isMilestone(createMockItem({ tags: ["#Milestone"] }))).toBe(true);
+    });
+
+    it("should return false for items without #milestone tag", () => {
+      const item = createMockItem({ tags: ["#focus", "#work"] });
+      expect(isMilestone(item)).toBe(false);
+    });
+
+    it("should return false for items with empty tags", () => {
+      const item = createMockItem({ tags: [] });
+      expect(isMilestone(item)).toBe(false);
+    });
+
+    it("should handle items with #milestone among other tags", () => {
+      const item = createMockItem({ tags: ["#focus", "#milestone", "#urgent"] });
+      expect(isMilestone(item)).toBe(true);
+    });
+  });
+
+  describe("isOperationalItem - Integrity Helper", () => {
+    it("should return true for regular tasks", () => {
+      const item = createMockItem({ type: "task", tags: [] });
+      expect(isOperationalItem(item)).toBe(true);
+    });
+
+    it("should return true for habits", () => {
+      const item = createMockItem({ type: "habit", tags: [] });
+      expect(isOperationalItem(item)).toBe(true);
+    });
+
+    it("should return false for reflections (non-actionable)", () => {
+      const item = createMockItem({ type: "reflection", tags: [] });
+      expect(isOperationalItem(item)).toBe(false);
+    });
+
+    it("should return false for milestones (project-specific only)", () => {
+      const item = createMockItem({ type: "task", tags: ["#milestone"] });
+      expect(isOperationalItem(item)).toBe(false);
+    });
+
+    it("should return false for milestone even with other tags", () => {
+      const item = createMockItem({ type: "task", tags: ["#focus", "#milestone"] });
+      expect(isOperationalItem(item)).toBe(false);
+    });
+  });
+
+  describe("Milestone Isolation in filterFocus", () => {
+    it("should EXCLUDE milestones from focus list", () => {
+      const items = [
+        createMockItem({ tags: ["#focus"] }),
+        createMockItem({ tags: ["#focus", "#milestone"] }), // Should be excluded
+        createMockItem({ tags: ["#focus", "#urgent"] }),
+      ];
+
+      const result = filterFocus(items);
+      expect(result.length).toBe(2);
+      expect(result.every(item => !isMilestone(item))).toBe(true);
+    });
+
+    it("should include focus items that are NOT milestones", () => {
+      const items = [
+        createMockItem({ id: "task-1", tags: ["#focus"], type: "task" }),
+        createMockItem({ id: "habit-1", tags: ["#focus"], type: "habit" }),
+      ];
+
+      const result = filterFocus(items);
+      expect(result.length).toBe(2);
+    });
+  });
+
+  describe("Milestone Isolation in filterToday", () => {
+    const today = new Date("2025-01-15");
+    const todayStr = format(today, "yyyy-MM-dd");
+
+    it("should EXCLUDE milestones from today list", () => {
+      const items = [
+        createMockItem({ due_date: todayStr, type: "task", tags: [] }),
+        createMockItem({ due_date: todayStr, type: "task", tags: ["#milestone"] }), // Should be excluded
+      ];
+
+      const result = filterToday(items, today);
+      expect(result.length).toBe(1);
+      expect(isMilestone(result[0])).toBe(false);
+    });
+
+    it("should EXCLUDE reflections from today list", () => {
+      const items = [
+        createMockItem({ due_date: todayStr, type: "task", tags: [] }),
+        createMockItem({ due_date: todayStr, type: "reflection", tags: [] }), // Should be excluded
+      ];
+
+      const result = filterToday(items, today);
+      expect(result.length).toBe(1);
+      expect(result[0].type).toBe("task");
+    });
+
+    it("should correctly filter mixed operational items", () => {
+      const items = [
+        createMockItem({ due_date: todayStr, type: "task", tags: [] }), // ✓ included
+        createMockItem({ due_date: todayStr, type: "task", tags: ["#milestone"] }), // ✗ milestone
+        createMockItem({ due_date: todayStr, type: "reflection", tags: [] }), // ✗ reflection
+        createMockItem({ due_date: todayStr, type: "habit", tags: [] }), // ✓ included
+        createMockItem({ due_date: todayStr, type: "note", tags: [] }), // ✓ included
+      ];
+
+      const result = filterToday(items, today);
+      expect(result.length).toBe(3);
+    });
+  });
+
+  describe("Reflection Lock - Non-Actionable Items", () => {
+    it("reflections should NOT appear in filterFocus even with #focus tag", () => {
+      const items = [
+        createMockItem({ type: "reflection", tags: ["#focus"] }),
+        createMockItem({ type: "task", tags: ["#focus"] }),
+      ];
+
+      const result = filterFocus(items);
+      expect(result.length).toBe(1);
+      expect(result[0].type).toBe("task");
+    });
+
+    it("reflections should NOT appear in filterToday even with due_date", () => {
+      const today = new Date("2025-01-15");
+      const todayStr = format(today, "yyyy-MM-dd");
+
+      const items = [
+        createMockItem({ type: "reflection", due_date: todayStr }),
+        createMockItem({ type: "task", due_date: todayStr }),
+      ];
+
+      const result = filterToday(items, today);
+      expect(result.length).toBe(1);
+      expect(result[0].type).toBe("task");
+    });
+
+    it("filterRitual should NOT include reflections", () => {
+      const items = [
+        createMockItem({ type: "reflection", ritual_slot: "manha" }),
+        createMockItem({ type: "habit", ritual_slot: "manha" }),
+      ];
+
+      const result = filterRitual(items, "manha");
+      expect(result.length).toBe(1);
+      expect(result[0].type).toBe("habit");
+    });
+  });
+
+  describe("Edge Cases - Integrity Guards", () => {
+    it("should handle items with null/undefined tags gracefully", () => {
+      const itemWithNullTags = {
+        ...createMockItem(),
+        tags: null as unknown as string[],
+      };
+
+      // Should not throw
+      expect(isMilestone(itemWithNullTags)).toBe(false);
+    });
+
+    it("should handle empty items array", () => {
+      expect(filterFocus([])).toEqual([]);
+      expect(filterToday([])).toEqual([]);
+    });
+
+    it("milestone with #focus should still be excluded from operational lists", () => {
+      const today = new Date("2025-01-15");
+      const todayStr = format(today, "yyyy-MM-dd");
+
+      const milestone = createMockItem({
+        type: "task",
+        tags: ["#focus", "#milestone"],
+        due_date: todayStr,
+      });
+
+      // Should be excluded from focus
+      expect(filterFocus([milestone]).length).toBe(0);
+      
+      // Should be excluded from today
+      expect(filterToday([milestone], today).length).toBe(0);
     });
   });
 });
