@@ -24,7 +24,8 @@ const RITUAL_ICONS: Record<RitualSlot, React.ElementType> = {
 };
 
 export function WorkAreaPane({ items, onToggle }: WorkAreaPaneProps) {
-  const tasks = items.filter(i => i.type === "task");
+  // Filter out milestones (type='task' but with #milestone tag) - Single Table Design
+  const tasks = items.filter(i => i.type === "task" && !i.tags.includes("#milestone"));
   const habits = items.filter(i => i.type === "habit");
 
   const pendingTasks = tasks.filter(t => !t.completed);
