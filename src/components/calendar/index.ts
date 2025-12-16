@@ -1,6 +1,8 @@
 export { CalendarGrid } from "./CalendarGrid";
+export { WeekGrid } from "./WeekGrid";
 export { CalendarItem } from "./CalendarItem";
 export { CalendarFilters } from "./CalendarFilters";
+export { CalendarViewToggle } from "./CalendarViewToggle";
 export { DayCell } from "./DayCell";
 export { DroppableDayCell } from "./DroppableDayCell";
 export { DayDetailSheet } from "./DayDetailSheet";

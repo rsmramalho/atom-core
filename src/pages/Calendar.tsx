@@ -1,4 +1,4 @@
-// Calendar Engine - Main Page (B.4) with Drag & Drop and Filters
+// Calendar Engine - Main Page (B.4) with Drag & Drop, Filters, and View Modes
 import { useState, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
@@ -16,7 +16,9 @@ import { Loader2, Calendar as CalendarIcon } from "lucide-react";
 import { useCalendarItems, isMilestone } from "@/hooks/useCalendarItems";
 import { useAtomItems } from "@/hooks/useAtomItems";
 import { CalendarGrid } from "@/components/calendar/CalendarGrid";
+import { WeekGrid } from "@/components/calendar/WeekGrid";
 import { CalendarFilters, ItemTypeFilter, ModuleFilter, FilterCounts } from "@/components/calendar/CalendarFilters";
+import { CalendarViewToggle, CalendarViewMode } from "@/components/calendar/CalendarViewToggle";
 import { DayDetailSheet } from "@/components/calendar/DayDetailSheet";
 import { CalendarItem } from "@/components/calendar/CalendarItem";
 import { EditItemModal } from "@/components/shared/EditItemModal";
@@ -58,6 +60,12 @@ export default function Calendar() {
   const [editingItem, setEditingItem] = useState<AtomItem | null>(null);
   const [activeItem, setActiveItem] = useState<AtomItem | null>(null);
   
+  // View mode with localStorage persistence
+  const [viewMode, setViewMode] = useState<CalendarViewMode>(() => {
+    const saved = localStorage.getItem("calendar-view-mode");
+    return (saved as CalendarViewMode) || "month";
+  });
+
   // Filter state with localStorage persistence
   const [typeFilter, setTypeFilter] = useState<ItemTypeFilter>(() => {
     const saved = localStorage.getItem("calendar-type-filter");
@@ -67,6 +75,12 @@ export default function Calendar() {
     const saved = localStorage.getItem("calendar-module-filter");
     return (saved as ModuleFilter) || "all";
   });
+
+  // Persist view mode
+  const handleViewChange = useCallback((view: CalendarViewMode) => {
+    setViewMode(view);
+    localStorage.setItem("calendar-view-mode", view);
+  }, []);
 
   // Persist filters to localStorage
   const handleTypeChange = useCallback((type: ItemTypeFilter) => {
@@ -247,19 +261,22 @@ export default function Calendar() {
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
     >
-      <div className="p-4 md:p-8 max-w-6xl mx-auto">
+      <div className="p-4 md:p-8 max-w-7xl mx-auto">
         {/* Header */}
         <header className="mb-4">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-primary/10 rounded-lg">
-              <CalendarIcon className="h-6 w-6 text-primary" />
+          <div className="flex items-center justify-between flex-wrap gap-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-primary/10 rounded-lg">
+                <CalendarIcon className="h-6 w-6 text-primary" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold">Calendário</h1>
+                <p className="text-sm text-muted-foreground">
+                  Arraste itens para reagendar
+                </p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-2xl font-bold">Calendário</h1>
-              <p className="text-sm text-muted-foreground">
-                Arraste itens para reagendar
-              </p>
-            </div>
+            <CalendarViewToggle view={viewMode} onViewChange={handleViewChange} />
           </div>
         </header>
 
@@ -272,24 +289,38 @@ export default function Calendar() {
           counts={filterCounts}
         />
 
-        {/* Calendar Grid */}
-        <CalendarGrid
-          currentDate={currentDate}
-          onDateChange={setCurrentDate}
-          itemsByDate={filteredItemsByDate}
-          selectedDate={selectedDate}
-          onSelectDate={setSelectedDate}
-        />
+        {/* Calendar View */}
+        {viewMode === "month" ? (
+          <CalendarGrid
+            currentDate={currentDate}
+            onDateChange={setCurrentDate}
+            itemsByDate={filteredItemsByDate}
+            selectedDate={selectedDate}
+            onSelectDate={setSelectedDate}
+          />
+        ) : (
+          <WeekGrid
+            currentDate={currentDate}
+            onDateChange={setCurrentDate}
+            itemsByDate={filteredItemsByDate}
+            selectedDate={selectedDate}
+            onSelectDate={setSelectedDate}
+            onToggle={handleToggle}
+            onClick={handleItemClick}
+          />
+        )}
 
-        {/* Day Detail Sheet */}
-        <DayDetailSheet
-          date={selectedDate}
-          items={selectedDateItems}
-          overdueItems={filteredOverdueItems}
-          onClose={() => setSelectedDate(null)}
-          onToggle={handleToggle}
-          onClick={handleItemClick}
-        />
+        {/* Day Detail Sheet - only for month view */}
+        {viewMode === "month" && (
+          <DayDetailSheet
+            date={selectedDate}
+            items={selectedDateItems}
+            overdueItems={filteredOverdueItems}
+            onClose={() => setSelectedDate(null)}
+            onToggle={handleToggle}
+            onClick={handleItemClick}
+          />
+        )}
 
         {/* Edit Modal */}
         {editingItem && (
