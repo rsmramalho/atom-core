@@ -7,11 +7,13 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { getQueuedOperations, QueuedOperation } from "@/lib/offline-queue";
+import { getQueuedOperations, removeFromQueue, QueuedOperation } from "@/lib/offline-queue";
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { ArrowUpCircle, ArrowDownCircle, Trash2 } from "lucide-react";
+import { ArrowUpCircle, ArrowDownCircle, Trash2, X } from "lucide-react";
+import { toast } from "sonner";
 
 interface PendingOperationsModalProps {
   open: boolean;
@@ -22,14 +24,31 @@ export function PendingOperationsModal({ open, onOpenChange }: PendingOperations
   const [operations, setOperations] = useState<QueuedOperation[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const loadOperations = async () => {
+    setLoading(true);
+    try {
+      const ops = await getQueuedOperations();
+      setOperations(ops);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (open) {
-      setLoading(true);
-      getQueuedOperations()
-        .then(setOperations)
-        .finally(() => setLoading(false));
+      loadOperations();
     }
   }, [open]);
+
+  const handleCancelOperation = async (id: string) => {
+    try {
+      await removeFromQueue(id);
+      setOperations(prev => prev.filter(op => op.id !== id));
+      toast.success("Operação cancelada");
+    } catch {
+      toast.error("Erro ao cancelar operação");
+    }
+  };
 
   const getOperationIcon = (type: string) => {
     switch (type) {
@@ -65,7 +84,7 @@ export function PendingOperationsModal({ open, onOpenChange }: PendingOperations
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Operações Pendentes</DialogTitle>
+          <DialogTitle>Operações Pendentes ({operations.length})</DialogTitle>
           <DialogDescription>
             Estas operações serão sincronizadas quando você estiver online.
           </DialogDescription>
@@ -85,7 +104,7 @@ export function PendingOperationsModal({ open, onOpenChange }: PendingOperations
               {operations.map((op) => (
                 <div
                   key={op.id}
-                  className="flex items-center gap-3 p-3 rounded-lg bg-muted/50"
+                  className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 group"
                 >
                   {getOperationIcon(op.type)}
                   <div className="flex-1 min-w-0">
@@ -109,6 +128,15 @@ export function PendingOperationsModal({ open, onOpenChange }: PendingOperations
                       )}
                     </div>
                   </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
+                    onClick={() => handleCancelOperation(op.id)}
+                    title="Cancelar operação"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
                 </div>
               ))}
             </div>
