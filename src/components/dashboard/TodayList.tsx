@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ItemContextMenu, EditItemModal, DeleteConfirmDialog } from "@/components/shared";
 import { StreakBadge } from "@/components/shared/StreakBadge";
+import { HabitHeatmap } from "@/components/shared/HabitHeatmap";
 import { useAtomItems } from "@/hooks/useAtomItems";
 import { toast } from "@/hooks/use-toast";
 import type { AtomItem } from "@/types/atom-engine";
@@ -108,9 +109,13 @@ function TaskItem({ item, onToggle, isOverdue = false }: {
           </div>
         </div>
         
-        {/* Streak badge for habits */}
+        {/* Streak badge with heatmap for habits */}
         {isHabit && item.completion_log && item.completion_log.length > 0 && (
-          <StreakBadge completionLog={item.completion_log} compact />
+          <HabitHeatmap 
+            habitTitle={item.title}
+            completionLog={item.completion_log}
+            trigger={<StreakBadge completionLog={item.completion_log} compact className="cursor-pointer hover:scale-105 transition-transform" />}
+          />
         )}
         
         <ItemContextMenu
