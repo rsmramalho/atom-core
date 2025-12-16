@@ -1,23 +1,28 @@
 import { useNetworkStatus } from '@/hooks/useNetworkStatus';
-import { CloudOff, Wifi, RefreshCw, Cloud } from 'lucide-react';
+import { CloudOff, Wifi, RefreshCw, Cloud, Database } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import { getQueueCount } from '@/lib/offline-queue';
+import { getCacheTimestamp, formatCacheAge } from '@/lib/local-cache';
 
 export function NetworkStatusIndicator() {
   const { isOnline, wasOffline } = useNetworkStatus();
   const [pendingCount, setPendingCount] = useState(0);
   const [isSyncing, setIsSyncing] = useState(false);
+  const [cacheAge, setCacheAge] = useState<string>('Nunca');
 
-  // Poll for pending count
+  // Poll for pending count and cache age
   useEffect(() => {
-    const updateCount = async () => {
+    const updateStatus = async () => {
       const count = await getQueueCount();
       setPendingCount(count);
+      
+      const timestamp = getCacheTimestamp();
+      setCacheAge(formatCacheAge(timestamp));
     };
 
-    updateCount();
-    const interval = setInterval(updateCount, 2000);
+    updateStatus();
+    const interval = setInterval(updateStatus, 2000);
     return () => clearInterval(interval);
   }, []);
 
@@ -32,7 +37,7 @@ export function NetworkStatusIndicator() {
 
   return (
     <AnimatePresence mode="wait">
-      {/* Offline indicator */}
+      {/* Offline indicator with cache info */}
       {!isOnline && (
         <motion.div
           key="offline"
@@ -42,9 +47,13 @@ export function NetworkStatusIndicator() {
           className="fixed top-2 left-1/2 -translate-x-1/2 z-[100] flex items-center gap-2 px-3 py-1.5 rounded-full bg-destructive/90 text-destructive-foreground text-sm shadow-lg backdrop-blur-sm"
         >
           <CloudOff className="h-4 w-4" />
-          <span>Sem conexão</span>
+          <span>Modo offline</span>
+          <span className="flex items-center gap-1 ml-1 px-1.5 py-0.5 bg-white/20 rounded-full text-xs">
+            <Database className="h-3 w-3" />
+            {cacheAge}
+          </span>
           {pendingCount > 0 && (
-            <span className="ml-1 px-1.5 py-0.5 bg-white/20 rounded-full text-xs">
+            <span className="px-1.5 py-0.5 bg-amber-500/80 rounded-full text-xs">
               {pendingCount} pendente{pendingCount > 1 ? 's' : ''}
             </span>
           )}

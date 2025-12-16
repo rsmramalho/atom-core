@@ -9,7 +9,7 @@ import type { AtomItem, CreateItemPayload, UpdateItemPayload, ItemType, RitualSl
 import { useEngineLogger } from "./useEngineLogger";
 import { useNetworkStatus } from "./useNetworkStatus";
 import { addToQueue } from "@/lib/offline-queue";
-import { toast } from "sonner";
+import { saveToLocalCache, getFromLocalCache } from "@/lib/local-cache";
 import type { Json, TablesInsert } from "@/integrations/supabase/types";
 
 // Helper to map database row to AtomItem
@@ -47,10 +47,22 @@ export function useAtomItems() {
   const { addLog } = useEngineLogger();
   const { isOnline } = useNetworkStatus();
 
+  // Get cached data for initial/offline use
+  const cachedItems = getFromLocalCache<AtomItem[]>('atom-items');
+
   // Fetch all items for the current user
   const itemsQuery = useQuery({
     queryKey: ["atom-items"],
     queryFn: async (): Promise<AtomItem[]> => {
+      // If offline, return cached data
+      if (!isOnline) {
+        addLog("QueryEngine", "Offline - using cached items");
+        if (cachedItems) {
+          return cachedItems;
+        }
+        throw new Error("Sem conexão e sem dados em cache");
+      }
+
       addLog("QueryEngine", "Fetching all items");
       
       const { data, error } = await supabase
@@ -60,14 +72,26 @@ export function useAtomItems() {
 
       if (error) {
         addLog("QueryEngine", "Error fetching items", { error: error.message });
+        // On error, try to use cached data
+        if (cachedItems) {
+          addLog("QueryEngine", "Using cached data due to error");
+          return cachedItems;
+        }
         throw error;
       }
 
-      addLog("QueryEngine", `Fetched ${data?.length || 0} items`);
-      return (data || []).map(mapRowToAtomItem);
+      const items = (data || []).map(mapRowToAtomItem);
+      
+      // Save to local cache for offline use
+      saveToLocalCache('atom-items', items);
+      
+      addLog("QueryEngine", `Fetched ${items.length} items`);
+      return items;
     },
-    staleTime: 1000 * 60 * 5, // 5 minutes - helps with offline
+    staleTime: 1000 * 60 * 5, // 5 minutes
     gcTime: 1000 * 60 * 30, // 30 minutes cache
+    initialData: cachedItems || undefined,
+    retry: isOnline ? 3 : 0, // Don't retry when offline
   });
 
   // Create a new item
