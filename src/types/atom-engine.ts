@@ -14,7 +14,7 @@ export type ItemType =
 export type RitualSlot = "manha" | "meio_dia" | "noite" | null;
 
 export type ProjectStatus = "draft" | "active" | "paused" | "completed" | "archived";
-export type ProgressMode = "auto" | "manual";
+export type ProgressMode = "auto" | "milestone" | "manual";
 
 // Checklist item structure
 export interface ChecklistItem {
