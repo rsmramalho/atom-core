@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useOnboarding } from './OnboardingContext';
 import { useNavigate } from 'react-router-dom';
@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
+import { Confetti } from '@/components/shared/Confetti';
 
 interface ChecklistItem {
   id: string;
@@ -61,6 +62,8 @@ export function FirstStepsChecklist() {
     dismissChecklist 
   } = useOnboarding();
   const navigate = useNavigate();
+  const [showConfetti, setShowConfetti] = useState(false);
+  const [hasTriggeredConfetti, setHasTriggeredConfetti] = useState(false);
 
   if (!showChecklist) return null;
 
@@ -68,13 +71,23 @@ export function FirstStepsChecklist() {
   const progressPercent = (completedCount / checklistItems.length) * 100;
   const allCompleted = completedCount === checklistItems.length;
 
+  // Trigger confetti when all items are completed (only once)
+  useEffect(() => {
+    if (allCompleted && !hasTriggeredConfetti) {
+      setShowConfetti(true);
+      setHasTriggeredConfetti(true);
+    }
+  }, [allCompleted, hasTriggeredConfetti]);
+
   const handleItemClick = (item: ChecklistItem) => {
     navigate(item.route);
     markChecklistItem(item.id);
   };
 
   return (
-    <AnimatePresence>
+    <>
+      <Confetti trigger={showConfetti} onComplete={() => setShowConfetti(false)} />
+      <AnimatePresence>
       <motion.div
         initial={{ opacity: 0, y: 20, scale: 0.95 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -162,5 +175,6 @@ export function FirstStepsChecklist() {
         )}
       </motion.div>
     </AnimatePresence>
+    </>
   );
 }
