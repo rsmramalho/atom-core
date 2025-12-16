@@ -5,7 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { OnboardingProvider, WelcomeModal, TourOverlay, FirstStepsChecklist } from "@/components/onboarding";
-import { InstallPrompt, NetworkStatusIndicator } from "@/components/pwa";
+import { InstallPrompt, NetworkStatusIndicator, OfflineSyncProvider } from "@/components/pwa";
 import Index from "./pages/Index";
 import Inbox from "./pages/Inbox";
 import Projects from "./pages/Projects";
@@ -26,33 +26,35 @@ function LayoutRoute({ children }: { children: React.ReactNode }) {
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <OnboardingProvider>
-        <Toaster />
-        <Sonner />
-        <InstallPrompt />
-        <NetworkStatusIndicator />
-        <BrowserRouter>
-          <WelcomeModal />
-          <TourOverlay />
-          <FirstStepsChecklist />
-          <Routes>
-            {/* Immersive Ritual View - NO AppLayout */}
-            <Route path="/ritual" element={<RitualView />} />
-            
-            {/* Main App routes WITH AppLayout */}
-            <Route path="/" element={<LayoutRoute><Index /></LayoutRoute>} />
-            <Route path="/inbox" element={<LayoutRoute><Inbox /></LayoutRoute>} />
-            <Route path="/projects" element={<LayoutRoute><Projects /></LayoutRoute>} />
-            <Route path="/projects/:id" element={<LayoutRoute><ProjectDetail /></LayoutRoute>} />
-            <Route path="/lists" element={<LayoutRoute><Lists /></LayoutRoute>} />
-            <Route path="/journal" element={<LayoutRoute><Journal /></LayoutRoute>} />
-            <Route path="/calendar" element={<LayoutRoute><Calendar /></LayoutRoute>} />
-            
-            {/* Catch-all */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </OnboardingProvider>
+      <OfflineSyncProvider>
+        <OnboardingProvider>
+          <Toaster />
+          <Sonner />
+          <InstallPrompt />
+          <NetworkStatusIndicator />
+          <BrowserRouter>
+            <WelcomeModal />
+            <TourOverlay />
+            <FirstStepsChecklist />
+            <Routes>
+              {/* Immersive Ritual View - NO AppLayout */}
+              <Route path="/ritual" element={<RitualView />} />
+              
+              {/* Main App routes WITH AppLayout */}
+              <Route path="/" element={<LayoutRoute><Index /></LayoutRoute>} />
+              <Route path="/inbox" element={<LayoutRoute><Inbox /></LayoutRoute>} />
+              <Route path="/projects" element={<LayoutRoute><Projects /></LayoutRoute>} />
+              <Route path="/projects/:id" element={<LayoutRoute><ProjectDetail /></LayoutRoute>} />
+              <Route path="/lists" element={<LayoutRoute><Lists /></LayoutRoute>} />
+              <Route path="/journal" element={<LayoutRoute><Journal /></LayoutRoute>} />
+              <Route path="/calendar" element={<LayoutRoute><Calendar /></LayoutRoute>} />
+              
+              {/* Catch-all */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </OnboardingProvider>
+      </OfflineSyncProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );
