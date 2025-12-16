@@ -1,16 +1,39 @@
 // Journal Composer - Auto-expanding textarea for reflections
 // Zen-focused input with minimal distraction
 
-import { useState, useRef, useEffect, useMemo } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useAtomItems } from "@/hooks/useAtomItems";
 import { toast } from "sonner";
-import { Feather, Sparkles, RefreshCw } from "lucide-react";
-import { reflectionPrompts, getRandomPrompt, ReflectionPrompt } from "@/lib/reflection-prompts";
+import { Feather, Sparkles, RefreshCw, Heart, TrendingUp, Smile, Target, Lightbulb } from "lucide-react";
+import { reflectionPrompts, getRandomPrompt, getPromptsByCategory, ReflectionPrompt } from "@/lib/reflection-prompts";
+import { cn } from "@/lib/utils";
+
+type PromptCategory = ReflectionPrompt["category"] | "all";
+
+const categoryConfig: Record<PromptCategory, { label: string; icon: React.ElementType }> = {
+  all: { label: "Todos", icon: Sparkles },
+  gratitude: { label: "Gratidão", icon: Heart },
+  growth: { label: "Crescimento", icon: TrendingUp },
+  feelings: { label: "Sentimentos", icon: Smile },
+  goals: { label: "Metas", icon: Target },
+  learning: { label: "Aprendizado", icon: Lightbulb },
+  general: { label: "Geral", icon: Sparkles },
+};
+
+function getRandomFromCategory(category: PromptCategory): ReflectionPrompt {
+  if (category === "all") {
+    return getRandomPrompt();
+  }
+  const prompts = getPromptsByCategory(category);
+  const index = Math.floor(Math.random() * prompts.length);
+  return prompts[index];
+}
 
 export function JournalComposer() {
   const [content, setContent] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<PromptCategory>("all");
   const [currentPrompt, setCurrentPrompt] = useState<ReflectionPrompt>(() => getRandomPrompt());
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { createItem } = useAtomItems();
@@ -25,12 +48,21 @@ export function JournalComposer() {
   }, [content]);
 
   const shufflePrompt = () => {
-    let newPrompt = getRandomPrompt();
+    const prompts = selectedCategory === "all" 
+      ? reflectionPrompts 
+      : getPromptsByCategory(selectedCategory);
+    
+    let newPrompt = getRandomFromCategory(selectedCategory);
     // Avoid showing the same prompt twice in a row
-    while (newPrompt.text === currentPrompt.text && reflectionPrompts.length > 1) {
-      newPrompt = getRandomPrompt();
+    while (newPrompt.text === currentPrompt.text && prompts.length > 1) {
+      newPrompt = getRandomFromCategory(selectedCategory);
     }
     setCurrentPrompt(newPrompt);
+  };
+
+  const handleCategoryChange = (category: PromptCategory) => {
+    setSelectedCategory(category);
+    setCurrentPrompt(getRandomFromCategory(category));
   };
 
   const usePrompt = () => {
@@ -98,11 +130,37 @@ export function JournalComposer() {
     }
   };
 
+  // Categories to show (excluding "general" from pills for cleaner UI)
+  const visibleCategories: PromptCategory[] = ["all", "gratitude", "growth", "feelings", "goals", "learning"];
+
   return (
     <div className="w-full max-w-2xl mx-auto">
       {/* Prompt suggestion */}
       {!content && (
         <div className="mb-4 p-4 rounded-lg bg-muted/30 border border-border/50">
+          {/* Category pills */}
+          <div className="flex flex-wrap gap-1.5 mb-4">
+            {visibleCategories.map((category) => {
+              const config = categoryConfig[category];
+              const Icon = config.icon;
+              return (
+                <button
+                  key={category}
+                  onClick={() => handleCategoryChange(category)}
+                  className={cn(
+                    "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition-colors",
+                    selectedCategory === category
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground"
+                  )}
+                >
+                  <Icon className="h-3 w-3" />
+                  {config.label}
+                </button>
+              );
+            })}
+          </div>
+
           <div className="flex items-start gap-3">
             <Sparkles className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
             <div className="flex-1 min-w-0">
