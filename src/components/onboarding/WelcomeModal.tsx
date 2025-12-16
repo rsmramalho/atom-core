@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { useOnboarding } from './OnboardingContext';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Sparkles, 
   Inbox, 
@@ -59,9 +60,34 @@ const slides = [
   },
 ];
 
+const slideVariants = {
+  enter: (direction: number) => ({
+    x: direction > 0 ? 100 : -100,
+    opacity: 0,
+    scale: 0.95,
+  }),
+  center: {
+    x: 0,
+    opacity: 1,
+    scale: 1,
+  },
+  exit: (direction: number) => ({
+    x: direction < 0 ? 100 : -100,
+    opacity: 0,
+    scale: 0.95,
+  }),
+};
+
+const iconVariants = {
+  initial: { scale: 0, rotate: -180 },
+  animate: { scale: 1, rotate: 0 },
+  exit: { scale: 0, rotate: 180 },
+};
+
 export function WelcomeModal() {
   const { showWelcome, setShowWelcome, completeWelcome, startTour } = useOnboarding();
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [direction, setDirection] = useState(0);
 
   const isLastSlide = currentSlide === slides.length - 1;
   const slide = slides[currentSlide];
@@ -69,12 +95,19 @@ export function WelcomeModal() {
 
   const handleNext = () => {
     if (isLastSlide) return;
+    setDirection(1);
     setCurrentSlide(prev => prev + 1);
   };
 
   const handlePrev = () => {
     if (currentSlide === 0) return;
+    setDirection(-1);
     setCurrentSlide(prev => prev - 1);
+  };
+
+  const handleDotClick = (idx: number) => {
+    setDirection(idx > currentSlide ? 1 : -1);
+    setCurrentSlide(idx);
   };
 
   const handleStartTour = () => {
@@ -92,28 +125,65 @@ export function WelcomeModal() {
         {/* Progress dots */}
         <div className="absolute top-4 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
           {slides.map((_, idx) => (
-            <button
+            <motion.button
               key={idx}
-              onClick={() => setCurrentSlide(idx)}
-              className={`w-2 h-2 rounded-full transition-all ${
+              onClick={() => handleDotClick(idx)}
+              className={`h-2 rounded-full transition-colors ${
                 idx === currentSlide 
-                  ? 'bg-foreground w-6' 
+                  ? 'bg-foreground' 
                   : 'bg-muted-foreground/30 hover:bg-muted-foreground/50'
               }`}
+              animate={{ width: idx === currentSlide ? 24 : 8 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 25 }}
             />
           ))}
         </div>
 
         {/* Content */}
-        <div className="pt-12 pb-6 px-6">
-          <div className={`w-20 h-20 mx-auto rounded-2xl ${slide.bgColor} flex items-center justify-center mb-6`}>
-            <Icon className={`w-10 h-10 ${slide.color}`} />
-          </div>
-          
-          <h2 className="text-2xl font-bold text-center mb-3">{slide.title}</h2>
-          <p className="text-muted-foreground text-center leading-relaxed">
-            {slide.description}
-          </p>
+        <div className="pt-12 pb-6 px-6 min-h-[280px] relative overflow-hidden">
+          <AnimatePresence mode="wait" custom={direction}>
+            <motion.div
+              key={currentSlide}
+              custom={direction}
+              variants={slideVariants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={{
+                x: { type: 'spring', stiffness: 300, damping: 30 },
+                opacity: { duration: 0.2 },
+                scale: { duration: 0.2 },
+              }}
+            >
+              <motion.div 
+                className={`w-20 h-20 mx-auto rounded-2xl ${slide.bgColor} flex items-center justify-center mb-6`}
+                variants={iconVariants}
+                initial="initial"
+                animate="animate"
+                exit="exit"
+                transition={{ type: 'spring', stiffness: 200, damping: 15, delay: 0.1 }}
+              >
+                <Icon className={`w-10 h-10 ${slide.color}`} />
+              </motion.div>
+              
+              <motion.h2 
+                className="text-2xl font-bold text-center mb-3"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.15 }}
+              >
+                {slide.title}
+              </motion.h2>
+              <motion.p 
+                className="text-muted-foreground text-center leading-relaxed"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+              >
+                {slide.description}
+              </motion.p>
+            </motion.div>
+          </AnimatePresence>
         </div>
 
         {/* Navigation */}
@@ -129,22 +199,37 @@ export function WelcomeModal() {
             Anterior
           </Button>
 
-          {isLastSlide ? (
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm" onClick={handleSkip}>
-                Pular
-              </Button>
-              <Button size="sm" onClick={handleStartTour} className="gap-1">
-                <Rocket className="w-4 h-4" />
-                Iniciar Tour
-              </Button>
-            </div>
-          ) : (
-            <Button size="sm" onClick={handleNext} className="gap-1">
-              Próximo
-              <ChevronRight className="w-4 h-4" />
-            </Button>
-          )}
+          <AnimatePresence mode="wait">
+            {isLastSlide ? (
+              <motion.div 
+                key="final"
+                className="flex gap-2"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+              >
+                <Button variant="outline" size="sm" onClick={handleSkip}>
+                  Pular
+                </Button>
+                <Button size="sm" onClick={handleStartTour} className="gap-1">
+                  <Rocket className="w-4 h-4" />
+                  Iniciar Tour
+                </Button>
+              </motion.div>
+            ) : (
+              <motion.div
+                key="next"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+              >
+                <Button size="sm" onClick={handleNext} className="gap-1">
+                  Próximo
+                  <ChevronRight className="w-4 h-4" />
+                </Button>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </DialogContent>
     </Dialog>
