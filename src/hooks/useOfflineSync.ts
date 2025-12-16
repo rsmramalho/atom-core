@@ -63,7 +63,7 @@ export function useOfflineSync() {
   }, []);
 
   // Sync all pending operations
-  const syncPendingOperations = useCallback(async () => {
+  const syncPendingOperations = useCallback(async (isAutoSync = false) => {
     if (syncInProgress.current || !isOnline) return;
 
     syncInProgress.current = true;
@@ -76,6 +76,10 @@ export function useOfflineSync() {
         syncInProgress.current = false;
         setIsSyncing(false);
         return;
+      }
+
+      if (isAutoSync) {
+        toast.info('Conexão restaurada - sincronizando...', { duration: 2000 });
       }
 
       let successCount = 0;
@@ -138,7 +142,7 @@ export function useOfflineSync() {
   // Auto-sync when coming back online
   useEffect(() => {
     if (isOnline) {
-      syncPendingOperations();
+      syncPendingOperations(true); // true = auto sync
     }
   }, [isOnline, syncPendingOperations]);
 

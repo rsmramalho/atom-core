@@ -110,7 +110,7 @@ export function AppNavigation() {
                       variant="ghost"
                       size="sm"
                       className="h-7 px-2 text-xs"
-                      onClick={syncPendingOperations}
+                      onClick={() => syncPendingOperations()}
                       disabled={!isOnline || isSyncing}
                     >
                       {isSyncing ? (
@@ -220,7 +220,7 @@ export function AppNavigation() {
                 variant="ghost"
                 size="sm"
                 className="h-7 px-2 text-xs"
-                onClick={syncPendingOperations}
+                onClick={() => syncPendingOperations()}
                 disabled={!isOnline || isSyncing}
                 title={!isOnline ? 'Offline' : 'Sincronizar agora'}
               >
