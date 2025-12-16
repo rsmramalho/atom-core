@@ -6,7 +6,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { AtomItem, CreateItemPayload, UpdateItemPayload, ItemType, RitualSlot, ProjectStatus, ProgressMode, ChecklistItem } from "@/types/atom-engine";
 import { useEngineLogger } from "./useEngineLogger";
-import type { Json } from "@/integrations/supabase/types";
+import type { Json, TablesInsert } from "@/integrations/supabase/types";
 
 // Helper to map database row to AtomItem
 function mapRowToAtomItem(row: any): AtomItem {
@@ -70,7 +70,7 @@ export function useAtomItems() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("User not authenticated");
 
-      const insertData = {
+      const insertData: TablesInsert<"items"> = {
         user_id: user.id,
         title: payload.title,
         type: payload.type,
@@ -86,7 +86,7 @@ export function useAtomItems() {
         notes: payload.notes,
         checklist: JSON.parse(JSON.stringify(payload.checklist)) as Json,
         project_status: payload.project_status,
-        progress_mode: payload.progress_mode,
+        progress_mode: payload.progress_mode as "auto" | "manual" | "milestone" | null,
         progress: payload.progress,
         deadline: payload.deadline,
         weight: payload.weight ?? 1,
