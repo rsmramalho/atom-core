@@ -23,6 +23,7 @@ import {
   Terminal,
   LogOut,
   BookOpen,
+  Calendar,
 } from "lucide-react";
 import { useAtomItems } from "@/hooks/useAtomItems";
 import { supabase } from "@/integrations/supabase/client";
@@ -84,6 +85,10 @@ export function CommandPalette({ onNewItem }: CommandPaletteProps) {
             e.preventDefault();
             navigate("/journal");
             break;
+          case "l":
+            e.preventDefault();
+            navigate("/calendar");
+            break;
         }
       }
     };
@@ -144,6 +149,11 @@ export function CommandPalette({ onNewItem }: CommandPaletteProps) {
             <BookOpen className="mr-2 h-4 w-4" />
             Abrir Diário
             <CommandShortcut>⌘J</CommandShortcut>
+          </CommandItem>
+          <CommandItem onSelect={() => runCommand(() => navigate("/calendar"))}>
+            <Calendar className="mr-2 h-4 w-4" />
+            Abrir Calendário
+            <CommandShortcut>⌘L</CommandShortcut>
           </CommandItem>
         </CommandGroup>
 
