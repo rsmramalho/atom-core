@@ -1,7 +1,7 @@
 // List Engine - List Detail Modal
 // Full editing experience with drag & drop reordering
 
-import { useState, useEffect, forwardRef } from "react";
+import { useState, forwardRef } from "react";
 import { 
   CheckSquare, 
   Square, 
@@ -11,7 +11,8 @@ import {
   MoreHorizontal,
   GripVertical,
   ListChecks,
-  Sparkles
+  Sparkles,
+  Palette
 } from "lucide-react";
 import {
   Dialog,
@@ -28,6 +29,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useAtomItems } from "@/hooks/useAtomItems";
 import { toast } from "sonner";
@@ -54,6 +60,34 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+
+// Predefined color options for lists
+export const LIST_COLORS = [
+  { id: "default", name: "Padrão", bg: "bg-card", border: "border-border", accent: "bg-primary" },
+  { id: "red", name: "Vermelho", bg: "bg-red-500/10", border: "border-red-500/30", accent: "bg-red-500" },
+  { id: "orange", name: "Laranja", bg: "bg-orange-500/10", border: "border-orange-500/30", accent: "bg-orange-500" },
+  { id: "amber", name: "Âmbar", bg: "bg-amber-500/10", border: "border-amber-500/30", accent: "bg-amber-500" },
+  { id: "yellow", name: "Amarelo", bg: "bg-yellow-500/10", border: "border-yellow-500/30", accent: "bg-yellow-500" },
+  { id: "lime", name: "Lima", bg: "bg-lime-500/10", border: "border-lime-500/30", accent: "bg-lime-500" },
+  { id: "green", name: "Verde", bg: "bg-green-500/10", border: "border-green-500/30", accent: "bg-green-500" },
+  { id: "emerald", name: "Esmeralda", bg: "bg-emerald-500/10", border: "border-emerald-500/30", accent: "bg-emerald-500" },
+  { id: "teal", name: "Turquesa", bg: "bg-teal-500/10", border: "border-teal-500/30", accent: "bg-teal-500" },
+  { id: "cyan", name: "Ciano", bg: "bg-cyan-500/10", border: "border-cyan-500/30", accent: "bg-cyan-500" },
+  { id: "sky", name: "Céu", bg: "bg-sky-500/10", border: "border-sky-500/30", accent: "bg-sky-500" },
+  { id: "blue", name: "Azul", bg: "bg-blue-500/10", border: "border-blue-500/30", accent: "bg-blue-500" },
+  { id: "indigo", name: "Índigo", bg: "bg-indigo-500/10", border: "border-indigo-500/30", accent: "bg-indigo-500" },
+  { id: "violet", name: "Violeta", bg: "bg-violet-500/10", border: "border-violet-500/30", accent: "bg-violet-500" },
+  { id: "purple", name: "Roxo", bg: "bg-purple-500/10", border: "border-purple-500/30", accent: "bg-purple-500" },
+  { id: "fuchsia", name: "Fúcsia", bg: "bg-fuchsia-500/10", border: "border-fuchsia-500/30", accent: "bg-fuchsia-500" },
+  { id: "pink", name: "Rosa", bg: "bg-pink-500/10", border: "border-pink-500/30", accent: "bg-pink-500" },
+  { id: "rose", name: "Rosado", bg: "bg-rose-500/10", border: "border-rose-500/30", accent: "bg-rose-500" },
+];
+
+export function getListColor(tags: string[]) {
+  const colorTag = tags.find(t => t.startsWith("color:"));
+  const colorId = colorTag ? colorTag.replace("color:", "") : "default";
+  return LIST_COLORS.find(c => c.id === colorId) || LIST_COLORS[0];
+}
 
 interface ListDetailModalProps {
   list: AtomItem;
@@ -288,40 +322,83 @@ export function ListDetailModal({
   const completedCount = completedItems.length;
   const totalCount = listItems.length;
 
+  const currentColor = getListColor(list.tags);
+
+  const handleColorChange = async (colorId: string) => {
+    const newTags = list.tags.filter(t => !t.startsWith("color:"));
+    if (colorId !== "default") {
+      newTags.push(`color:${colorId}`);
+    }
+    try {
+      await updateItem({ id: list.id, tags: newTags });
+    } catch (error) {
+      toast.error("Erro ao alterar cor");
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col">
         <DialogHeader className="flex-shrink-0">
           <div className="flex items-center justify-between">
             <DialogTitle className="flex items-center gap-2">
-              <ListChecks className="h-5 w-5 text-primary" />
+              <div className={cn("w-3 h-3 rounded-full", currentColor.accent)} />
               {list.title}
             </DialogTitle>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-8 w-8">
-                  <MoreHorizontal className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="bg-popover border z-50">
-                <DropdownMenuItem onClick={onDuplicate}>
-                  <Copy className="h-4 w-4 mr-2" />
-                  Duplicar lista
-                </DropdownMenuItem>
-                <DropdownMenuItem 
-                  onClick={onClearCompleted}
-                  disabled={completedCount === 0}
-                >
-                  <Sparkles className="h-4 w-4 mr-2" />
-                  Limpar concluídos ({completedCount})
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={onDelete} className="text-destructive">
-                  <Trash2 className="h-4 w-4 mr-2" />
-                  Excluir lista
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <div className="flex items-center gap-1">
+              {/* Color Picker */}
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-8 w-8">
+                    <Palette className="h-4 w-4" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-3" align="end">
+                  <p className="text-xs font-medium text-muted-foreground mb-2">Cor da lista</p>
+                  <div className="grid grid-cols-6 gap-1.5">
+                    {LIST_COLORS.map((color) => (
+                      <button
+                        key={color.id}
+                        onClick={() => handleColorChange(color.id)}
+                        className={cn(
+                          "w-6 h-6 rounded-full transition-all hover:scale-110",
+                          color.accent,
+                          currentColor.id === color.id && "ring-2 ring-offset-2 ring-offset-background ring-foreground"
+                        )}
+                        title={color.name}
+                      />
+                    ))}
+                  </div>
+                </PopoverContent>
+              </Popover>
+
+              {/* Menu */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-8 w-8">
+                    <MoreHorizontal className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="bg-popover border z-50">
+                  <DropdownMenuItem onClick={onDuplicate}>
+                    <Copy className="h-4 w-4 mr-2" />
+                    Duplicar lista
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    onClick={onClearCompleted}
+                    disabled={completedCount === 0}
+                  >
+                    <Sparkles className="h-4 w-4 mr-2" />
+                    Limpar concluídos ({completedCount})
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={onDelete} className="text-destructive">
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Excluir lista
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </div>
           {totalCount > 0 && (
             <p className="text-sm text-muted-foreground">

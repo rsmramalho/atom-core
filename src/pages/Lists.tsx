@@ -20,7 +20,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { ListDetailModal } from "@/components/lists/ListDetailModal";
+import { ListDetailModal, getListColor } from "@/components/lists/ListDetailModal";
 import { useAtomItems } from "@/hooks/useAtomItems";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -221,20 +221,23 @@ export default function Lists() {
             const progress = getListProgress(list.id);
             const children = getListChildren(list.id);
             const previewItems = children.slice(0, 5);
+            const listColor = getListColor(list.tags);
 
             return (
               <Card 
                 key={list.id} 
                 className={cn(
-                  "cursor-pointer hover:border-primary/50 transition-colors group",
-                  "hover:shadow-md"
+                  "cursor-pointer transition-all group hover:shadow-md",
+                  listColor.bg,
+                  listColor.border,
+                  listColor.id !== "default" && "border"
                 )}
                 onClick={() => setSelectedList(list)}
               >
                 <CardHeader className="pb-2">
                   <div className="flex items-start justify-between">
                     <CardTitle className="text-base flex items-center gap-2">
-                      <ListChecks className="h-4 w-4 text-primary" />
+                      <div className={cn("w-3 h-3 rounded-full shrink-0", listColor.accent)} />
                       <span className="truncate">{list.title}</span>
                     </CardTitle>
                     <DropdownMenu>
