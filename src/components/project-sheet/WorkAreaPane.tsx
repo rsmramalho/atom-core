@@ -9,7 +9,8 @@ import {
   Sun,
   Sunset,
   Layers,
-  GripVertical
+  GripVertical,
+  ArrowRightLeft
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -17,7 +18,17 @@ import { ItemContextMenu, EditItemModal, DeleteConfirmDialog } from "@/component
 import { useAtomItems } from "@/hooks/useAtomItems";
 import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
-import type { AtomItem, RitualSlot } from "@/types/atom-engine";
+import type { AtomItem, RitualSlot, ItemType } from "@/types/atom-engine";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 // dnd-kit imports
 import {
@@ -441,6 +452,10 @@ export function WorkAreaPane({ items, onToggle }: WorkAreaPaneProps) {
   const { updateItem } = useAtomItems();
   const [activeId, setActiveId] = useState<string | null>(null);
   const [overSection, setOverSection] = useState<string | null>(null);
+  const [pendingConversion, setPendingConversion] = useState<{
+    item: AtomItem;
+    targetType: ItemType;
+  } | null>(null);
 
   // Filter out milestones (type='task' but with #milestone tag) - Single Table Design
   const tasks = items.filter(i => i.type === "task" && !i.tags.includes("#milestone"));
@@ -521,34 +536,14 @@ export function WorkAreaPane({ items, onToggle }: WorkAreaPaneProps) {
     const droppedOnHabitsSection = over.id === "habits-section" || 
       pendingHabits.some(h => h.id === over.id);
 
-    // Handle cross-section conversion
+    // Handle cross-section conversion - show confirmation dialog
     if (isActiveHabit && droppedOnTasksSection) {
-      try {
-        await updateItem({ id: active.id as string, type: "task" });
-        hapticFeedback.success();
-        toast({
-          title: "Convertido para Task",
-          description: `"${activeItemData.title}" agora é uma task.`,
-        });
-      } catch {
-        hapticFeedback.heavy();
-        toast({ title: "Erro ao converter", variant: "destructive" });
-      }
+      setPendingConversion({ item: activeItemData, targetType: "task" });
       return;
     }
 
     if (isActiveTask && droppedOnHabitsSection && !isSectionHeader(activeItemData)) {
-      try {
-        await updateItem({ id: active.id as string, type: "habit" });
-        hapticFeedback.success();
-        toast({
-          title: "Convertido para Hábito",
-          description: `"${activeItemData.title}" agora é um hábito.`,
-        });
-      } catch {
-        hapticFeedback.heavy();
-        toast({ title: "Erro ao converter", variant: "destructive" });
-      }
+      setPendingConversion({ item: activeItemData, targetType: "habit" });
       return;
     }
 
@@ -601,6 +596,27 @@ export function WorkAreaPane({ items, onToggle }: WorkAreaPaneProps) {
   const handleDragCancel = () => {
     setActiveId(null);
     setOverSection(null);
+  };
+
+  const handleConfirmConversion = async () => {
+    if (!pendingConversion) return;
+    
+    const { item, targetType } = pendingConversion;
+    const isToHabit = targetType === "habit";
+    
+    try {
+      await updateItem({ id: item.id, type: targetType });
+      hapticFeedback.success();
+      toast({
+        title: isToHabit ? "Convertido para Hábito" : "Convertido para Task",
+        description: `"${item.title}" agora é ${isToHabit ? "um hábito" : "uma task"}.`,
+      });
+    } catch {
+      hapticFeedback.heavy();
+      toast({ title: "Erro ao converter", variant: "destructive" });
+    } finally {
+      setPendingConversion(null);
+    }
   };
 
   return (
@@ -753,6 +769,33 @@ export function WorkAreaPane({ items, onToggle }: WorkAreaPaneProps) {
           />
         ) : null}
       </DragOverlay>
+
+      {/* Conversion confirmation dialog */}
+      <AlertDialog open={!!pendingConversion} onOpenChange={(open) => !open && setPendingConversion(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <ArrowRightLeft className="h-5 w-5 text-primary" />
+              Converter Item
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {pendingConversion && (
+                <>
+                  Deseja converter <strong>"{pendingConversion.item.title}"</strong> de{" "}
+                  <strong>{pendingConversion.item.type === "task" ? "Task" : "Hábito"}</strong> para{" "}
+                  <strong>{pendingConversion.targetType === "task" ? "Task" : "Hábito"}</strong>?
+                </>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmConversion}>
+              Confirmar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </DndContext>
   );
 }
