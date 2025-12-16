@@ -5,12 +5,14 @@ import {
   Check, 
   Diamond,
   Calendar,
-  Sparkles
+  Sparkles,
+  Scale
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Slider } from "@/components/ui/slider";
 import { ItemContextMenu, DeleteConfirmDialog } from "@/components/shared";
 import { cn } from "@/lib/utils";
 import { toast } from "@/hooks/use-toast";
@@ -19,7 +21,7 @@ import type { Milestone } from "@/hooks/useMilestones";
 interface MilestonesPaneProps {
   milestones: Milestone[];
   onToggle: (milestone: Milestone) => void;
-  onCreate: (title: string) => void;
+  onCreate: (title: string, weight: number) => void;
   onDelete: (id: string) => void;
   onUpdate?: (id: string, updates: Partial<Milestone>) => void;
   isCreating: boolean;
@@ -34,6 +36,7 @@ export function MilestonesPane({
   isCreating 
 }: MilestonesPaneProps) {
   const [newTitle, setNewTitle] = useState("");
+  const [newWeight, setNewWeight] = useState(3);
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingTitle, setEditingTitle] = useState("");
@@ -42,8 +45,10 @@ export function MilestonesPane({
 
   const handleAdd = () => {
     if (!newTitle.trim()) return;
-    onCreate(newTitle.trim());
+    if (newWeight < 1) return;
+    onCreate(newTitle.trim(), newWeight);
     setNewTitle("");
+    setNewWeight(3);
     setIsAdding(false);
   };
 
@@ -114,22 +119,46 @@ export function MilestonesPane({
         <CardContent className="relative">
           {/* Add new milestone */}
           {isAdding && (
-            <div className="flex gap-2 p-3 mb-4 bg-primary/10 rounded-lg border border-primary/20">
+            <div className="space-y-3 p-4 mb-4 bg-primary/10 rounded-lg border border-primary/20">
               <Input
                 placeholder="Ex: Lançamento Beta, MVP Pronto..."
                 value={newTitle}
                 onChange={(e) => setNewTitle(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleAdd()}
                 autoFocus
-                className="flex-1 bg-background"
+                className="bg-background"
               />
-              <Button 
-                size="sm" 
-                onClick={handleAdd}
-                disabled={!newTitle.trim() || isCreating}
-              >
-                Criar
-              </Button>
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Scale className="h-4 w-4" />
+                  <span>Peso:</span>
+                </div>
+                <Slider
+                  value={[newWeight]}
+                  onValueChange={(v) => setNewWeight(v[0])}
+                  min={1}
+                  max={10}
+                  step={1}
+                  className="flex-1"
+                />
+                <span className="text-lg font-bold text-primary w-10 text-right">{newWeight}x</span>
+              </div>
+              <div className="flex justify-end gap-2">
+                <Button 
+                  size="sm" 
+                  variant="ghost"
+                  onClick={() => { setIsAdding(false); setNewTitle(""); setNewWeight(3); }}
+                >
+                  Cancelar
+                </Button>
+                <Button 
+                  size="sm" 
+                  onClick={handleAdd}
+                  disabled={!newTitle.trim() || newWeight < 1 || isCreating}
+                >
+                  Criar
+                </Button>
+              </div>
             </div>
           )}
 
