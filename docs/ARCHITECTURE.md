@@ -2,9 +2,9 @@
 
 ## Arquitetura do Sistema
 
-**Versão:** 4.0.0-alpha.13  
+**Versão:** 4.0.0-alpha.14  
 **Data:** 2025-12-16  
-**Status:** Core Engine + Inbox + MacroPicker + Dashboard + Ritual + Project Sheet + Reflection Engine + Project Intelligence
+**Status:** Core Engine + Inbox + MacroPicker + Dashboard + Ritual + Project Sheet + Reflection Engine + Project Intelligence + **List Engine** + **Habit Streaks**
 
 ---
 
@@ -71,8 +71,10 @@ src/
 │   ├── Inbox.tsx                   # Inbox Engine UI (B.6)
 │   ├── Projects.tsx                # Lista de projetos
 │   ├── ProjectDetail.tsx           # Project Sheet (A.13)
+│   ├── Calendar.tsx                # Calendário (B.4)
 │   ├── RitualView.tsx              # Ritual imersivo (B.19)
-│   ├── Journal.tsx                 # Página de reflexões ⭐ NOVO
+│   ├── Journal.tsx                 # Página de reflexões
+│   ├── Lists.tsx                   # List Engine ⭐ NOVO
 │   └── NotFound.tsx                # 404
 │
 └── integrations/
@@ -306,7 +308,7 @@ Sistema de journaling e reflexões.
 
 ## 📋 Roadmap
 
-### ✅ Implementado (v4.0.0-alpha.13)
+### ✅ Implementado (v4.0.0-alpha.14)
 
 - [x] Modelo de dados (Single Table Design)
 - [x] Tipos TypeScript completos
@@ -317,10 +319,14 @@ Sistema de journaling e reflexões.
 - [x] Ritual View (B.19) com Check-in
 - [x] Project Sheet (A.13) com aba Journal
 - [x] Reflection Engine (B.11)
+- [x] Calendar Engine (B.4) com navegação avançada
 - [x] **Project Intelligence (B.9)** - State Machine + Progress Híbrido
 - [x] **WorkArea Drag & Drop** - Conversão de tipo task↔hábito
 - [x] **Ritual Slot via Context Menu** - Edição rápida de período
 - [x] **Visual Badges** - Status de projeto e ritual slot
+- [x] **List Engine** ⭐ NOVO - Listas rápidas com cores personalizadas
+- [x] **Habit Streaks** ⭐ NOVO - Badge de streak + Heatmap de histórico
+- [x] **Recurrence Engine (B.5)** ⭐ NOVO - Suporte a RRULE
 - [x] Sistema de navegação + Command Palette
 - [x] Debug Console (God Mode)
 - [x] Autenticação + RLS
@@ -331,6 +337,5 @@ Sistema de journaling e reflexões.
 - [ ] Alertas de deadline para milestones
 - [ ] Dashboard de métricas globais
 - [ ] Exportação do Journal em Markdown
-- [ ] Recorrência de hábitos (RRULE)
 - [ ] Notificações e lembretes
 - [ ] Estatísticas e analytics

@@ -8,7 +8,7 @@
 [![Pull Requests](https://img.shields.io/github/issues-pr/YOUR_USERNAME/YOUR_REPO?style=flat-square)](https://github.com/YOUR_USERNAME/YOUR_REPO/pulls)
 [![Contributors](https://img.shields.io/github/contributors/YOUR_USERNAME/YOUR_REPO?style=flat-square)](https://github.com/YOUR_USERNAME/YOUR_REPO/graphs/contributors)
 
-![Version](https://img.shields.io/badge/version-4.0.0--rc.1-blue?style=for-the-badge)
+![Version](https://img.shields.io/badge/version-4.0.0--alpha.14-blue?style=for-the-badge)
 ![Status](https://img.shields.io/badge/status-release%20candidate-green?style=for-the-badge)
 ![License](https://img.shields.io/badge/license-MIT-green?style=for-the-badge)
 ![React](https://img.shields.io/badge/React-18.3-61DAFB?style=for-the-badge&logo=react)
@@ -23,7 +23,7 @@
 
 ---
 
-## 🚀 v4.0.0-rc.1 - MILESTONE RELEASE
+## 🚀 v4.0.0-alpha.14 - Fase 4: Cérebro & Ciclos
 
 > **🎯 FORK POINT:** Esta versão marca um marco importante no desenvolvimento.  
 > O branch principal continua com inovações experimentais, enquanto a equipe faz fork  
@@ -42,6 +42,9 @@
 | Calendar Engine | ✅ | Month/week views, drag-and-drop |
 | Reflection Engine | ✅ | Journal, prompts, busca full-text |
 | Onboarding | ✅ | Welcome, tour, checklist, analytics |
+| **List Engine** | ✅ | **Listas com cores personalizadas** ⭐ NOVO |
+| **Habit Streaks** | ✅ | **Badge + Heatmap de conclusões** ⭐ NOVO |
+| **Recurrence Engine** | ✅ | **RRULE para tarefas recorrentes** ⭐ NOVO |
 
 ---
 
@@ -80,11 +83,17 @@ Na tela de login, clique em **"Não tem conta? Cadastre-se"**
 ├── Check-in com pergunta guiada ⭐
 └── Salvamento automático de reflexão
 
-📝 Journal (/journal) ⭐ NOVO
+📝 Journal (/journal)
 ├── Prompts por categoria
 ├── Busca full-text com highlight
 ├── Filtros por tag e período
 └── Timeline visual de reflexões
+
+📋 Listas (/lists) ⭐ NOVO
+├── Grid de cards estilo Keep
+├── Cores personalizadas (18 opções)
+├── Drag & Drop para reordenar
+└── Ações: duplicar, limpar, excluir
 ```
 
 ### 3. Atalhos de Teclado
@@ -95,10 +104,12 @@ Na tela de login, clique em **"Não tem conta? Cadastre-se"**
 | `⌘H` | Home |
 | `⌘I` | Inbox |
 | `⌘P` | Projetos |
+| `⌘L` | Calendário |
 | `⌘R` | Ritual |
-| `⌘J` | Journal ⭐ |
+| `⌘J` | Journal |
+| `⌘⇧L` | **Listas** ⭐ NOVO |
 | `⌘N` | Novo Item |
-| `/` | Buscar no Journal ⭐ |
+| `/` | Buscar no Journal |
 | `Ctrl+Shift+E` | Debug Console |
 
 ---
@@ -150,6 +161,22 @@ Gestão completa de projetos em 4 abas:
 3. **Notas** - Resources e Notes
 4. **Journal** - Reflexões e decisões do projeto
 
+### 📋 List Engine ⭐ NOVO
+
+Listas rápidas para organizar itens simples:
+
+- **Cores Personalizadas** - 18 opções de cores
+- **Grid Layout** - Estilo Google Keep
+- **Drag & Drop** - Reordenação de itens
+- **Ações Rápidas** - Duplicar, limpar concluídos, excluir
+
+### 🔥 Habit Streaks ⭐ NOVO
+
+Gamificação para hábitos:
+
+- **StreakBadge** - Badge visual de dias consecutivos
+- **HabitHeatmap** - Calendário de histórico de conclusões
+
 ---
 
 ## 🛠️ Stack Tecnológica
@@ -200,16 +227,22 @@ Contribuições são bem-vindas! Por favor, leia nosso [Guia de Contribuição](
 - [x] Inbox Engine (B.6)
 - [x] MacroPicker Engine (B.8)
 - [x] Dashboard Engine (B.10)
+- [x] Calendar Engine (B.4)
 - [x] Ritual Engine (B.19)
 - [x] Project Engine (B.9/B.13)
-- [x] **Reflection Engine (B.11)** ⭐
+- [x] Reflection Engine (B.11)
+- [x] **List Engine** ⭐ NOVO
+- [x] **Recurrence Engine (B.5)** ⭐ NOVO
 
 ### UI
 - [x] Dashboard com Focus/Today/Ritual
 - [x] Inbox com captura rápida
 - [x] Project Sheet com 4 abas
+- [x] Calendar com drag & drop
 - [x] Ritual View com Check-in
-- [x] **Journal com prompts e busca** ⭐
+- [x] Journal com prompts e busca
+- [x] **Listas com cores personalizadas** ⭐ NOVO
+- [x] **Habit Streaks + Heatmap** ⭐ NOVO
 - [x] Command Palette (⌘K)
 - [x] Empty States ilustrados
 - [x] Confetti de celebração
@@ -219,9 +252,7 @@ Contribuições são bem-vindas! Por favor, leia nosso [Guia de Contribuição](
 ## 🔲 Roadmap
 
 ### Próximas Etapas
-- [ ] CRUD completo para reflexões
 - [ ] Exportação do Journal em Markdown
-- [ ] Recorrência de hábitos (RRULE)
 - [ ] Notificações e lembretes
 - [ ] Estatísticas e analytics
 - [ ] PWA + Offline mode
@@ -263,9 +294,9 @@ Contribuições são bem-vindas! Por favor, leia nosso [Guia de Contribuição](
 
 ## 📝 Versão Atual
 
-**v4.0.0-rc.1** - 2025-12-16 🚀 **MILESTONE RELEASE**
+**v4.0.0-alpha.14** - 2025-12-16 🚀 **Fase 4: Cérebro & Ciclos**
 
-> Fork point para desenvolvimento de produção. Veja [CHANGELOG.md](docs/CHANGELOG.md) para detalhes.
+> List Engine, Habit Streaks, Recurrence Engine. Veja [CHANGELOG.md](docs/CHANGELOG.md) para detalhes.
 
 ---
 
