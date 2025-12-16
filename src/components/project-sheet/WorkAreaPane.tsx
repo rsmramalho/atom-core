@@ -24,9 +24,11 @@ const RITUAL_ICONS: Record<RitualSlot, React.ElementType> = {
   noite: Sunset,
 };
 
-// Tag Engine Lite: Check if item is a section header
+// Tag Engine Lite: Check if item is a section header (checks both tags array AND title)
 function isSectionHeader(item: AtomItem): boolean {
-  return item.tags?.some(tag => tag.toLowerCase() === "#scope_macro") || false;
+  const inTags = item.tags?.some(tag => tag.toLowerCase() === "#scope_macro") || false;
+  const inTitle = item.title.toLowerCase().includes("#scope_macro");
+  return inTags || inTitle;
 }
 
 // Group tasks by sections (#scope_macro)
