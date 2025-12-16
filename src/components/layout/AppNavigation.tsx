@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
 import { NavLink } from "@/components/NavLink";
-import { Home, FolderKanban, Inbox, Terminal, LogOut, Menu, Command, BookOpen, Calendar, ListChecks, RefreshCw, Loader2 } from "lucide-react";
+import { Home, FolderKanban, Inbox, Terminal, LogOut, Menu, Command, BookOpen, Calendar, ListChecks, RefreshCw, Loader2, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { getCacheTimestamp, formatCacheAge } from "@/lib/local-cache";
+import { getCacheTimestamp, formatCacheAge, clearLocalCache } from "@/lib/local-cache";
 import { useOfflineSyncContext } from "@/components/pwa/OfflineSyncContext";
 const navItems = [
   { title: "Home", url: "/", icon: Home },
@@ -57,6 +57,12 @@ export function AppNavigation() {
       metaKey: true,
     });
     document.dispatchEvent(event);
+  };
+
+  const handleClearCache = () => {
+    clearLocalCache();
+    setLastSync('Nunca');
+    toast.success("Cache local limpo");
   };
 
   return (
@@ -136,6 +142,20 @@ export function AppNavigation() {
                     >
                       <Terminal className="h-4 w-4" />
                       Debug Console
+                    </Button>
+                  </SheetClose>
+                  <SheetClose asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="w-full justify-start gap-3 text-muted-foreground hover:text-foreground"
+                      onClick={() => {
+                        setMobileMenuOpen(false);
+                        handleClearCache();
+                      }}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                      Limpar Cache
                     </Button>
                   </SheetClose>
                   <SheetClose asChild>
@@ -243,6 +263,15 @@ export function AppNavigation() {
             >
               <Terminal className="h-4 w-4" />
               Debug Console
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="w-full justify-start gap-3 text-muted-foreground hover:text-foreground"
+              onClick={handleClearCache}
+            >
+              <Trash2 className="h-4 w-4" />
+              Limpar Cache
             </Button>
             <Button
               variant="ghost"
