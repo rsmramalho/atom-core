@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FolderKanban, ChevronRight } from "lucide-react";
+import { FolderKanban, ChevronRight, Pause, CheckCircle2, Archive } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
 import { ItemContextMenu, EditItemModal, DeleteConfirmDialog, ModuleBadge } from "@/components/shared";
 import { useAtomItems } from "@/hooks/useAtomItems";
 import { toast } from "@/hooks/use-toast";
-import type { AtomItem } from "@/types/atom-engine";
+import { cn } from "@/lib/utils";
+import type { AtomItem, ProjectStatus } from "@/types/atom-engine";
 
 interface ProjectCardProps {
   project: AtomItem & {
@@ -15,6 +17,27 @@ interface ProjectCardProps {
     completedItems: number;
   };
 }
+
+// Status visual config
+const STATUS_BADGE_CONFIG: Record<ProjectStatus, { label: string; icon: React.ReactNode; className: string } | null> = {
+  draft: null,
+  active: null,
+  paused: {
+    label: "Pausado",
+    icon: <Pause className="h-3 w-3" />,
+    className: "bg-amber-500/20 text-amber-600 border-amber-500/30",
+  },
+  completed: {
+    label: "Concluído",
+    icon: <CheckCircle2 className="h-3 w-3" />,
+    className: "bg-blue-500/20 text-blue-600 border-blue-500/30",
+  },
+  archived: {
+    label: "Arquivado",
+    icon: <Archive className="h-3 w-3" />,
+    className: "bg-slate-500/20 text-slate-500 border-slate-500/30",
+  },
+};
 
 export function ProjectCard({ project }: ProjectCardProps) {
   const navigate = useNavigate();
@@ -107,16 +130,29 @@ export function ProjectCard({ project }: ProjectCardProps) {
     }
   };
 
+  const status = project.project_status || "active";
+  const statusConfig = STATUS_BADGE_CONFIG[status];
+  const isPaused = status === "paused";
+  const isInactive = status === "paused" || status === "archived";
+
   return (
     <>
       <Card 
-        className="cursor-pointer hover:border-primary/50 transition-colors group"
+        className={cn(
+          "cursor-pointer hover:border-primary/50 transition-all group",
+          isPaused && "opacity-60 border-amber-500/30 bg-amber-500/5",
+          status === "archived" && "opacity-50 border-slate-500/30 bg-slate-500/5",
+          status === "completed" && "border-blue-500/30 bg-blue-500/5"
+        )}
         onClick={() => navigate(`/projects/${project.id}`)}
       >
         <CardContent className="p-4">
           <div className="flex items-start justify-between mb-3">
             <div className="flex items-center gap-2">
-              <FolderKanban className="h-5 w-5 text-primary" />
+              <FolderKanban className={cn(
+                "h-5 w-5",
+                status === "completed" ? "text-blue-500" : "text-primary"
+              )} />
               <h3 className="font-semibold">{project.title}</h3>
             </div>
             <div className="flex items-center gap-1">
@@ -130,9 +166,15 @@ export function ProjectCard({ project }: ProjectCardProps) {
             </div>
           </div>
 
-          {/* Module Badge */}
-          <div className="mb-3">
+          {/* Module Badge + Status Badge */}
+          <div className="mb-3 flex items-center gap-2">
             <ModuleBadge module={project.module} />
+            {statusConfig && (
+              <Badge variant="outline" className={cn("text-xs gap-1", statusConfig.className)}>
+                {statusConfig.icon}
+                {statusConfig.label}
+              </Badge>
+            )}
           </div>
 
           <div className="space-y-2">

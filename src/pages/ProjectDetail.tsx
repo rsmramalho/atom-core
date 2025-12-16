@@ -32,6 +32,7 @@ import { QuickAddTaskModal } from "@/components/project-sheet/QuickAddTaskModal"
 import { QuickAddMilestoneModal } from "@/components/project-sheet/QuickAddMilestoneModal";
 import { Confetti } from "@/components/shared/Confetti";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 import type { ProjectStatus, ProgressMode } from "@/types/atom-engine";
 
 type ProjectTab = "work" | "milestones" | "notes" | "journal";
@@ -80,6 +81,7 @@ export default function ProjectDetail() {
   // Check if project is completed (locked)
   const isProjectCompleted = project?.project_status === "completed";
   const isProjectArchived = project?.project_status === "archived";
+  const isProjectPaused = project?.project_status === "paused";
   const isProjectLocked = isProjectCompleted || isProjectArchived;
 
   // Handle status change
@@ -92,14 +94,23 @@ export default function ProjectDetail() {
         project_status: newStatus,
       });
 
-      // Trigger confetti on completion
+      // Trigger confetti and special toast on completion
       if (newStatus === "completed") {
         setShowConfetti(true);
-        toast.success("🎉 Projeto concluído! Parabéns pela conquista!");
+        toast.success("🎉 Projeto concluído! Parabéns pela conquista!", {
+          description: "Que tal criar uma reflexão de encerramento para documentar este momento?",
+          action: {
+            label: "Criar Reflexão",
+            onClick: () => {
+              setActiveTab("journal");
+            },
+          },
+          duration: 8000,
+        });
       } else if (newStatus === "active") {
         toast.success("Projeto reativado");
       } else if (newStatus === "paused") {
-        toast.info("Projeto pausado");
+        toast.info("Projeto pausado - itens não contam para métricas globais");
       } else if (newStatus === "archived") {
         toast.info("Projeto arquivado");
       }
@@ -218,7 +229,10 @@ export default function ProjectDetail() {
   };
 
   return (
-    <div className="p-4 md:p-8 max-w-4xl mx-auto space-y-6 pb-24">
+    <div className={cn(
+      "p-4 md:p-8 max-w-4xl mx-auto space-y-6 pb-24 transition-opacity",
+      isProjectPaused && "opacity-70"
+    )}>
       {/* Confetti celebration */}
       <Confetti trigger={showConfetti} onComplete={() => setShowConfetti(false)} />
 
