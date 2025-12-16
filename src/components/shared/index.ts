@@ -6,3 +6,4 @@ export { Confetti } from "./Confetti";
 export { ModuleBadge, MODULE_OPTIONS, getModuleConfig } from "./ModuleBadge";
 export { TagGlossary } from "./TagGlossary";
 export { StreakBadge } from "./StreakBadge";
+export { HabitHeatmap } from "./HabitHeatmap";

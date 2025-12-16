@@ -1,6 +1,7 @@
 import { Sunrise, Sun, Moon, CheckCircle2, Circle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StreakBadge } from "@/components/shared/StreakBadge";
+import { HabitHeatmap } from "@/components/shared/HabitHeatmap";
 import type { AtomItem, RitualSlot } from "@/types/atom-engine";
 
 interface RitualBannerProps {
@@ -62,7 +63,11 @@ export function RitualBanner({ items, currentSlot, onToggle }: RitualBannerProps
                 {item.title}
               </span>
               {item.completion_log && item.completion_log.length > 0 && (
-                <StreakBadge completionLog={item.completion_log} compact />
+                <HabitHeatmap 
+                  habitTitle={item.title}
+                  completionLog={item.completion_log}
+                  trigger={<StreakBadge completionLog={item.completion_log} compact className="cursor-pointer hover:scale-105 transition-transform" />}
+                />
               )}
             </div>
           ))}
