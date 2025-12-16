@@ -35,6 +35,44 @@ Arquivos essenciais para entender o sistema:
 
 ---
 
+## [4.0.0-alpha.14] - 2025-12-16
+
+### Adicionado
+
+#### List Engine (Fase 4) - Listas Rápidas
+- **Nova Rota `/lists`:** Página dedicada para listas com grid layout estilo Google Keep
+- **ListDetailModal:** Modal de edição com input rápido (Enter para adicionar), checkboxes e drag & drop
+- **Cores Personalizadas:** 18 opções de cores via picker (armazenadas como tag `color:*`)
+- **Ações Rápidas:**
+  - Duplicar lista (copia título e todos os itens)
+  - Limpar concluídos (remove itens completados)
+  - Excluir lista (com confirmação)
+- **Hierarquia:** Listas são items `type='list'`, itens internos são tasks com `parent_id`
+- **Atalho ⌘⇧L:** Acesso rápido via Command Palette
+- **Isolamento:** Itens de listas NÃO aparecem no Dashboard Today (a menos que tenham due_date)
+
+#### Habit Streaks & Heatmap
+- **StreakBadge:** Badge visual mostrando dias consecutivos de conclusão
+- **HabitHeatmap:** Visualização de histórico de conclusões em formato calendário
+  - Exibe últimos 90+ dias
+  - Cores indicam dias completados
+  - Mostra streak atual, maior streak e % de conclusão mensal
+- **Integração:** Badge clicável no Dashboard, WorkAreaPane e RitualBanner
+
+#### Recurrence Engine (B.5)
+- **RRULE Support:** Integração com biblioteca rrule para padrões complexos
+- **RecurrencePickerModal:** Modal para configurar recorrência em tasks com due_date
+- **Presets:** Diário, semanal (dias específicos), mensal
+- **Completion Log:** Campo JSONB para rastrear conclusões de instâncias recorrentes
+- **Virtual Projection:** Instâncias projetadas visualmente no calendário sem persistir no DB
+
+### Modificado
+- **AppNavigation:** Adicionado link "Listas" na sidebar
+- **CommandPalette:** Adicionada opção "Ir para Listas" com atalho ⌘⇧L
+- **ProjectFab:** Adicionada opção "Nova Lista" no menu flutuante
+
+---
+
 ## [4.0.0-alpha.13] - 2025-12-16
 
 ### Adicionado

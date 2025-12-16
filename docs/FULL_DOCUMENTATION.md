@@ -1,7 +1,7 @@
 # MindMate - Atom Engine 4.0
 # Documentação Completa Consolidada
 
-**Versão:** 4.0.0-rc.1 (Release Candidate)  
+**Versão:** 4.0.0-alpha.14  
 **Data:** 2025-12-16  
 **Status:** 🚀 **MILESTONE RELEASE** - Fork Point para Desenvolvimento de Produção
 
@@ -84,6 +84,12 @@ Na tela de login, clique em **"Não tem conta? Cadastre-se"**
 ├── Busca full-text com highlight
 ├── Filtros por tag e período
 └── Timeline visual de reflexões
+
+📋 Listas (/lists) ⭐ NOVO
+├── Grid de cards estilo Keep
+├── Cores personalizadas (18 opções)
+├── Drag & Drop para reordenar
+└── Ações: duplicar, limpar, excluir
 ```
 
 ---
@@ -145,6 +151,25 @@ Gestão completa de projetos em 4 abas:
 3. **Notas** - Resources e Notes
 4. **Journal** - Reflexões e decisões do projeto
 
+## 📋 List Engine ⭐ NOVO
+
+Listas rápidas para organizar itens simples (compras, filmes, ideias):
+
+- **Cores Personalizadas:** 18 opções de cores via picker
+- **Grid Layout:** Estilo Google Keep
+- **Drag & Drop:** Reordenação de itens
+- **Ações Rápidas:** Duplicar, limpar concluídos, excluir
+- **Hierarquia:** Listas são `type='list'`, itens são tasks com `parent_id`
+- **Isolamento:** Itens de listas não aparecem no Dashboard Today
+
+## 🔥 Habit Streaks ⭐ NOVO
+
+Sistema de gamificação para hábitos:
+
+- **StreakBadge:** Badge visual mostrando dias consecutivos
+- **HabitHeatmap:** Calendário de histórico de conclusões
+- **Métricas:** Streak atual, maior streak, % conclusão mensal
+
 ---
 
 # ATALHOS DE TECLADO
@@ -160,6 +185,7 @@ Gestão completa de projetos em 4 abas:
 | `⌘L` / `Ctrl+L` | Calendário |
 | `⌘R` / `Ctrl+R` | Ritual |
 | `⌘J` / `Ctrl+J` | Journal |
+| `⌘⇧L` | **Listas** ⭐ NOVO |
 | `⌘N` / `Ctrl+N` | Novo Item |
 | `Ctrl+Shift+E` | Debug Console |
 
@@ -933,7 +959,9 @@ Use `Ctrl+Shift+E` para:
 - [x] Ritual Engine (B.19)
 - [x] Project Engine (B.9/B.13)
 - [x] Reflection Engine (B.11)
-- [x] **Integrity Guards (B.3)** ← NOVO
+- [x] Integrity Guards (B.3)
+- [x] **List Engine** ⭐ NOVO
+- [x] **Recurrence Engine (B.5)** ⭐ NOVO
 
 ## ✅ UI Implementada
 - [x] Dashboard com Focus/Today/Ritual
@@ -945,11 +973,11 @@ Use `Ctrl+Shift+E` para:
 - [x] Command Palette (⌘K)
 - [x] Empty States ilustrados
 - [x] Confetti de celebração
+- [x] **Listas com cores personalizadas** ⭐ NOVO
+- [x] **Habit Streaks + Heatmap** ⭐ NOVO
 
 ## 🔲 Próximas Etapas
-- [ ] CRUD completo para reflexões
 - [ ] Exportação do Journal em Markdown
-- [ ] Recorrência de hábitos (RRULE)
 - [ ] Notificações e lembretes
 - [ ] Estatísticas e analytics
 - [ ] PWA + Offline mode
