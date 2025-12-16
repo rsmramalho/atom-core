@@ -10,8 +10,9 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Keyboard } from "lucide-react";
+import { Keyboard, RotateCcw } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { useOnboarding } from "@/components/onboarding";
 
 const shortcuts = [
   { keys: ["⌘", "K"], description: "Abrir Command Palette" },
@@ -36,6 +37,12 @@ const calendarShortcuts = [
 
 export function KeyboardShortcutsHelp() {
   const [open, setOpen] = useState(false);
+  const { resetOnboarding } = useOnboarding();
+
+  const handleRestartTour = () => {
+    setOpen(false);
+    resetOnboarding();
+  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -111,9 +118,20 @@ export function KeyboardShortcutsHelp() {
           ))}
         </div>
 
-        <p className="text-xs text-muted-foreground text-center">
-          No Windows/Linux, use <kbd className="rounded border px-1">Ctrl</kbd> ao invés de <kbd className="rounded border px-1">⌘</kbd>
-        </p>
+        <div className="flex flex-col gap-3 pt-2 border-t">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={handleRestartTour}
+            className="w-full gap-2"
+          >
+            <RotateCcw className="h-4 w-4" />
+            Reiniciar Tour Guiado
+          </Button>
+          <p className="text-xs text-muted-foreground text-center">
+            No Windows/Linux, use <kbd className="rounded border px-1">Ctrl</kbd> ao invés de <kbd className="rounded border px-1">⌘</kbd>
+          </p>
+        </div>
       </DialogContent>
     </Dialog>
   );
