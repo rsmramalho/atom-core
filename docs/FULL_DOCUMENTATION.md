@@ -1,9 +1,9 @@
 # MindMate - Atom Engine 4.0
 # Documentação Completa Consolidada
 
-**Versão:** 4.0.0-alpha.11  
+**Versão:** 4.0.0-alpha.12  
 **Data:** 2025-12-16  
-**Status:** Core Engine + Inbox + MacroPicker + Dashboard + Ritual + Project Sheet + Reflection Engine + Calendar Engine + Integrity Guards
+**Status:** Core Engine + Inbox + MacroPicker + Dashboard + Ritual + Project Sheet + Reflection Engine + Calendar Engine + Integrity Guards + Project Intelligence
 
 ---
 
@@ -334,7 +334,7 @@ CREATE TYPE item_type AS ENUM (
 
 CREATE TYPE ritual_slot AS ENUM ('manha', 'meio_dia', 'noite');
 CREATE TYPE project_status AS ENUM ('draft', 'active', 'paused', 'completed', 'archived');
-CREATE TYPE progress_mode AS ENUM ('auto', 'manual');
+CREATE TYPE progress_mode AS ENUM ('auto', 'manual', 'milestone');
 ```
 
 ---
@@ -422,11 +422,71 @@ Experiência imersiva para hábitos diários com check-in integrado.
 3. Encerramento → Retorna ao dashboard
 ```
 
-## 7. Project Engine (B.9/B.13)
+## 7. Project Engine (B.9/A.18) - Inteligência de Projetos
 
-**Arquivos:** `src/hooks/useProjectProgress.ts`, `src/pages/ProjectDetail.tsx`
+**Arquivos:** `src/hooks/useProjectProgress.ts`, `src/pages/ProjectDetail.tsx`, `src/components/project-sheet/ProjectStatusDropdown.tsx`, `src/components/project-sheet/ProjectSettingsModal.tsx`
 
-Gestão de projetos com milestones e Journal integrado.
+Gestão de projetos com State Machine e Progress Engine Híbrido.
+
+### State Machine (Ciclo de Vida)
+
+```
+┌────────┐     ┌────────┐     ┌───────────┐
+│  Draft │ ──▶ │ Active │ ──▶ │ Completed │
+└────────┘     └───┬────┘     └─────┬─────┘
+                   │                │
+                   ▼                ▼
+              ┌────────┐      ┌──────────┐
+              │ Paused │      │ Archived │
+              └────────┘      └──────────┘
+```
+
+| Status | Ícone | Comportamento |
+|--------|-------|---------------|
+| `draft` | ⬜ | Projeto em planejamento |
+| `active` | ▶️ | Projeto ativo - itens contam para estatísticas |
+| `paused` | ⏸️ | Projeto pausado - **itens NÃO contam para estatísticas globais** |
+| `completed` | ✅ | Projeto concluído - **confetti animation** + criação de tasks travada |
+| `archived` | 📦 | Projeto arquivado - criação de tasks travada |
+
+**Regras de Negócio:**
+- Projetos `paused` são excluídos de `calculateGlobalProgress()`
+- Transição para `completed` dispara celebração visual (Confetti)
+- Projetos `completed` ou `archived` bloqueiam criação de novas tasks/milestones
+
+### Progress Engine Híbrido (A.18)
+
+Três modos de cálculo de progresso configuráveis por projeto:
+
+| Modo | Fórmula | Uso |
+|------|---------|-----|
+| `auto` | `(Tasks + Milestones concluídos) / Total * 100` | Padrão - considera tudo |
+| `milestone` | `(Soma pesos milestones concluídos) / Soma total pesos * 100` | Ignora tasks - só milestones |
+| `manual` | Valor definido pelo usuário (0-100) | Controle total do progresso |
+
+**Hook useProjectProgress:**
+```typescript
+const result = useProjectProgress(projectItems, {
+  mode: 'auto' | 'milestone' | 'manual',
+  manualProgress: 50, // usado apenas no modo manual
+});
+
+// Retorno:
+{
+  progress: number;           // 0-100
+  totalWeight: number;        // Soma de pesos
+  completedWeight: number;    // Pesos concluídos
+  taskCount: number;          // Total de tasks
+  taskCompletedCount: number; // Tasks concluídas
+  milestoneCount: number;     // Total de milestones
+  milestoneCompletedCount: number; // Milestones concluídas
+  mode: ProgressMode;         // Modo ativo
+}
+```
+
+**Componentes UI:**
+- `ProjectStatusDropdown`: Dropdown com ícones e confirmação para transições sensíveis
+- `ProjectSettingsModal`: Modal para configurar modo de progresso e valor manual
 
 ## 8. Reflection Engine (B.11)
 
@@ -588,7 +648,7 @@ type ItemType = "project" | "task" | "habit" | "note" | "reflection" | "resource
 type RitualSlot = "manha" | "meio_dia" | "noite" | null;
 type RitualPeriod = "aurora" | "zenite" | "crepusculo";
 type ProjectStatus = "draft" | "active" | "paused" | "completed" | "archived";
-type ProgressMode = "auto" | "manual";
+type ProgressMode = "auto" | "manual" | "milestone";
 type TimePeriod = "all" | "today" | "week" | "month" | "year";
 ```
 
@@ -615,7 +675,19 @@ const { milestones, createMilestone, toggleComplete, deleteMilestone } = useMile
 ### useProjectProgress
 
 ```typescript
-const { progress, taskCount, milestoneCount } = useProjectProgress(projectItems, milestones);
+const { 
+  progress, 
+  totalWeight,
+  completedWeight,
+  taskCount, 
+  taskCompletedCount,
+  milestoneCount,
+  milestoneCompletedCount,
+  mode 
+} = useProjectProgress(projectItems, {
+  mode: 'auto',       // 'auto' | 'milestone' | 'manual'
+  manualProgress: 0,  // usado apenas no modo 'manual'
+});
 ```
 
 ### useDashboardData
