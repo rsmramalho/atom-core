@@ -107,3 +107,37 @@ export function exportCacheAsBackup(): void {
     throw error;
   }
 }
+
+// Import cache from JSON backup file
+export function importCacheFromBackup(file: File): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    
+    reader.onload = (event) => {
+      try {
+        const content = event.target?.result as string;
+        const parsed = JSON.parse(content);
+        
+        // Validate backup structure
+        if (!parsed.version || !parsed.data) {
+          throw new Error('Formato de backup inválido');
+        }
+        
+        // Import the data
+        const cacheData: CacheData = {
+          version: CACHE_VERSION,
+          timestamp: Date.now(),
+          data: parsed.data,
+        };
+        
+        localStorage.setItem(CACHE_KEY, JSON.stringify(cacheData));
+        resolve();
+      } catch (error) {
+        reject(error);
+      }
+    };
+    
+    reader.onerror = () => reject(new Error('Erro ao ler arquivo'));
+    reader.readAsText(file);
+  });
+}

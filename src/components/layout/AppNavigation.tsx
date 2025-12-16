@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { NavLink } from "@/components/NavLink";
-import { Home, FolderKanban, Inbox, Terminal, LogOut, Menu, Command, BookOpen, Calendar, ListChecks, RefreshCw, Loader2, Trash2, Download } from "lucide-react";
+import { Home, FolderKanban, Inbox, Terminal, LogOut, Menu, Command, BookOpen, Calendar, ListChecks, RefreshCw, Loader2, Trash2, Download, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
 import {
@@ -16,7 +16,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { getCacheTimestamp, formatCacheAge, clearLocalCache, exportCacheAsBackup } from "@/lib/local-cache";
+import { getCacheTimestamp, formatCacheAge, clearLocalCache, exportCacheAsBackup, importCacheFromBackup } from "@/lib/local-cache";
 import { useOfflineSyncContext } from "@/components/pwa/OfflineSyncContext";
 const navItems = [
   { title: "Home", url: "/", icon: Home },
@@ -32,6 +32,7 @@ export function AppNavigation() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [lastSync, setLastSync] = useState<string>('');
   const [showClearCacheDialog, setShowClearCacheDialog] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { isOnline, isSyncing, pendingCount, syncPendingOperations } = useOfflineSyncContext();
 
   // Update sync time every minute
@@ -84,6 +85,30 @@ export function AppNavigation() {
     } catch {
       toast.error("Erro ao exportar backup");
     }
+  };
+
+  const handleImportBackup = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    try {
+      await importCacheFromBackup(file);
+      const timestamp = getCacheTimestamp();
+      setLastSync(formatCacheAge(timestamp));
+      toast.success("Backup importado com sucesso");
+      window.location.reload();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Erro ao importar backup");
+    }
+    
+    // Reset input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const triggerImport = () => {
+    fileInputRef.current?.click();
   };
 
   return (
@@ -191,6 +216,20 @@ export function AppNavigation() {
                     >
                       <Download className="h-4 w-4" />
                       Exportar Backup
+                    </Button>
+                  </SheetClose>
+                  <SheetClose asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="w-full justify-start gap-3 text-muted-foreground hover:text-foreground"
+                      onClick={() => {
+                        setMobileMenuOpen(false);
+                        triggerImport();
+                      }}
+                    >
+                      <Upload className="h-4 w-4" />
+                      Importar Backup
                     </Button>
                   </SheetClose>
                   <SheetClose asChild>
@@ -320,6 +359,15 @@ export function AppNavigation() {
             <Button
               variant="ghost"
               size="sm"
+              className="w-full justify-start gap-3 text-muted-foreground hover:text-foreground"
+              onClick={triggerImport}
+            >
+              <Upload className="h-4 w-4" />
+              Importar Backup
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
               className="w-full justify-start gap-3 text-muted-foreground hover:text-destructive"
               onClick={handleLogout}
             >
@@ -329,6 +377,15 @@ export function AppNavigation() {
           </div>
         </div>
       </nav>
+
+      {/* Hidden file input for backup import */}
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={handleImportBackup}
+        accept=".json"
+        className="hidden"
+      />
 
       {/* Clear Cache Confirmation Dialog */}
       <AlertDialog open={showClearCacheDialog} onOpenChange={setShowClearCacheDialog}>
