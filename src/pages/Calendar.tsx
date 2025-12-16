@@ -16,7 +16,7 @@ import { Loader2, Calendar as CalendarIcon } from "lucide-react";
 import { useCalendarItems, isMilestone } from "@/hooks/useCalendarItems";
 import { useAtomItems } from "@/hooks/useAtomItems";
 import { CalendarGrid } from "@/components/calendar/CalendarGrid";
-import { CalendarFilters, ItemTypeFilter, ModuleFilter } from "@/components/calendar/CalendarFilters";
+import { CalendarFilters, ItemTypeFilter, ModuleFilter, FilterCounts } from "@/components/calendar/CalendarFilters";
 import { DayDetailSheet } from "@/components/calendar/DayDetailSheet";
 import { CalendarItem } from "@/components/calendar/CalendarItem";
 import { EditItemModal } from "@/components/shared/EditItemModal";
@@ -81,6 +81,46 @@ export default function Calendar() {
 
   const { itemsByDate, overdueItems, isLoading, refetch } = useCalendarItems(currentDate);
   const { updateItem } = useAtomItems();
+
+  // Get all items flat for counting
+  const allItems = useMemo(() => {
+    const items: AtomItem[] = [];
+    for (const dateItems of Object.values(itemsByDate)) {
+      items.push(...dateItems);
+    }
+    items.push(...overdueItems);
+    return items;
+  }, [itemsByDate, overdueItems]);
+
+  // Calculate filter counts
+  const filterCounts = useMemo((): FilterCounts => {
+    const types: Record<ItemTypeFilter, number> = { all: 0, task: 0, habit: 0, milestone: 0 };
+    const modules: Record<ModuleFilter, number> = { all: 0, work: 0, body: 0, mind: 0, family: 0, geral: 0 };
+
+    for (const item of allItems) {
+      types.all++;
+      
+      // Type counts
+      if (isMilestone(item)) {
+        types.milestone++;
+      } else if (item.type === "task") {
+        types.task++;
+      } else if (item.type === "habit") {
+        types.habit++;
+      }
+
+      // Module counts
+      modules.all++;
+      const mod = (item.module?.toLowerCase() || "geral") as ModuleFilter;
+      if (mod in modules) {
+        modules[mod]++;
+      } else {
+        modules.geral++;
+      }
+    }
+
+    return { types, modules };
+  }, [allItems]);
 
   // Apply filters to itemsByDate
   const filteredItemsByDate = useMemo(() => {
@@ -229,6 +269,7 @@ export default function Calendar() {
           moduleFilter={moduleFilter}
           onTypeChange={handleTypeChange}
           onModuleChange={handleModuleChange}
+          counts={filterCounts}
         />
 
         {/* Calendar Grid */}
