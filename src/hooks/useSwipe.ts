@@ -1,4 +1,4 @@
-// Custom hook for swipe gesture detection
+// Custom hook for swipe gesture detection with haptic feedback
 import { useState, useCallback, TouchEvent } from "react";
 
 interface SwipeHandlers {
@@ -20,11 +20,26 @@ interface UseSwipeOptions {
   onSwipeUp?: () => void;
   onSwipeDown?: () => void;
   threshold?: number;
+  enableHaptics?: boolean;
 }
 
 interface UseSwipeResult {
   handlers: SwipeHandlers;
   swipeState: SwipeState;
+}
+
+/**
+ * Trigger haptic feedback using Web Vibration API
+ * @param pattern - Vibration pattern in ms (single number or array)
+ */
+function triggerHaptic(pattern: number | number[] = 15) {
+  if (typeof navigator !== "undefined" && "vibrate" in navigator) {
+    try {
+      navigator.vibrate(pattern);
+    } catch {
+      // Silently fail if vibration not supported
+    }
+  }
 }
 
 export function useSwipe({
@@ -33,6 +48,7 @@ export function useSwipe({
   onSwipeUp,
   onSwipeDown,
   threshold = 50,
+  enableHaptics = true,
 }: UseSwipeOptions): UseSwipeResult {
   const [touchStart, setTouchStart] = useState<{ x: number; y: number } | null>(null);
   const [touchEnd, setTouchEnd] = useState<{ x: number; y: number } | null>(null);
@@ -95,25 +111,35 @@ export function useSwipe({
     const distanceX = touchStart.x - touchEnd.x;
     const distanceY = touchStart.y - touchEnd.y;
     const isHorizontalSwipe = Math.abs(distanceX) > Math.abs(distanceY);
+    let swipeTriggered = false;
 
     if (isHorizontalSwipe) {
       if (distanceX > threshold) {
         onSwipeLeft?.();
+        swipeTriggered = true;
       } else if (distanceX < -threshold) {
         onSwipeRight?.();
+        swipeTriggered = true;
       }
     } else {
       if (distanceY > threshold) {
         onSwipeUp?.();
+        swipeTriggered = true;
       } else if (distanceY < -threshold) {
         onSwipeDown?.();
+        swipeTriggered = true;
       }
+    }
+
+    // Haptic feedback on successful swipe
+    if (swipeTriggered && enableHaptics) {
+      triggerHaptic(20); // Short vibration (20ms) for success
     }
 
     setTouchStart(null);
     setTouchEnd(null);
     setSwipeState({ isSwiping: false, direction: null, offsetX: 0, offsetY: 0 });
-  }, [touchStart, touchEnd, threshold, onSwipeLeft, onSwipeRight, onSwipeUp, onSwipeDown]);
+  }, [touchStart, touchEnd, threshold, onSwipeLeft, onSwipeRight, onSwipeUp, onSwipeDown, enableHaptics]);
 
   return {
     handlers: {
