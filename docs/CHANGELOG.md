@@ -7,6 +7,34 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [4.0.0-rc.1] - 2025-12-16 🚀 MILESTONE RELEASE
+
+> **🎯 FORK POINT:** Esta versão marca um marco importante no desenvolvimento do Atom Engine 4.0.
+> O branch principal continua com inovações experimentais, enquanto a equipe faz fork desta versão
+> para desenvolvimento do aplicativo de produção. Todas as funcionalidades core estão estáveis e testadas.
+
+### Highlights desta Release
+
+- ✅ **Core Engine Completo:** Parsing Engine, Inbox, MacroPicker, Dashboard, Projects
+- ✅ **Ritual System:** Períodos do dia com check-in e reflexões integradas
+- ✅ **Calendar Engine:** Visualização mensal/semanal com drag-and-drop
+- ✅ **Journal/Reflection:** Sistema completo de introspecção com prompts guiados
+- ✅ **Project Intelligence:** State machine, progress híbrido, milestones ponderados
+- ✅ **Onboarding System:** Welcome modal, tour guiado, checklist gamificado, analytics
+- ✅ **Power User Features:** Command palette, keyboard shortcuts, haptic feedback
+- ✅ **Mobile Ready:** Responsivo, swipe navigation, touch-optimized
+- ✅ **100+ Testes:** Cobertura de Parsing Engine, Dashboard filters, Milestones
+
+### Para a Equipe de Fork
+
+Arquivos essenciais para entender o sistema:
+- `docs/FULL_DOCUMENTATION.md` - Documentação técnica completa
+- `docs/ARCHITECTURE.md` - Visão geral da arquitetura
+- `docs/API.md` - Referência de APIs e hooks
+- `src/types/atom-engine.ts` - Source of truth para tipos
+
+---
+
 ## [4.0.0-alpha.13] - 2025-12-16
 
 ### Adicionado

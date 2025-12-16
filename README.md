@@ -5,8 +5,8 @@
 [![Tests](https://github.com/YOUR_USERNAME/YOUR_REPO/actions/workflows/test.yml/badge.svg)](https://github.com/YOUR_USERNAME/YOUR_REPO/actions/workflows/test.yml)
 [![codecov](https://codecov.io/gh/YOUR_USERNAME/YOUR_REPO/graph/badge.svg)](https://codecov.io/gh/YOUR_USERNAME/YOUR_REPO)
 
-![Version](https://img.shields.io/badge/version-4.0.0--alpha.8-blue?style=for-the-badge)
-![Status](https://img.shields.io/badge/status-alpha-orange?style=for-the-badge)
+![Version](https://img.shields.io/badge/version-4.0.0--rc.1-blue?style=for-the-badge)
+![Status](https://img.shields.io/badge/status-release%20candidate-green?style=for-the-badge)
 ![License](https://img.shields.io/badge/license-MIT-green?style=for-the-badge)
 ![React](https://img.shields.io/badge/React-18.3-61DAFB?style=for-the-badge&logo=react)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.0-3178C6?style=for-the-badge&logo=typescript)
@@ -20,16 +20,25 @@
 
 ---
 
-## ✨ O que há de novo na v4.0.0-alpha.8
+## 🚀 v4.0.0-rc.1 - MILESTONE RELEASE
 
-### 📝 Reflection Engine (Fase 3)
+> **🎯 FORK POINT:** Esta versão marca um marco importante no desenvolvimento.  
+> O branch principal continua com inovações experimentais, enquanto a equipe faz fork  
+> para desenvolvimento do aplicativo de produção.
 
-- **Página Journal** (`/journal`) - Espaço zen para reflexões
-- **Prompts Guiados** - Perguntas por categoria para inspirar
-- **Busca Full-Text** - Encontre reflexões rapidamente com highlight
-- **Check-in no Ritual** - Reflexão integrada ao fluxo de hábitos
-- **Journal no Projeto** - Aba dedicada para decisões e ideias
-- **Atalho ⌘J** - Acesso rápido ao diário
+### ✅ Funcionalidades Core Completas
+
+| Engine | Status | Descrição |
+|--------|--------|-----------|
+| Parsing Engine | ✅ | Tokens @hoje, @amanha, #tags, módulos |
+| Inbox Engine | ✅ | Captura e processamento |
+| MacroPicker | ✅ | Promoção com sugestões inteligentes |
+| Dashboard | ✅ | Focus, Today, Ritual sections |
+| Project Engine | ✅ | State machine, progress híbrido |
+| Ritual Engine | ✅ | Períodos, check-in, reflexões |
+| Calendar Engine | ✅ | Month/week views, drag-and-drop |
+| Reflection Engine | ✅ | Journal, prompts, busca full-text |
+| Onboarding | ✅ | Welcome, tour, checklist, analytics |
 
 ---
 
@@ -236,9 +245,9 @@ Gestão completa de projetos em 4 abas:
 
 ## 📝 Versão Atual
 
-**v4.0.0-alpha.8** - 2025-12-15
+**v4.0.0-rc.1** - 2025-12-16 🚀 **MILESTONE RELEASE**
 
-Veja [CHANGELOG.md](docs/CHANGELOG.md) para detalhes.
+> Fork point para desenvolvimento de produção. Veja [CHANGELOG.md](docs/CHANGELOG.md) para detalhes.
 
 ---
 

@@ -1,9 +1,12 @@
 # MindMate - Atom Engine 4.0
 # Documentação Completa Consolidada
 
-**Versão:** 4.0.0-alpha.13  
+**Versão:** 4.0.0-rc.1 (Release Candidate)  
 **Data:** 2025-12-16  
-**Status:** Core Engine + Inbox + MacroPicker + Dashboard + Ritual + Project Sheet + Reflection Engine + Calendar Engine + Integrity Guards + Project Intelligence + Visual Enhancements
+**Status:** 🚀 **MILESTONE RELEASE** - Fork Point para Desenvolvimento de Produção
+
+> Esta versão representa o marco estável do Atom Engine 4.0, com todas as funcionalidades core
+> implementadas e testadas. O branch principal continua evoluindo com inovações experimentais.
 
 ---
 
