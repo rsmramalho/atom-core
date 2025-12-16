@@ -456,6 +456,7 @@ export function WorkAreaPane({ items, onToggle }: WorkAreaPaneProps) {
     item: AtomItem;
     targetType: ItemType;
   } | null>(null);
+  const [selectedRitualSlot, setSelectedRitualSlot] = useState<RitualSlot | null>(null);
 
   // Filter out milestones (type='task' but with #milestone tag) - Single Table Design
   const tasks = items.filter(i => i.type === "task" && !i.tags.includes("#milestone"));
@@ -605,7 +606,11 @@ export function WorkAreaPane({ items, onToggle }: WorkAreaPaneProps) {
     const isToHabit = targetType === "habit";
     
     try {
-      await updateItem({ id: item.id, type: targetType });
+      await updateItem({ 
+        id: item.id, 
+        type: targetType,
+        ...(isToHabit && selectedRitualSlot ? { ritual_slot: selectedRitualSlot } : {})
+      });
       hapticFeedback.success();
       toast({
         title: isToHabit ? "Convertido para Hábito" : "Convertido para Task",
@@ -616,6 +621,14 @@ export function WorkAreaPane({ items, onToggle }: WorkAreaPaneProps) {
       toast({ title: "Erro ao converter", variant: "destructive" });
     } finally {
       setPendingConversion(null);
+      setSelectedRitualSlot(null);
+    }
+  };
+
+  const handleCloseConversionDialog = (open: boolean) => {
+    if (!open) {
+      setPendingConversion(null);
+      setSelectedRitualSlot(null);
     }
   };
 
@@ -771,21 +784,73 @@ export function WorkAreaPane({ items, onToggle }: WorkAreaPaneProps) {
       </DragOverlay>
 
       {/* Conversion confirmation dialog */}
-      <AlertDialog open={!!pendingConversion} onOpenChange={(open) => !open && setPendingConversion(null)}>
+      <AlertDialog open={!!pendingConversion} onOpenChange={handleCloseConversionDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
               <ArrowRightLeft className="h-5 w-5 text-primary" />
               Converter Item
             </AlertDialogTitle>
-            <AlertDialogDescription>
-              {pendingConversion && (
-                <>
-                  Deseja converter <strong>"{pendingConversion.item.title}"</strong> de{" "}
-                  <strong>{pendingConversion.item.type === "task" ? "Task" : "Hábito"}</strong> para{" "}
-                  <strong>{pendingConversion.targetType === "task" ? "Task" : "Hábito"}</strong>?
-                </>
-              )}
+            <AlertDialogDescription asChild>
+              <div className="space-y-4">
+                {pendingConversion && (
+                  <p>
+                    Deseja converter <strong>"{pendingConversion.item.title}"</strong> de{" "}
+                    <strong>{pendingConversion.item.type === "task" ? "Task" : "Hábito"}</strong> para{" "}
+                    <strong>{pendingConversion.targetType === "task" ? "Task" : "Hábito"}</strong>?
+                  </p>
+                )}
+                
+                {/* Ritual slot selector - only show when converting to habit */}
+                {pendingConversion?.targetType === "habit" && (
+                  <div className="space-y-2 pt-2">
+                    <p className="text-sm font-medium text-foreground">
+                      Período do ritual (opcional):
+                    </p>
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setSelectedRitualSlot(selectedRitualSlot === "manha" ? null : "manha")}
+                        className={cn(
+                          "flex items-center gap-2 px-3 py-2 rounded-lg border text-sm transition-colors",
+                          selectedRitualSlot === "manha" 
+                            ? "bg-amber-500/20 border-amber-500 text-amber-600" 
+                            : "border-border hover:bg-muted"
+                        )}
+                      >
+                        <Sunrise className="h-4 w-4" />
+                        Manhã
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setSelectedRitualSlot(selectedRitualSlot === "meio_dia" ? null : "meio_dia")}
+                        className={cn(
+                          "flex items-center gap-2 px-3 py-2 rounded-lg border text-sm transition-colors",
+                          selectedRitualSlot === "meio_dia" 
+                            ? "bg-yellow-500/20 border-yellow-500 text-yellow-600" 
+                            : "border-border hover:bg-muted"
+                        )}
+                      >
+                        <Sun className="h-4 w-4" />
+                        Meio-dia
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setSelectedRitualSlot(selectedRitualSlot === "noite" ? null : "noite")}
+                        className={cn(
+                          "flex items-center gap-2 px-3 py-2 rounded-lg border text-sm transition-colors",
+                          selectedRitualSlot === "noite" 
+                            ? "bg-purple-500/20 border-purple-500 text-purple-600" 
+                            : "border-border hover:bg-muted"
+                        )}
+                      >
+                        <Sunset className="h-4 w-4" />
+                        Noite
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
