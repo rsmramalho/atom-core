@@ -444,8 +444,24 @@ function SortableHabitItem({
           {item.title}
         </span>
 
-        {RitualIcon && (
-          <RitualIcon className="h-4 w-4 text-amber-500" />
+        {/* Ritual slot badge */}
+        {item.ritual_slot && (
+          <Badge 
+            variant="outline" 
+            className={cn(
+              "text-xs px-1.5 py-0.5 flex items-center gap-1 shrink-0",
+              item.ritual_slot === "manha" && "bg-amber-500/10 border-amber-500/30 text-amber-600",
+              item.ritual_slot === "meio_dia" && "bg-yellow-500/10 border-yellow-500/30 text-yellow-600",
+              item.ritual_slot === "noite" && "bg-purple-500/10 border-purple-500/30 text-purple-600"
+            )}
+          >
+            {RitualIcon && <RitualIcon className="h-3 w-3" />}
+            <span className="hidden sm:inline">
+              {item.ritual_slot === "manha" && "Manhã"}
+              {item.ritual_slot === "meio_dia" && "Meio-dia"}
+              {item.ritual_slot === "noite" && "Noite"}
+            </span>
+          </Badge>
         )}
 
         {/* Context menu */}
