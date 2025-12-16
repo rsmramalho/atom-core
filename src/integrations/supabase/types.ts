@@ -110,6 +110,39 @@ export type Database = {
           },
         ]
       }
+      onboarding_progress: {
+        Row: {
+          checklist_progress: Json
+          created_at: string
+          has_completed_tour: boolean
+          has_completed_welcome: boolean
+          id: string
+          show_checklist: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          checklist_progress?: Json
+          created_at?: string
+          has_completed_tour?: boolean
+          has_completed_welcome?: boolean
+          id?: string
+          show_checklist?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          checklist_progress?: Json
+          created_at?: string
+          has_completed_tour?: boolean
+          has_completed_welcome?: boolean
+          id?: string
+          show_checklist?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
