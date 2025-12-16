@@ -7,6 +7,36 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [4.0.0-alpha.9] - 2025-12-16
+
+### Adicionado
+
+#### Single Table Design - Milestones Unificados
+- **Migração de Dados:** Milestones movidos da tabela `project_milestones` para `items`
+- **Tag `#milestone`:** Milestones são agora items com type='task' e tag '#milestone'
+- **Coluna `weight`:** Adicionada à tabela `items` (integer, default: 1)
+- **Peso Customizável:** Slider 1-10x na criação de milestones (padrão: 3)
+- **Tooltips Explicativos:** Informações sobre impacto do peso no progresso
+
+#### Validação de Peso
+- **Validação >= 1:** Peso mínimo garantido na criação
+- **Feedback Visual:** Slider com indicador de peso em tempo real
+- **Tooltips:** Explicação da fórmula de cálculo de progresso
+
+### Modificado
+- **`useMilestones.ts`:** Refatorado para consultar tabela `items` com filtro de tag
+- **`useProjectProgress.ts`:** Aceita apenas `projectItems` (Single Table Design)
+- **`MilestonesPane.tsx`:** Suporte a peso customizado com slider
+- **`QuickAddMilestoneModal.tsx`:** Adicionado slider de peso
+- **`WorkAreaPane.tsx`:** Filtra milestones (#milestone) da lista de tasks
+- **Documentação:** Atualizada para refletir Single Table Design
+
+### Removido
+- **Tabela `project_milestones`:** Consolidada na tabela `items`
+- **Interface `Milestone` separada:** Milestones são agora `AtomItem` com tag
+
+---
+
 ## [4.0.0-alpha.8] - 2025-12-15
 
 ### Adicionado

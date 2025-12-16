@@ -1,8 +1,8 @@
 # MindMate - Atom Engine 4.0
 # Documentação Completa
 
-**Versão:** 4.0.0-alpha.8  
-**Data:** 2025-12-15  
+**Versão:** 4.0.0-alpha.9  
+**Data:** 2025-12-16  
 **Gerado em:** 2025-12-16
 
 ---
@@ -214,9 +214,9 @@ Gestão completa de projetos em 4 abas:
 │                       DATA LAYER                              │
 │  ┌───────────────────────────────────────────────────────┐   │
 │  │              Lovable Cloud (Supabase)                  │   │
-│  │  ┌──────────┐  ┌──────────────────────┐               │   │
-│  │  │  items   │  │  project_milestones  │               │   │
-│  │  └──────────┘  └──────────────────────┘               │   │
+│  │  ┌──────────────────────────────────────────────────┐ │   │
+│  │  │  items (Single Table Design - inclui milestones) │ │   │
+│  │  └──────────────────────────────────────────────────┘ │   │
 │  └───────────────────────────────────────────────────────┘   │
 └───────────────────────────────────────────────────────────────┘
 ```
@@ -304,7 +304,7 @@ src/
 
 ### Tabela: `items`
 
-Single Table Design para todos os tipos de itens (Doc B.3, B.9).
+Single Table Design para todos os tipos de itens, incluindo milestones (Doc B.3, B.9).
 
 | Coluna | Tipo | Descrição |
 |--------|------|-----------|
@@ -313,29 +313,32 @@ Single Table Design para todos os tipos de itens (Doc B.3, B.9).
 | `title` | text | Título do item |
 | `type` | item_type | Tipo: project, task, habit, note, reflection, resource, list |
 | `module` | text | Módulo (work, body, mind, etc) |
-| `tags` | text[] | Array de tags |
+| `tags` | text[] | Array de tags (inclui `#milestone` para milestones) |
 | `parent_id` | uuid | FK para item pai |
 | `project_id` | uuid | FK para projeto container |
 | `due_date` | date | Data de vencimento |
 | `ritual_slot` | ritual_slot | Slot de ritual (manha, meio_dia, noite) |
 | `completed` | boolean | Estado de conclusão |
+| `weight` | integer | Peso para cálculo de progresso (default: 1, milestones: 3) |
 | `notes` | text | Conteúdo/notas |
 | `created_at` | timestamptz | Timestamp de criação |
 | `updated_at` | timestamptz | Timestamp de atualização |
 
-### Tabela: `project_milestones`
+### Milestones (Single Table Design)
 
-Milestones como entidades independentes (Doc B.9/B.13).
+Milestones são items normais com tag `#milestone`. Não existe mais tabela separada.
 
-| Coluna | Tipo | Descrição |
-|--------|------|-----------|
-| `id` | uuid | Chave primária |
-| `project_id` | uuid | FK para items (projeto) |
-| `user_id` | uuid | FK para auth.users |
-| `title` | text | Título da milestone |
-| `completed` | boolean | Estado de conclusão |
-| `weight` | integer | Peso no progresso (default: 3) |
-| `due_date` | date | Data de entrega |
+| Propriedade | Valor |
+|-------------|-------|
+| `type` | 'task' |
+| `tags` | Inclui '#milestone' |
+| `weight` | 1-10 (padrão: 3) |
+| `project_id` | UUID do projeto |
+
+**Fórmula de Progresso:**
+```
+progresso = (soma_pesos_concluidos / soma_total_pesos) × 100%
+```
 
 ### Enums
 
@@ -519,7 +522,9 @@ interface AtomItem {
   progress_mode: ProgressMode | null;
   progress: number | null;             // 0-100
   deadline: string | null;
-  milestones: Milestone[];             // [DEPRECATED]
+  
+  // Peso (para cálculo de progresso ponderado)
+  weight: number;                      // default: 1, milestones: 3
   
   // Timestamps
   created_at: string;
@@ -639,18 +644,40 @@ await createItem({
 
 ### useMilestones
 
-CRUD de milestones de projeto.
+CRUD de milestones de projeto (Single Table Design - itens com tag `#milestone`).
 
 ```typescript
-const { milestones, createMilestone, toggleComplete, deleteMilestone } = useMilestones(projectId);
+const { 
+  milestones, 
+  createMilestone, 
+  updateMilestone,
+  toggleComplete, 
+  deleteMilestone,
+  isCreating 
+} = useMilestones(projectId);
+
+// Criar milestone com peso customizado
+await createMilestone({ project_id: "uuid", title: "MVP Pronto", weight: 5 });
 ```
 
 ### useProjectProgress
 
-Cálculo de progresso híbrido (tasks + milestones).
+Cálculo de progresso ponderado (Single Table Design).
 
 ```typescript
-const { progress, taskCount, milestoneCount } = useProjectProgress(projectItems, milestones);
+// projectItems inclui tasks E milestones (diferenciados por tag)
+const progressData = useProjectProgress(projectItems);
+
+// Retorna:
+// {
+//   progress: 45,              // Porcentagem (0-100)
+//   taskCount: 10,             // Total de tasks (sem #milestone)
+//   taskCompletedCount: 4,     // Tasks concluídas
+//   milestoneCount: 3,         // Total de milestones (#milestone)
+//   milestoneCompletedCount: 1,// Milestones concluídas
+//   totalWeight: 19,           // Soma de todos os pesos
+//   completedWeight: 8         // Soma dos pesos concluídos
+// }
 ```
 
 ### useDashboardData
