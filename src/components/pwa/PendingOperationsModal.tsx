@@ -3,13 +3,14 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { getQueuedOperations, removeFromQueue, QueuedOperation } from "@/lib/offline-queue";
+import { getQueuedOperations, removeFromQueue, clearQueue, QueuedOperation } from "@/lib/offline-queue";
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { ArrowUpCircle, ArrowDownCircle, Trash2, X } from "lucide-react";
@@ -47,6 +48,16 @@ export function PendingOperationsModal({ open, onOpenChange }: PendingOperations
       toast.success("Operação cancelada");
     } catch {
       toast.error("Erro ao cancelar operação");
+    }
+  };
+
+  const handleCancelAll = async () => {
+    try {
+      await clearQueue();
+      setOperations([]);
+      toast.success("Todas as operações canceladas");
+    } catch {
+      toast.error("Erro ao cancelar operações");
     }
   };
 
@@ -142,6 +153,19 @@ export function PendingOperationsModal({ open, onOpenChange }: PendingOperations
             </div>
           )}
         </ScrollArea>
+
+        {operations.length > 0 && (
+          <DialogFooter>
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={handleCancelAll}
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Cancelar Todas
+            </Button>
+          </DialogFooter>
+        )}
       </DialogContent>
     </Dialog>
   );
