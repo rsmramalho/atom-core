@@ -3,6 +3,16 @@ import { NavLink } from "@/components/NavLink";
 import { Home, FolderKanban, Inbox, Terminal, LogOut, Menu, Command, BookOpen, Calendar, ListChecks, RefreshCw, Loader2, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -21,6 +31,7 @@ export function AppNavigation() {
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [lastSync, setLastSync] = useState<string>('');
+  const [showClearCacheDialog, setShowClearCacheDialog] = useState(false);
   const { isOnline, isSyncing, pendingCount, syncPendingOperations } = useOfflineSyncContext();
 
   // Update sync time every minute
@@ -59,9 +70,10 @@ export function AppNavigation() {
     document.dispatchEvent(event);
   };
 
-  const handleClearCache = () => {
+  const confirmClearCache = () => {
     clearLocalCache();
     setLastSync('Nunca');
+    setShowClearCacheDialog(false);
     toast.success("Cache local limpo");
   };
 
@@ -151,7 +163,7 @@ export function AppNavigation() {
                       className="w-full justify-start gap-3 text-muted-foreground hover:text-foreground"
                       onClick={() => {
                         setMobileMenuOpen(false);
-                        handleClearCache();
+                        setShowClearCacheDialog(true);
                       }}
                     >
                       <Trash2 className="h-4 w-4" />
@@ -268,7 +280,7 @@ export function AppNavigation() {
               variant="ghost"
               size="sm"
               className="w-full justify-start gap-3 text-muted-foreground hover:text-foreground"
-              onClick={handleClearCache}
+              onClick={() => setShowClearCacheDialog(true)}
             >
               <Trash2 className="h-4 w-4" />
               Limpar Cache
@@ -285,6 +297,24 @@ export function AppNavigation() {
           </div>
         </div>
       </nav>
+
+      {/* Clear Cache Confirmation Dialog */}
+      <AlertDialog open={showClearCacheDialog} onOpenChange={setShowClearCacheDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Limpar cache local?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Isso removerá todos os dados salvos localmente. Os dados online não serão afetados, mas você precisará de conexão para recarregar.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmClearCache}>
+              Limpar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }
