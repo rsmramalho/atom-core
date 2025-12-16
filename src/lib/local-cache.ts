@@ -83,3 +83,27 @@ export function formatCacheAge(timestamp: number | null): string {
   if (hours < 24) return `${hours}h atrás`;
   return `${days}d atrás`;
 }
+
+// Export cache as JSON file for backup
+export function exportCacheAsBackup(): void {
+  try {
+    const cache = getFullCache();
+    const exportData = {
+      exportedAt: new Date().toISOString(),
+      ...cache,
+    };
+    
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `mindmate-backup-${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  } catch (error) {
+    console.error('Failed to export cache:', error);
+    throw error;
+  }
+}

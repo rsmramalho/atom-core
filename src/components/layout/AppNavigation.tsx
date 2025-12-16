@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { NavLink } from "@/components/NavLink";
-import { Home, FolderKanban, Inbox, Terminal, LogOut, Menu, Command, BookOpen, Calendar, ListChecks, RefreshCw, Loader2, Trash2 } from "lucide-react";
+import { Home, FolderKanban, Inbox, Terminal, LogOut, Menu, Command, BookOpen, Calendar, ListChecks, RefreshCw, Loader2, Trash2, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
 import {
@@ -16,7 +16,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { getCacheTimestamp, formatCacheAge, clearLocalCache } from "@/lib/local-cache";
+import { getCacheTimestamp, formatCacheAge, clearLocalCache, exportCacheAsBackup } from "@/lib/local-cache";
 import { useOfflineSyncContext } from "@/components/pwa/OfflineSyncContext";
 const navItems = [
   { title: "Home", url: "/", icon: Home },
@@ -75,6 +75,15 @@ export function AppNavigation() {
     setLastSync('Nunca');
     setShowClearCacheDialog(false);
     toast.success("Cache local limpo");
+  };
+
+  const handleExportBackup = () => {
+    try {
+      exportCacheAsBackup();
+      toast.success("Backup exportado com sucesso");
+    } catch {
+      toast.error("Erro ao exportar backup");
+    }
   };
 
   return (
@@ -168,6 +177,20 @@ export function AppNavigation() {
                     >
                       <Trash2 className="h-4 w-4" />
                       Limpar Cache
+                    </Button>
+                  </SheetClose>
+                  <SheetClose asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="w-full justify-start gap-3 text-muted-foreground hover:text-foreground"
+                      onClick={() => {
+                        setMobileMenuOpen(false);
+                        handleExportBackup();
+                      }}
+                    >
+                      <Download className="h-4 w-4" />
+                      Exportar Backup
                     </Button>
                   </SheetClose>
                   <SheetClose asChild>
@@ -284,6 +307,15 @@ export function AppNavigation() {
             >
               <Trash2 className="h-4 w-4" />
               Limpar Cache
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="w-full justify-start gap-3 text-muted-foreground hover:text-foreground"
+              onClick={handleExportBackup}
+            >
+              <Download className="h-4 w-4" />
+              Exportar Backup
             </Button>
             <Button
               variant="ghost"
