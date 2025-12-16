@@ -1,7 +1,7 @@
 // Journal Page - Zen-focused reflection space
 // Minimal distractions, focused on typography and content
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { JournalComposer, JournalFeed, JournalFilters, TimePeriod } from "@/components/journal";
 import { BookOpen, Search, X } from "lucide-react";
 import { AtomItem } from "@/types/atom-engine";
@@ -12,9 +12,29 @@ export default function Journal() {
   const [timePeriod, setTimePeriod] = useState<TimePeriod>("all");
   const [reflections, setReflections] = useState<AtomItem[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   const handleReflectionsChange = useCallback((items: AtomItem[]) => {
     setReflections(items);
+  }, []);
+
+  // Keyboard shortcut: "/" to focus search
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Ignore if user is typing in an input/textarea
+      const target = e.target as HTMLElement;
+      if (target.tagName === "INPUT" || target.tagName === "TEXTAREA") {
+        return;
+      }
+
+      if (e.key === "/") {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
   }, []);
 
   return (
@@ -55,18 +75,23 @@ export default function Journal() {
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
+              ref={searchInputRef}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Buscar reflexões..."
-              className="pl-9 pr-9"
+              className="pl-9 pr-16"
             />
-            {searchQuery && (
+            {searchQuery ? (
               <button
                 onClick={() => setSearchQuery("")}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
               >
                 <X className="h-4 w-4" />
               </button>
+            ) : (
+              <kbd className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-[10px] text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
+                /
+              </kbd>
             )}
           </div>
         </section>
