@@ -78,13 +78,13 @@ export default function ProjectDetail() {
     );
   }
 
-  const handleCreateMilestone = async (title: string, weight: number = 3) => {
+  const handleCreateMilestone = async (title: string, weight: number = 3, module: string | null = null) => {
     try {
       await createMilestone({ 
         project_id: id!, 
         title, 
         weight,
-        module: project?.module || null, // Context inheritance
+        module: module ?? project?.module ?? null,
       });
       toast.success("Milestone criada!");
     } catch (error) {
@@ -109,14 +109,15 @@ export default function ProjectDetail() {
     }
   };
 
-  const handleCreateTask = async (title: string) => {
+  const handleCreateTask = async (title: string, module: string | null = null) => {
+    const finalModule = module ?? project?.module ?? null;
     try {
       await createItem({
         title,
         type: "task",
         project_id: id!,
-        module: project.module,
-        tags: project.module ? [`#${project.module.toLowerCase()}`] : [],
+        module: finalModule,
+        tags: finalModule ? [`#${finalModule.toLowerCase()}`] : [],
         parent_id: null,
         due_date: null,
         recurrence_rule: null,
@@ -278,12 +279,14 @@ export default function ProjectDetail() {
         onOpenChange={setTaskModalOpen}
         onSubmit={handleCreateTask}
         projectTitle={project.title}
+        defaultModule={project.module}
       />
       <QuickAddMilestoneModal
         open={milestoneModalOpen}
         onOpenChange={setMilestoneModalOpen}
         onSubmit={handleCreateMilestone}
         projectTitle={project.title}
+        defaultModule={project.module}
       />
     </div>
   );
