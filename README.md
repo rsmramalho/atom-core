@@ -4,6 +4,9 @@
 
 [![Tests](https://github.com/YOUR_USERNAME/YOUR_REPO/actions/workflows/test.yml/badge.svg)](https://github.com/YOUR_USERNAME/YOUR_REPO/actions/workflows/test.yml)
 [![codecov](https://codecov.io/gh/YOUR_USERNAME/YOUR_REPO/graph/badge.svg)](https://codecov.io/gh/YOUR_USERNAME/YOUR_REPO)
+[![Issues](https://img.shields.io/github/issues/YOUR_USERNAME/YOUR_REPO?style=flat-square)](https://github.com/YOUR_USERNAME/YOUR_REPO/issues)
+[![Pull Requests](https://img.shields.io/github/issues-pr/YOUR_USERNAME/YOUR_REPO?style=flat-square)](https://github.com/YOUR_USERNAME/YOUR_REPO/pulls)
+[![Contributors](https://img.shields.io/github/contributors/YOUR_USERNAME/YOUR_REPO?style=flat-square)](https://github.com/YOUR_USERNAME/YOUR_REPO/graphs/contributors)
 
 ![Version](https://img.shields.io/badge/version-4.0.0--rc.1-blue?style=for-the-badge)
 ![Status](https://img.shields.io/badge/status-release%20candidate-green?style=for-the-badge)
@@ -14,7 +17,7 @@
 
 **Sistema de produtividade pessoal com arquitetura modular de engines**
 
-[Documentação](#-documentação) • [Quick Start](#-quick-start) • [Features](#-features) • [Roadmap](#-roadmap)
+[Documentação](#-documentação) • [Quick Start](#-quick-start) • [Features](#-features) • [Contributing](#-contributing) • [Roadmap](#-roadmap)
 
 </div>
 
@@ -172,6 +175,21 @@ Gestão completa de projetos em 4 abas:
 | 📐 [ARCHITECTURE.md](docs/ARCHITECTURE.md) | Estrutura, modelo de dados, engines |
 | 📜 [CHANGELOG.md](docs/CHANGELOG.md) | Histórico de versões |
 | 📖 [API.md](docs/API.md) | Referência de tipos, hooks e componentes |
+| 🚀 [FORK_GUIDE.md](docs/FORK_GUIDE.md) | Setup do ambiente de desenvolvimento |
+| ✅ [DEPLOYMENT_CHECKLIST.md](docs/DEPLOYMENT_CHECKLIST.md) | Checklist para deploy em produção |
+| 📝 [FULL_DOCUMENTATION.md](docs/FULL_DOCUMENTATION.md) | Documentação completa consolidada |
+
+---
+
+## 🤝 Contributing
+
+Contribuições são bem-vindas! Por favor, leia nosso [Guia de Contribuição](docs/CONTRIBUTING.md) antes de enviar PRs.
+
+### Quick Links
+
+- 📋 [Abrir uma Issue](https://github.com/YOUR_USERNAME/YOUR_REPO/issues/new/choose)
+- 🔀 [Ver Pull Requests](https://github.com/YOUR_USERNAME/YOUR_REPO/pulls)
+- 💡 [Discussões](https://github.com/YOUR_USERNAME/YOUR_REPO/discussions)
 
 ---
 
