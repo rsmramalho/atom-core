@@ -13,6 +13,7 @@ export type CreateMilestonePayload = {
   title: string;
   weight?: number;
   due_date?: string | null;
+  module?: string | null;
 };
 
 export type UpdateMilestonePayload = {
@@ -94,6 +95,7 @@ export function useMilestones(projectId?: string) {
           tags: ["#milestone"],
           weight: payload.weight ?? 3, // Default weight for milestones = 3x
           due_date: payload.due_date || null,
+          module: payload.module || null, // Inherit module from project
           completed: false,
         })
         .select()

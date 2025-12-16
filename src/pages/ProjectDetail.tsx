@@ -80,7 +80,12 @@ export default function ProjectDetail() {
 
   const handleCreateMilestone = async (title: string, weight: number = 3) => {
     try {
-      await createMilestone({ project_id: id!, title, weight });
+      await createMilestone({ 
+        project_id: id!, 
+        title, 
+        weight,
+        module: project?.module || null, // Context inheritance
+      });
       toast.success("Milestone criada!");
     } catch (error) {
       toast.error("Erro ao criar milestone");
