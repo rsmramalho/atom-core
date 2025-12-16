@@ -10,10 +10,12 @@ Obrigado pelo interesse em contribuir! Este guia ajudará você a entender como 
 - [Começando](#começando)
 - [Arquitetura do Projeto](#arquitetura-do-projeto)
 - [Padrões de Código](#padrões-de-código)
+- [Convenções de Branch](#convenções-de-branch)
 - [Fluxo de Trabalho](#fluxo-de-trabalho)
 - [Convenções de Commit](#convenções-de-commit)
 - [Criando Issues](#criando-issues)
 - [Pull Requests](#pull-requests)
+- [Code Review](#code-review)
 
 ---
 
@@ -166,7 +168,61 @@ export const useProjectEverything = (projectId: string) => {
 
 ---
 
-## 🔄 Fluxo de Trabalho
+## 🌿 Convenções de Branch
+
+### Estrutura do Nome
+
+```
+<tipo>/<issue-number>-<descricao-curta>
+```
+
+### Tipos de Branch
+
+| Prefixo | Uso | Exemplo |
+|---------|-----|---------|
+| `feature/` | Nova funcionalidade | `feature/42-calendar-drag-drop` |
+| `fix/` | Correção de bug | `fix/58-ritual-period-detection` |
+| `hotfix/` | Correção urgente em produção | `hotfix/critical-auth-bypass` |
+| `refactor/` | Refatoração de código | `refactor/extract-filter-hooks` |
+| `docs/` | Alterações de documentação | `docs/api-reference-update` |
+| `test/` | Adição/modificação de testes | `test/parsing-engine-coverage` |
+| `chore/` | Tarefas de manutenção | `chore/update-dependencies` |
+
+### Regras
+
+1. **Sempre em inglês** - Descrições de branch em inglês
+2. **Kebab-case** - Palavras separadas por hífen
+3. **Curto e descritivo** - Máximo 50 caracteres na descrição
+4. **Inclua número da issue** - Quando relacionado a uma issue
+
+### Branches Protegidas
+
+| Branch | Propósito | Merge Policy |
+|--------|-----------|--------------|
+| `main` | Código de produção estável | Somente via PR aprovado |
+| `develop` | Integração de features | PR com 1+ aprovação |
+| `release/*` | Preparação de releases | Freeze de features |
+
+### Exemplos Completos
+
+```bash
+# Feature nova com issue
+git checkout -b feature/123-add-journal-search
+
+# Bug fix
+git checkout -b fix/456-overdue-items-not-showing
+
+# Hotfix sem issue
+git checkout -b hotfix/login-redirect-loop
+
+# Refatoração
+git checkout -b refactor/dashboard-hooks-cleanup
+
+# Documentação
+git checkout -b docs/fork-guide-improvements
+```
+
+---
 
 ### 1. Entenda o Contexto
 
@@ -366,8 +422,73 @@ const MyComponent = () => {
 
 ---
 
+## 👀 Code Review
+
+### Para Autores
+
+1. **Self-review primeiro** - Revise seu próprio código antes de abrir PR
+2. **PR pequenos** - Máximo 400 linhas de mudança quando possível
+3. **Descrição clara** - Explique o "porquê" além do "o quê"
+4. **Responda rapidamente** - Engaje com feedback em até 24h
+
+### Para Reviewers
+
+#### O Que Verificar
+
+| Aspecto | Perguntas |
+|---------|-----------|
+| **Funcionalidade** | O código faz o que deveria? Edge cases cobertos? |
+| **Design** | Segue a arquitetura? Está no lugar certo? |
+| **Legibilidade** | Código é claro? Nomes fazem sentido? |
+| **Performance** | Há loops desnecessários? Queries otimizadas? |
+| **Segurança** | RLS respeitado? Dados sensíveis protegidos? |
+| **Design System** | Usa tokens semânticos? Responsivo? |
+
+#### Linguagem de Review
+
+```markdown
+# Níveis de Feedback
+
+🔴 **Blocker**: "Isso precisa mudar antes do merge"
+🟡 **Suggestion**: "Considere fazer X" ou "nit: pequeno ajuste"
+🟢 **Praise**: "Ótima solução para esse problema!"
+❓ **Question**: "Não entendi essa parte, pode explicar?"
+```
+
+#### Template de Comentário
+
+```markdown
+**[Blocker/Suggestion/Question]**
+
+Contexto: [Onde está o problema]
+Problema: [O que está errado ou pode melhorar]
+Sugestão: [Como resolver]
+```
+
+### Critérios de Aprovação
+
+- [ ] Código compila sem erros
+- [ ] Tipos TypeScript corretos
+- [ ] Não quebra funcionalidade existente
+- [ ] Segue padrões do projeto
+- [ ] Documentação atualizada (se necessário)
+- [ ] CHANGELOG atualizado
+
+### Tempo de Resposta
+
+| Prioridade | Tempo Máximo |
+|------------|--------------|
+| Hotfix | 2 horas |
+| Bug fix | 24 horas |
+| Feature | 48 horas |
+| Refactor/Docs | 72 horas |
+
+---
+
 ## 📚 Recursos Úteis
 
+- [FORK_GUIDE.md](./FORK_GUIDE.md) - Setup do ambiente de desenvolvimento
+- [DEPLOYMENT_CHECKLIST.md](./DEPLOYMENT_CHECKLIST.md) - Checklist de deploy
 - [ARCHITECTURE.md](./ARCHITECTURE.md) - Visão geral da arquitetura
 - [API.md](./API.md) - Referência de tipos e hooks
 - [CHANGELOG.md](./CHANGELOG.md) - Histórico de versões
