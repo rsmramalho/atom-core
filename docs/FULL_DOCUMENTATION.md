@@ -1,44 +1,35 @@
 # MindMate - Atom Engine 4.0
-# Documentação Completa
+# Documentação Completa Consolidada
 
 **Versão:** 4.0.0-alpha.10  
 **Data:** 2025-12-16  
-**Gerado em:** 2025-12-16
+**Status:** Core Engine + Inbox + MacroPicker + Dashboard + Ritual + Project Sheet + Reflection Engine + Calendar Engine
 
 ---
 
 # ÍNDICE
 
-1. [README](#readme)
-2. [ARQUITETURA](#arquitetura)
-3. [API REFERENCE](#api-reference)
-4. [CHANGELOG](#changelog)
-5. [CONTRIBUTING](#contributing)
+1. [Quick Start](#quick-start)
+2. [Features](#features)
+3. [Atalhos de Teclado](#atalhos-de-teclado)
+4. [Arquitetura](#arquitetura)
+5. [Modelo de Dados](#modelo-de-dados)
+6. [Engines](#engines)
+7. [API Reference](#api-reference)
+8. [Rotas](#rotas)
+9. [Design System](#design-system)
+10. [Guia de Contribuição](#guia-de-contribuição)
+11. [Changelog](#changelog)
 
 ---
 
-# README
+# QUICK START
 
-## ✨ O que há de novo na v4.0.0-alpha.8
-
-### 📝 Reflection Engine (Fase 3)
-
-- **Página Journal** (`/journal`) - Espaço zen para reflexões
-- **Prompts Guiados** - Perguntas por categoria para inspirar
-- **Busca Full-Text** - Encontre reflexões rapidamente com highlight
-- **Check-in no Ritual** - Reflexão integrada ao fluxo de hábitos
-- **Journal no Projeto** - Aba dedicada para decisões e ideias
-- **Atalho ⌘J** - Acesso rápido ao diário
-
----
-
-## 🚀 Quick Start
-
-### 1. Crie uma Conta
+## 1. Crie uma Conta
 
 Na tela de login, clique em **"Não tem conta? Cadastre-se"**
 
-### 2. Explore as Features
+## 2. Explore as Features
 
 ```
 🏠 Dashboard (/)
@@ -62,6 +53,12 @@ Na tela de login, clique em **"Não tem conta? Cadastre-se"**
 ├── Notas - Recursos e anotações
 └── Journal - Reflexões do projeto
 
+📅 Calendar (/calendar)
+├── Visualização Mensal/Semanal
+├── Drag & Drop para reagendar
+├── Filtros por tipo e módulo
+└── Navegação por teclado e touch
+
 🌅 Ritual View (/ritual)
 ├── Hábitos do período atual
 ├── Check-in com pergunta guiada
@@ -74,51 +71,25 @@ Na tela de login, clique em **"Não tem conta? Cadastre-se"**
 └── Timeline visual de reflexões
 ```
 
-### 3. Atalhos de Teclado
-
-| Atalho | Ação |
-|--------|------|
-| `⌘K` | Command Palette |
-| `⌘H` | Home |
-| `⌘I` | Inbox |
-| `⌘P` | Projetos |
-| `⌘R` | Ritual |
-| `⌘J` | Journal |
-| `⌘L` | Calendário |
-| `⌘N` | Novo Item |
-| `/` | Buscar no Journal |
-| `Ctrl+Shift+E` | Debug Console |
-
-#### Atalhos do Calendário
-
-| Atalho | Ação |
-|--------|------|
-| `M` | Visualização Mensal |
-| `W` | Visualização Semanal |
-| `←` | Mês/Semana anterior |
-| `→` | Próximo mês/semana |
-| `T` | Ir para hoje |
-| `👆 Swipe ← →` | Navegação mobile |
-
 ---
 
-## ✨ Features
+# FEATURES
 
-### 🧠 Parsing Engine
+## 🧠 Parsing Engine
 
 ```
 "Reunião com cliente @amanha #mod_work"
      ↓ parseInput()
 {
   title: "Reunião com cliente",
-  due_date: "2025-12-16",
+  due_date: "2025-12-17",
   module: "work"
 }
 ```
 
-### 🌅 Ritual View com Check-in
+## 🌅 Ritual View com Check-in
 
-Experiência imersiva para hábitos diários, agora com reflexão integrada:
+Experiência imersiva para hábitos diários com reflexão integrada:
 
 1. **Hábitos** - Complete seus hábitos do período
 2. **Check-in** - Responda uma pergunta contextual
@@ -130,7 +101,7 @@ Experiência imersiva para hábitos diários, agora com reflexão integrada:
 | ☀️ Zênite | 11:00-17:00 | "Como está sendo seu dia até agora?" |
 | 🌆 Crepúsculo | > 17:00 | "Como você encerra este ciclo?" |
 
-### 📝 Journal (Reflection Engine)
+## 📝 Journal (Reflection Engine)
 
 Sistema de journaling com design zen:
 
@@ -140,7 +111,17 @@ Sistema de journaling com design zen:
 - **Timeline Visual** conectando reflexões
 - **Atalho /** para focar na busca
 
-### 📋 Project Sheet
+## 📅 Calendar Engine
+
+Visualização e reagendamento de itens:
+
+- **Visualizações:** Mensal (M) e Semanal (W)
+- **Drag & Drop:** Arraste itens para reagendar
+- **Filtros:** Por tipo (task, milestone, habit) e módulo
+- **Overdue Section:** Itens atrasados em destaque
+- **Navegação Touch:** Swipe com feedback visual
+
+## 📋 Project Sheet
 
 Gestão completa de projetos em 4 abas:
 
@@ -151,90 +132,40 @@ Gestão completa de projetos em 4 abas:
 
 ---
 
-## 🛠️ Stack Tecnológica
+# ATALHOS DE TECLADO
 
-| Camada | Tecnologia |
-|--------|------------|
-| **Frontend** | React 18.3 + Vite |
-| **Linguagem** | TypeScript 5.0+ |
-| **Styling** | Tailwind CSS 3.4 |
-| **Backend** | Lovable Cloud (Supabase) |
-| **State (Server)** | TanStack Query 5.x |
-| **State (Client)** | Zustand 5.x |
-| **Icons** | Lucide React |
-| **Dates** | date-fns 3.x |
-| **UI Components** | shadcn/ui |
+## Navegação Global
 
----
+| Atalho | Ação |
+|--------|------|
+| `⌘K` / `Ctrl+K` | Command Palette |
+| `⌘H` / `Ctrl+H` | Home |
+| `⌘I` / `Ctrl+I` | Inbox |
+| `⌘P` / `Ctrl+P` | Projetos |
+| `⌘L` / `Ctrl+L` | Calendário |
+| `⌘R` / `Ctrl+R` | Ritual |
+| `⌘J` / `Ctrl+J` | Journal |
+| `⌘N` / `Ctrl+N` | Novo Item |
+| `Ctrl+Shift+E` | Debug Console |
 
-## ✅ Status de Implementação
+## Calendário
 
-### Engines
-- [x] Parsing Engine (B.7)
-- [x] Inbox Engine (B.6)
-- [x] MacroPicker Engine (B.8)
-- [x] Dashboard Engine (B.10)
-- [x] Ritual Engine (B.19)
-- [x] Project Engine (B.9/B.13)
-- [x] Reflection Engine (B.11)
+| Atalho | Ação |
+|--------|------|
+| `M` | Visualização Mensal |
+| `W` | Visualização Semanal |
+| `←` | Mês/Semana anterior |
+| `→` | Próximo mês/semana |
+| `T` | Ir para hoje |
+| `Swipe ← →` | Navegação mobile |
 
-### UI
-- [x] Dashboard com Focus/Today/Ritual
-- [x] Inbox com captura rápida
-- [x] Project Sheet com 4 abas
-- [x] Ritual View com Check-in
-- [x] Journal com prompts e busca
-- [x] Command Palette (⌘K)
-- [x] Empty States ilustrados
-- [x] Confetti de celebração
+## Journal
 
----
+| Atalho | Ação |
+|--------|------|
+| `/` | Focar na busca |
+| `⌘Enter` / `Ctrl+Enter` | Salvar reflexão |
 
-## 🔲 Roadmap
-
-### Próximas Etapas
-- [ ] CRUD completo para reflexões
-- [ ] Exportação do Journal em Markdown
-- [ ] Recorrência de hábitos (RRULE)
-- [ ] Notificações e lembretes
-- [ ] Estatísticas e analytics
-- [ ] PWA + Offline mode
-
----
-
-## 🏗️ Arquitetura Visual
-
-```
-┌──────────────────────────────────────────────────────────────┐
-│                      PRESENTATION                             │
-│  ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐ │
-│  │Dashboard│ │  Inbox  │ │Projects │ │ Ritual  │ │ Journal │ │
-│  └────┬────┘ └────┬────┘ └────┬────┘ └────┬────┘ └────┬────┘ │
-├───────┼───────────┼───────────┼───────────┼───────────┼──────┤
-│       │     APPLICATION LAYER │           │           │      │
-│  ┌────▼───────────▼───────────▼───────────▼───────────▼────┐ │
-│  │                    Custom Hooks                          │ │
-│  │  useDashboardData │ useMilestones │ useRitual │ useAtom  │ │
-│  └──────────────────────────────────────────────────────────┘ │
-├───────────────────────────────────────────────────────────────┤
-│                      DOMAIN LAYER                             │
-│  ┌───────────┐ ┌───────────┐ ┌───────────┐ ┌───────────┐     │
-│  │  Parsing  │ │ MacroPick │ │  Project  │ │Reflection │     │
-│  │  Engine   │ │  Engine   │ │  Engine   │ │  Engine   │     │
-│  └───────────┘ └───────────┘ └───────────┘ └───────────┘     │
-├───────────────────────────────────────────────────────────────┤
-│                       DATA LAYER                              │
-│  ┌───────────────────────────────────────────────────────┐   │
-│  │              Lovable Cloud (Supabase)                  │   │
-│  │  ┌──────────────────────────────────────────────────┐ │   │
-│  │  │  items (Single Table Design - inclui milestones) │ │   │
-│  │  └──────────────────────────────────────────────────┘ │   │
-│  └───────────────────────────────────────────────────────┘   │
-└───────────────────────────────────────────────────────────────┘
-```
-
----
----
 ---
 
 # ARQUITETURA
@@ -252,6 +183,12 @@ src/
 │   │   ├── FocusBlock.tsx          # Bloco de itens #focus
 │   │   ├── RitualBanner.tsx        # Banner do ritual ativo
 │   │   └── TodayList.tsx           # Lista do dia
+│   ├── calendar/
+│   │   ├── CalendarGrid.tsx        # Grid mensal
+│   │   ├── WeekGrid.tsx            # Grid semanal
+│   │   ├── CalendarFilters.tsx     # Filtros de tipo/módulo
+│   │   ├── CalendarViewToggle.tsx  # Toggle mês/semana
+│   │   └── DayDetailSheet.tsx      # Detalhe do dia
 │   ├── projects/
 │   │   └── ProjectCard.tsx         # Card de projeto na lista
 │   ├── project-sheet/
@@ -262,7 +199,7 @@ src/
 │   │   ├── ProjectFab.tsx          # FAB flutuante
 │   │   ├── QuickAddTaskModal.tsx   # Modal criação task
 │   │   └── QuickAddMilestoneModal.tsx
-│   ├── journal/                    # Reflection Engine
+│   ├── journal/
 │   │   ├── JournalComposer.tsx     # Input de reflexões
 │   │   ├── JournalFeed.tsx         # Timeline de reflexões
 │   │   ├── JournalFilters.tsx      # Filtros por tag/período
@@ -271,7 +208,7 @@ src/
 │   │   ├── AppLayout.tsx           # Layout principal com auth
 │   │   ├── AppNavigation.tsx       # Nav sidebar/bottom
 │   │   ├── CommandPalette.tsx      # Busca global (⌘K)
-│   │   └── KeyboardShortcutsHelp.tsx # Modal de atalhos
+│   │   └── KeyboardShortcutsHelp.tsx
 │   ├── empty-states/               # Estados vazios com ilustrações
 │   ├── shared/                     # Componentes compartilhados
 │   ├── AuthForm.tsx
@@ -280,10 +217,12 @@ src/
 │
 ├── hooks/
 │   ├── useAtomItems.ts             # CRUD de itens via Supabase
+│   ├── useCalendarItems.ts         # Itens do calendário
 │   ├── useDashboardData.ts         # Filtros do dashboard (B.10)
 │   ├── useMilestones.ts            # CRUD de milestones
 │   ├── useProjectProgress.ts       # Cálculo de progresso híbrido
 │   ├── useRitual.ts                # Lógica do ritual (B.19)
+│   ├── useSwipe.ts                 # Gestos de swipe
 │   ├── useDebugConsole.ts          # Controle do console
 │   ├── useEngineLogger.ts          # Sistema de logs (Zustand)
 │   └── use-toast.ts                # Toasts do sistema
@@ -302,6 +241,7 @@ src/
 │   ├── Inbox.tsx                   # Inbox Engine UI (B.6)
 │   ├── Projects.tsx                # Lista de projetos
 │   ├── ProjectDetail.tsx           # Project Sheet (A.13)
+│   ├── Calendar.tsx                # Calendário (B.4)
 │   ├── RitualView.tsx              # Ritual imersivo (B.19)
 │   ├── Journal.tsx                 # Página de reflexões
 │   └── NotFound.tsx                # 404
@@ -310,35 +250,66 @@ src/
     └── supabase/                   # Cliente Supabase (auto-gerado)
 ```
 
+## Arquitetura Visual
+
+```
+┌──────────────────────────────────────────────────────────────────┐
+│                      PRESENTATION                                 │
+│  ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐    │
+│  │Dashboard│ │  Inbox  │ │Projects │ │Calendar │ │ Journal │    │
+│  └────┬────┘ └────┬────┘ └────┬────┘ └────┬────┘ └────┬────┘    │
+├───────┼───────────┼───────────┼───────────┼───────────┼─────────┤
+│       │     APPLICATION LAYER │           │           │          │
+│  ┌────▼───────────▼───────────▼───────────▼───────────▼────┐    │
+│  │                    Custom Hooks                          │    │
+│  │  useDashboardData │ useCalendarItems │ useRitual │ etc   │    │
+│  └──────────────────────────────────────────────────────────┘    │
+├──────────────────────────────────────────────────────────────────┤
+│                      DOMAIN LAYER                                 │
+│  ┌───────────┐ ┌───────────┐ ┌───────────┐ ┌───────────┐        │
+│  │  Parsing  │ │ MacroPick │ │  Calendar │ │Reflection │        │
+│  │  Engine   │ │  Engine   │ │  Engine   │ │  Engine   │        │
+│  └───────────┘ └───────────┘ └───────────┘ └───────────┘        │
+├──────────────────────────────────────────────────────────────────┤
+│                       DATA LAYER                                  │
+│  ┌───────────────────────────────────────────────────────┐      │
+│  │              Lovable Cloud (Supabase)                  │      │
+│  │  ┌──────────────────────────────────────────────────┐ │      │
+│  │  │  items (Single Table Design - inclui milestones) │ │      │
+│  │  └──────────────────────────────────────────────────┘ │      │
+│  └───────────────────────────────────────────────────────┘      │
+└──────────────────────────────────────────────────────────────────┘
+```
+
 ---
 
-## 🗄️ Modelo de Dados
+# MODELO DE DADOS
 
-### Tabela: `items`
+## Tabela: `items`
 
-Single Table Design para todos os tipos de itens, incluindo milestones (Doc B.3, B.9).
+Single Table Design para todos os tipos de itens, incluindo milestones.
 
 | Coluna | Tipo | Descrição |
 |--------|------|-----------|
 | `id` | uuid | Chave primária |
 | `user_id` | uuid | FK para auth.users |
 | `title` | text | Título do item |
-| `type` | item_type | Tipo: project, task, habit, note, reflection, resource, list |
-| `module` | text | Módulo (work, body, mind, etc) |
+| `type` | item_type | project, task, habit, note, reflection, resource, list |
+| `module` | text | Módulo (work, body, mind, family, geral) |
 | `tags` | text[] | Array de tags (inclui `#milestone` para milestones) |
 | `parent_id` | uuid | FK para item pai |
 | `project_id` | uuid | FK para projeto container |
 | `due_date` | date | Data de vencimento |
 | `ritual_slot` | ritual_slot | Slot de ritual (manha, meio_dia, noite) |
 | `completed` | boolean | Estado de conclusão |
-| `weight` | integer | Peso para cálculo de progresso (default: 1, milestones: 3) |
+| `weight` | integer | Peso para cálculo de progresso (default: 1) |
 | `notes` | text | Conteúdo/notas |
 | `created_at` | timestamptz | Timestamp de criação |
 | `updated_at` | timestamptz | Timestamp de atualização |
 
-### Milestones (Single Table Design)
+## Milestones (Single Table Design)
 
-Milestones são items normais com tag `#milestone`. Não existe mais tabela separada.
+Milestones são items com tag `#milestone`:
 
 | Propriedade | Valor |
 |-------------|-------|
@@ -352,7 +323,7 @@ Milestones são items normais com tag `#milestone`. Não existe mais tabela sepa
 progresso = (soma_pesos_concluidos / soma_total_pesos) × 100%
 ```
 
-### Enums
+## Enums
 
 ```sql
 CREATE TYPE item_type AS ENUM (
@@ -367,9 +338,9 @@ CREATE TYPE progress_mode AS ENUM ('auto', 'manual');
 
 ---
 
-## ⚙️ Engines Implementadas
+# ENGINES
 
-### 1. Parsing Engine (B.7)
+## 1. Parsing Engine (B.7)
 
 **Arquivo:** `src/lib/parsing-engine.ts`
 
@@ -383,118 +354,25 @@ Transforma texto cru em estrutura `ParsedInput`.
 | `#tag` | "Tarefa #urgente" | `tags: ["#urgente"]` |
 | `#mod_*` | "Treino #mod_body" | `module: "body"` |
 
----
-
-### 2. Inbox Engine (B.6)
+## 2. Inbox Engine (B.6)
 
 **Arquivo:** `src/pages/Inbox.tsx`
 
 Captura e processamento de itens brutos.
 
----
-
-### 3. MacroPicker Engine (B.8)
+## 3. MacroPicker Engine (B.8)
 
 **Arquivo:** `src/components/inbox/MacroPickerModal.tsx`
 
 Modal de promoção de itens do inbox para projetos.
 
----
-
-### 4. Dashboard Engine (B.10)
+## 4. Dashboard Engine (B.10)
 
 **Arquivo:** `src/hooks/useDashboardData.ts`
 
 Filtros: focusItems, todayItems, overdueItems, ritualItems, projects.
 
----
-
-### 5. Ritual Engine (B.19)
-
-**Arquivos:** `src/hooks/useRitual.ts`, `src/pages/RitualView.tsx`
-
-Experiência imersiva para hábitos diários com check-in integrado.
-
-#### Fluxo do Ritual
-
-```
-1. Hábitos → Lista de hábitos do período com toggle de conclusão
-2. Check-in → Pergunta contextual + textarea para reflexão
-3. Encerramento → Retorna ao dashboard
-```
-
-#### Check-in por Período
-
-| Período | Pergunta |
-|---------|----------|
-| Aurora | "Qual é sua intenção para hoje?" |
-| Zênite | "Como está sendo seu dia até agora?" |
-| Crepúsculo | "Como você encerra este ciclo?" |
-
----
-
-### 6. Project Engine (B.9/B.13)
-
-**Arquivos:** `src/hooks/useProjectProgress.ts`, `src/pages/ProjectDetail.tsx`
-
-Gestão de projetos com milestones e Journal integrado.
-
-#### Abas da Project Sheet
-
-1. **Trabalho** - Tasks e Hábitos
-2. **Jornada** - Timeline de Milestones
-3. **Notas** - Notes e Resources
-4. **Journal** - Reflexões do projeto
-
----
-
-### 7. Reflection Engine (B.11)
-
-**Arquivos:** `src/pages/Journal.tsx`, `src/components/journal/*`
-
-Sistema de journaling e reflexões.
-
-#### Características
-
-- **Itens type='reflection'**: completed sempre false, due_date sempre null
-- **Tags de Contexto**: #checkin, #mood:*, #ritual:*, #project:*
-- **Timeline Visual**: Linha vertical conectando entradas
-- **Filtros**: Por tag e por período (today, week, month, year)
-- **Busca Full-Text**: Com highlight de termos encontrados
-- **Prompts Guiados**: Perguntas por categoria para inspirar
-
-#### Prompts de Reflexão
-
-**Categorias:**
-- Gratidão (Heart)
-- Crescimento (TrendingUp)
-- Sentimentos (Smile)
-- Metas (Target)
-- Aprendizado (Lightbulb)
-- Geral (Sparkles)
-
-**Prompts de Projeto:**
-- "Qual decisão importante foi tomada aqui?"
-- "O que está bloqueando o progresso?"
-- "Qual ideia surgiu para este projeto?"
-
----
-
-## 🖥️ Rotas
-
-| Rota | Componente | Descrição |
-|------|------------|-----------|
-| `/` | Index.tsx | Dashboard principal |
-| `/inbox` | Inbox.tsx | Captura e processamento |
-| `/projects` | Projects.tsx | Lista de projetos |
-| `/projects/:id` | ProjectDetail.tsx | Project Sheet |
-| `/calendar` | Calendar.tsx | Calendário com drag & drop |
-| `/ritual` | RitualView.tsx | Ritual imersivo (sem nav) |
-| `/journal` | Journal.tsx | Página de reflexões |
-
----
-
-## 📅 Calendar Engine (B.4)
+## 5. Calendar Engine (B.4)
 
 **Arquivo:** `src/pages/Calendar.tsx`
 
@@ -529,12 +407,41 @@ const { handlers, swipeState } = useSwipe({
 // swipeState: { isSwiping, direction, offsetX, offsetY }
 ```
 
-### Feedback Visual (Mobile)
+## 6. Ritual Engine (B.19)
 
-Durante o swipe, indicadores visuais aparecem nas laterais:
-- **Swipe esquerda:** Seta direita com gradiente (→ próximo)
-- **Swipe direita:** Seta esquerda com gradiente (← anterior)
----
+**Arquivos:** `src/hooks/useRitual.ts`, `src/pages/RitualView.tsx`
+
+Experiência imersiva para hábitos diários com check-in integrado.
+
+### Fluxo do Ritual
+
+```
+1. Hábitos → Lista de hábitos do período com toggle de conclusão
+2. Check-in → Pergunta contextual + textarea para reflexão
+3. Encerramento → Retorna ao dashboard
+```
+
+## 7. Project Engine (B.9/B.13)
+
+**Arquivos:** `src/hooks/useProjectProgress.ts`, `src/pages/ProjectDetail.tsx`
+
+Gestão de projetos com milestones e Journal integrado.
+
+## 8. Reflection Engine (B.11)
+
+**Arquivos:** `src/pages/Journal.tsx`, `src/components/journal/*`
+
+Sistema de journaling e reflexões.
+
+### Características
+
+- **Itens type='reflection'**: completed sempre false, due_date sempre null
+- **Tags de Contexto**: #checkin, #mood:*, #ritual:*, #project:*
+- **Timeline Visual**: Linha vertical conectando entradas
+- **Filtros**: Por tag e por período (today, week, month, year)
+- **Busca Full-Text**: Com highlight de termos encontrados
+- **Prompts Guiados**: Perguntas por categoria
+
 ---
 
 # API REFERENCE
@@ -545,198 +452,69 @@ Durante o swipe, indicadores visuais aparecem nas laterais:
 
 ```typescript
 interface AtomItem {
-  id: string;                          // UUID
-  user_id: string;                     // UUID do usuário
-  title: string;                       // Título do item
-  type: ItemType;                      // Tipo do item
-  
-  // Contexto
-  module: string | null;               // work, body, mind, home, social, finance
-  tags: string[];                      // ["tag1", "who:andre", "checkin"]
-  
-  // Hierarquia
-  parent_id: string | null;            // UUID do item pai
-  project_id: string | null;           // UUID do projeto container
-  
-  // Tempo
-  due_date: string | null;             // "YYYY-MM-DD"
-  recurrence_rule: string | null;      // RRULE string
-  ritual_slot: RitualSlot;             // manha, meio_dia, noite, null
-  
-  // Estado
+  id: string;
+  user_id: string;
+  title: string;
+  type: ItemType;
+  module: string | null;
+  tags: string[];
+  parent_id: string | null;
+  project_id: string | null;
+  due_date: string | null;
+  recurrence_rule: string | null;
+  ritual_slot: RitualSlot;
   completed: boolean;
-  completed_at: string | null;         // ISO timestamp
-  
-  // Conteúdo
+  completed_at: string | null;
+  weight: number | null;
   notes: string | null;
   checklist: ChecklistItem[];
-  
-  // Project Meta (type = 'project' only)
   project_status: ProjectStatus | null;
   progress_mode: ProgressMode | null;
-  progress: number | null;             // 0-100
+  progress: number | null;
   deadline: string | null;
-  
-  // Peso (para cálculo de progresso ponderado)
-  weight: number;                      // default: 1, milestones: 3
-  
-  // Timestamps
   created_at: string;
   updated_at: string;
 }
 ```
 
-### ItemType
+### Enums TypeScript
 
 ```typescript
-type ItemType = 
-  | "project" 
-  | "task" 
-  | "habit" 
-  | "note" 
-  | "reflection"  // Usado pelo Reflection Engine
-  | "resource" 
-  | "list";
-```
-
-### RitualSlot / RitualPeriod
-
-```typescript
+type ItemType = "project" | "task" | "habit" | "note" | "reflection" | "resource" | "list";
 type RitualSlot = "manha" | "meio_dia" | "noite" | null;
-
 type RitualPeriod = "aurora" | "zenite" | "crepusculo";
-
-// Mapeamento RitualSlot -> RitualPeriod
-// manha -> aurora
-// meio_dia -> zenite
-// noite -> crepusculo
-```
-
-### ParsedInput
-
-```typescript
-interface ParsedInput {
-  title: string;              // Título limpo
-  type: ItemType;             // Tipo inferido
-  tags: string[];             // Tags extraídas
-  due_date: string | null;    // Data parseada
-  ritual_slot: RitualSlot;    // Slot de ritual
-  module: string | null;      // Módulo inferido
-  raw_input: string;          // Input original
-  detected_tokens: { token: string; type: string; value: string; }[];
-}
-```
-
-### ReflectionPrompt
-
-```typescript
-interface ReflectionPrompt {
-  text: string;
-  category: "gratitude" | "growth" | "feelings" | "goals" | "learning" | "general";
-}
-```
-
-### TimePeriod (Filtros do Journal)
-
-```typescript
+type ProjectStatus = "draft" | "active" | "paused" | "completed" | "archived";
+type ProgressMode = "auto" | "manual";
 type TimePeriod = "all" | "today" | "week" | "month" | "year";
 ```
-
----
-
-## Funções
-
-### parseInput
-
-```typescript
-import { parseInput } from "@/lib/parsing-engine";
-
-const result = parseInput("Comprar leite @amanha #mod_casa");
-// { title: "Comprar leite", due_date: "2025-12-16", module: "casa", ... }
-```
-
-### Prompts de Reflexão
-
-```typescript
-import { 
-  getRandomPrompt, 
-  getRandomProjectPrompt, 
-  getPromptsByCategory 
-} from "@/lib/reflection-prompts";
-
-// Prompt aleatório de qualquer categoria
-const prompt = getRandomPrompt();
-
-// Prompt específico para projetos
-const projectPrompt = getRandomProjectPrompt();
-
-// Prompts filtrados por categoria
-const gratitudePrompts = getPromptsByCategory("gratitude");
-```
-
----
 
 ## Hooks
 
 ### useAtomItems
 
-CRUD de itens via Supabase.
-
 ```typescript
 const { items, isLoading, createItem, updateItem, deleteItem } = useAtomItems();
+```
 
-// Criar reflexão
-await createItem({
-  title: "Minha reflexão",
-  type: "reflection",
-  notes: "Conteúdo da reflexão...",
-  tags: ["checkin", "mood:calmo"],
-  project_id: null,  // ou UUID do projeto
-  // ... outros campos
-});
+### useCalendarItems
+
+```typescript
+const { items, itemsByDate, overdueItems, isLoading, refetch } = useCalendarItems(currentDate);
 ```
 
 ### useMilestones
 
-CRUD de milestones de projeto (Single Table Design - itens com tag `#milestone`).
-
 ```typescript
-const { 
-  milestones, 
-  createMilestone, 
-  updateMilestone,
-  toggleComplete, 
-  deleteMilestone,
-  isCreating 
-} = useMilestones(projectId);
-
-// Criar milestone com peso customizado
-await createMilestone({ project_id: "uuid", title: "MVP Pronto", weight: 5 });
+const { milestones, createMilestone, toggleComplete, deleteMilestone } = useMilestones(projectId);
 ```
 
 ### useProjectProgress
 
-Cálculo de progresso ponderado (Single Table Design).
-
 ```typescript
-// projectItems inclui tasks E milestones (diferenciados por tag)
-const progressData = useProjectProgress(projectItems);
-
-// Retorna:
-// {
-//   progress: 45,              // Porcentagem (0-100)
-//   taskCount: 10,             // Total de tasks (sem #milestone)
-//   taskCompletedCount: 4,     // Tasks concluídas
-//   milestoneCount: 3,         // Total de milestones (#milestone)
-//   milestoneCompletedCount: 1,// Milestones concluídas
-//   totalWeight: 19,           // Soma de todos os pesos
-//   completedWeight: 8         // Soma dos pesos concluídos
-// }
+const { progress, taskCount, milestoneCount } = useProjectProgress(projectItems, milestones);
 ```
 
 ### useDashboardData
-
-Filtros e organização para dashboard.
 
 ```typescript
 const { focusItems, todayItems, ritualItems, projects, toggleComplete } = useDashboardData();
@@ -744,100 +522,23 @@ const { focusItems, todayItems, ritualItems, projects, toggleComplete } = useDas
 
 ### useRitual
 
-Lógica para Ritual View com check-in.
-
 ```typescript
-const {
-  activePeriod,    // aurora | zenite | crepusculo
-  config,          // { slot, label, phrase, icon }
-  habits,          // AtomItem[]
-  progress,        // 0-100
-  toggleHabit,     // (id) => void
-  forcedPeriod,    // Para debug
-  setForcedPeriod, // Para debug
-} = useRitual();
+const { activePeriod, config, habits, progress, toggleHabit } = useRitual();
 ```
 
-### useEngineLogger
-
-Sistema de logs global.
+### useSwipe
 
 ```typescript
-const { logs, addLog, clearLogs } = useEngineLogger();
-addLog("ReflectionEngine", "Reflexão salva", { id: "..." });
-```
-
-### useDebugConsole
-
-Controle do Debug Console.
-
-```typescript
-const { isOpen, toggle, open, close } = useDebugConsole();
+const { handlers, swipeState } = useSwipe({
+  onSwipeLeft: () => {},
+  onSwipeRight: () => {},
+  threshold: 50,
+});
 ```
 
 ---
 
-## Componentes
-
-### Journal
-
-```tsx
-import { JournalComposer, JournalFeed, JournalFilters } from "@/components/journal";
-
-// Composer com prompts guiados
-<JournalComposer />
-
-// Feed com filtros
-<JournalFeed
-  selectedTags={["checkin"]}
-  timePeriod="week"
-  searchQuery="intenção"
-  onReflectionsChange={(items) => setReflections(items)}
-/>
-
-// Filtros de tag e período
-<JournalFilters
-  reflections={reflections}
-  selectedTags={selectedTags}
-  onTagsChange={setSelectedTags}
-  timePeriod={timePeriod}
-  onTimePeriodChange={setTimePeriod}
-/>
-```
-
-### JournalPane (Project Sheet)
-
-```tsx
-import { JournalPane } from "@/components/project-sheet/JournalPane";
-
-<JournalPane
-  projectId={project.id}
-  projectTitle={project.title}
-  projectModule={project.module}
-/>
-```
-
-### Project Sheet
-
-```tsx
-import { MilestonesPane } from "@/components/project-sheet/MilestonesPane";
-import { WorkAreaPane } from "@/components/project-sheet/WorkAreaPane";
-import { NotesPane } from "@/components/project-sheet/NotesPane";
-import { JournalPane } from "@/components/project-sheet/JournalPane";
-import { ProjectFab } from "@/components/project-sheet/ProjectFab";
-```
-
-### Dashboard
-
-```tsx
-import { FocusBlock } from "@/components/dashboard/FocusBlock";
-import { RitualBanner } from "@/components/dashboard/RitualBanner";
-import { TodayList } from "@/components/dashboard/TodayList";
-```
-
----
-
-## Rotas
+# ROTAS
 
 | Rota | Componente | Auth | Nav | Descrição |
 |------|------------|------|-----|-----------|
@@ -845,658 +546,214 @@ import { TodayList } from "@/components/dashboard/TodayList";
 | `/inbox` | Inbox.tsx | ✅ | ✅ | Captura |
 | `/projects` | Projects.tsx | ✅ | ✅ | Lista de projetos |
 | `/projects/:id` | ProjectDetail.tsx | ✅ | ✅ | Project Sheet |
+| `/calendar` | Calendar.tsx | ✅ | ✅ | Calendário |
 | `/ritual` | RitualView.tsx | ✅ | ❌ | Ritual imersivo |
 | `/journal` | Journal.tsx | ✅ | ✅ | Reflexões |
 
 ---
+
+# DESIGN SYSTEM
+
+## Stack Tecnológica
+
+| Camada | Tecnologia |
+|--------|------------|
+| **Frontend** | React 18.3 + Vite |
+| **Linguagem** | TypeScript 5.0+ |
+| **Styling** | Tailwind CSS 3.4 |
+| **Backend** | Lovable Cloud (Supabase) |
+| **State (Server)** | TanStack Query 5.x |
+| **State (Client)** | Zustand 5.x |
+| **Icons** | Lucide React |
+| **Dates** | date-fns 3.x |
+| **UI Components** | shadcn/ui |
+| **Drag & Drop** | dnd-kit |
+
+## Padrões de Código
+
+### TypeScript
+
+```typescript
+// ✅ BOM - Tipagem explícita
+const createItem = async (item: Omit<AtomItem, 'id'>): Promise<AtomItem> => {};
+
+// ❌ RUIM - any
+const createItem = async (item: any) => {};
+```
+
+### Tailwind CSS
+
+```tsx
+// ✅ BOM - Tokens semânticos
+<div className="bg-background text-foreground border-border">
+
+// ❌ RUIM - Cores diretas
+<div className="bg-slate-900 text-white">
+```
+
 ---
+
+# GUIA DE CONTRIBUIÇÃO
+
+## Fluxo de Trabalho
+
+1. **Entenda o Contexto** - Leia a documentação relevante
+2. **Planeje** - Qual engine será afetado? Precisa de nova tabela?
+3. **Implemente** - Modelo → Hooks → Componentes
+4. **Documente** - Atualize CHANGELOG
+
+## Convenções de Commit
+
+```
+<tipo>(<escopo>): <descrição>
+
+feat(calendar): add keyboard navigation
+fix(parsing-engine): handle empty input
+docs(api): add useSwipe documentation
+```
+
+## Debug Console (God Mode)
+
+Use `Ctrl+Shift+E` para:
+
+1. **Tab State**: Ver JSON dos items carregados
+2. **Tab Logs**: Ver logs dos engines
+3. **Tab Input Test**: Testar o Parsing Engine
+4. **Tab Tokens**: Referência de tokens disponíveis
+
 ---
 
 # CHANGELOG
 
-Todas as mudanças notáveis do projeto MindMate - Atom Engine 4.0 serão documentadas neste arquivo.
+## [4.0.0-alpha.10] - 2025-12-16
 
-O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/),
-e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
+### Adicionado
+
+#### Calendar Engine - Navegação Avançada
+- **Atalhos de Teclado:** M (mensal), W (semanal), ← → (navegação), T (hoje)
+- **Suporte a Touch/Swipe (Mobile):** Navegação por gestos
+- **Feedback Visual:** Indicadores de seta durante swipe
+- **Hook useSwipe:** Retorna `handlers` e `swipeState`
+
+---
+
+## [4.0.0-alpha.9] - 2025-12-16
+
+### Adicionado
+- **Single Table Design:** Milestones unificados na tabela `items`
+- **Coluna `weight`:** Peso customizável (1-10x)
+- **Tag `#milestone`:** Identificação de milestones
 
 ---
 
 ## [4.0.0-alpha.8] - 2025-12-15
 
 ### Adicionado
-
-#### Reflection Engine - Fase 3 (B.11)
-
-##### Página Journal (/journal)
-- **Design Zen:** Layout focado em tipografia, espaço em branco, sem distrações
-- **JournalComposer:** Textarea auto-expansível para captura de reflexões
-  - Placeholder acolhedor: "O que está na sua mente agora?"
-  - Atalho ⌘Enter / Ctrl+Enter para salvar
-  - Extração automática de tags do conteúdo (#checkin, #mood:*)
-  - Toast de sucesso ao salvar
-- **JournalFeed:** Timeline visual de reflexões
-  - Linha vertical conectando entradas
-  - Datas formatadas (Hoje, Ontem, formato completo)
-  - Tags exibidas como pílulas discretas
-  - Ordenação por data (mais recente primeiro)
-- **JournalFilters:** Sistema duplo de filtros
-  - Filtro por tags: extração dinâmica das reflexões existentes
-  - Filtro por período: all, today, week, month, year
-  - Filtros combinam entre si
-  - Estado vazio quando nenhuma reflexão corresponde
-
-##### Busca Full-Text no Journal
-- **Busca Global (/journal):**
-  - Input de busca com ícone e botão limpar
-  - Atalho "/" para focar na busca
-  - Hint visual do atalho no campo
-  - Destaque (highlight) dos termos encontrados
-  - Busca em conteúdo e tags
-- **Busca no Projeto (Project Sheet):**
-  - Mesmo comportamento na aba Journal do projeto
-  - Atalho "/" funciona também no contexto do projeto
-
-##### Prompts de Reflexão Guiada
-- **Biblioteca de Prompts:** `src/lib/reflection-prompts.ts`
-  - 20+ prompts organizados por categoria
-  - Categorias: gratitude, growth, feelings, goals, learning, general
-  - Prompts específicos para projetos
-- **UI de Prompts no JournalComposer:**
-  - Seletor de categorias como pills clicáveis
-  - Ícones visuais por categoria (Heart, TrendingUp, Smile, Target, Lightbulb)
-  - Botão "Usar este prompt" insere no textarea
-  - Botão "Outro" randomiza novo prompt
-  - Prompt muda automaticamente após salvar reflexão
-- **Prompts no JournalPane (Projetos):**
-  - Prompts contextuais para decisões, bloqueios, ideias
-  - Mesmo padrão visual do JournalComposer
-
-##### Integração Ritual + Reflexão
-- **Check-in no Ritual View:**
-  - Novo passo no fluxo: Hábitos → Check-in → Encerramento
-  - Pergunta contextual por período:
-    - Aurora: "Qual é sua intenção para hoje?"
-    - Zênite: "Como está sendo seu dia até agora?"
-    - Crepúsculo: "Como você encerra este ciclo?"
-  - Textarea para resposta livre
-  - Botões "Pular" e "Registrar"
-- **Salvamento Contextual:**
-  - Cria item type='reflection' automaticamente
-  - Tags automáticas: `#ritual:{período}`, `#checkin`
-  - Reflexão aparece no Journal global
-
-##### Aba Journal na Project Sheet
-- **Nova Aba:** "Journal" ao lado de Trabalho/Jornada/Notas
-- **JournalPane:** Feed de reflexões filtrado por project_id
-- **Criação Contextual:**
-  - Botão "Adicionar nota ou reflexão"
-  - project_id definido automaticamente
-  - Tag de contexto: `#project:{nome-do-projeto}`
-- **Timeline Visual:** Mesmo estilo do JournalFeed global
-
-##### Navegação e Atalhos
-- **Rota /journal** adicionada ao sistema
-- **Atalho ⌘J / Ctrl+J** para acesso rápido ao Journal
-- **Command Palette** atualizado com opção Journal
-- **Sidebar/Bottom Nav** com link "Diário"
-- **KeyboardShortcutsHelp** atualizado
-
-### Modificado
-- **ProjectDetail.tsx:** Refatorado para usar Tabs com 4 abas (Trabalho, Jornada, Notas, Journal)
-- **RitualView.tsx:** Adicionado gerenciamento de steps e componente de Check-in
+- **Reflection Engine (B.11):** Journal com prompts guiados
+- **Check-in no Ritual:** Reflexão integrada ao fluxo
+- **Busca Full-Text:** Com highlight de termos
+- **Atalho ⌘J:** Acesso rápido ao Journal
 
 ---
 
 ## [4.0.0-alpha.7] - 2025-12-15
 
 ### Adicionado
-
-#### Command Palette (Power User)
-- **Atalho Global:** `Cmd+K` (Mac) / `Ctrl+K` (Windows)
-- **Navegação Rápida:**
-  - Ir para Home, Inbox, Projetos, Ritual
-  - Atalhos visuais (⌘H, ⌘I, ⌘P, ⌘N)
-- **Busca de Projetos:**
-  - Lista todos os projetos ativos
-  - Exibe ModuleBadge de cada projeto
-  - Navegação direta para Project Sheet
-- **Ações do Sistema:**
-  - Novo Item (navega para Inbox com foco no input)
-  - Debug Console (⌃⇧E)
-  - Logout
-
-#### Mobile Navigation (Drawer)
-- **Sidebar Mobile:**
-  - Transformada em Sheet/Drawer que desliza da esquerda
-  - Hamburger menu no header fixo
-  - Logo e branding no header
-  - Botão de Command Palette no header
-- **Header Fixo:**
-  - Barra fixa no topo em mobile
-  - Acesso rápido ao menu e busca
-- **Responsividade:**
-  - Layout adaptativo desktop/mobile
-  - Padding ajustado para header fixo
-
-#### Ritual View (Mobile Improvements)
-- **Footer Fixo:**
-  - Botão "Encerrar Ritual" fixo na parte inferior
-  - Acessível com polegar em qualquer posição de scroll
-  - Backdrop blur para legibilidade
-  - Botão maior (h-14) para toque fácil
+- **Command Palette (⌘K):** Navegação rápida
+- **Mobile Navigation:** Drawer sidebar
+- **Ritual View Mobile:** Footer fixo
 
 ---
 
 ## [4.0.0-alpha.6] - 2025-12-15
 
 ### Adicionado
-
-#### Empty States (UX)
-- **EmptyInbox** - Ilustração zen para "Inbox Zero"
-- **EmptyDashboard** - Estado de "dia livre" com mensagem encorajadora
-- **EmptyProjectStart** - CTA claro para criar primeira milestone/task
-- **EmptyFocus** - Estado para lista de foco vazia com sugestão de adicionar itens
-- Integração em todas as telas: Inbox, Dashboard, ProjectDetail, FocusBlock
-
-#### Ilustrações SVG Customizadas
-- **ZenCircleIllustration** - Círculo zen animado (enso) para Inbox Zero
-- **FreeDayIllustration** - Cena aconchegante de café para Dashboard vazio
-- **RocketLaunchIllustration** - Foguete dinâmico para Projeto novo
-- **TargetFocusIllustration** - Alvo minimalista para Focus vazio
-
-#### Confetti Celebration
-- **Componente Confetti** - Explosão de confetes para celebração
-- **Detecção automática** - Dispara ao completar todas as tasks do dia
-- **Toast de celebração** - Mensagem "Parabéns!" ao zerar pendências
-
-#### Drag & Drop Animations (FocusBlock)
-- **DragOverlay** - Preview flutuante do item sendo arrastado
-- **Transições suaves** - Cubic-bezier easing para movimentação natural
-- **Feedback visual** - Escala, opacidade, bordas e rotação sutil durante arraste
-
-#### Haptic Feedback (Mobile)
-- **Vibração no pickup** - Feedback médio (25ms) ao iniciar arraste
-- **Vibração no hover** - Feedback leve (10ms) ao passar sobre nova posição
-- **Vibração de sucesso** - Padrão [10, 50, 20]ms ao soltar com sucesso
-
-#### Module System (UX)
-- **ModuleBadge** - Componente de badge colorido para módulos
-- **MacroPicker atualizado** com seletor de Módulo obrigatório
-- **Regra de Negócio:** Itens sem módulo recebem "geral" automaticamente
-
-#### Projects Page - Filtros e Ordenação
-- **Filtros por Módulo:** Pills compactas para Work, Body, Mind, Family
-- **Ordenação de Projetos:** Nome, Progresso, Data de Criação
+- **Empty States:** Ilustrações SVG customizadas
+- **Confetti Celebration:** Ao completar todas as tasks
+- **Haptic Feedback:** Vibração no drag & drop mobile
 
 ---
 
 ## [4.0.0-alpha.5] - 2025-12-15
 
 ### Adicionado
-
-#### Project Sheet (A.13/B.13)
-- **Tabela `project_milestones`** - Milestones como entidades independentes
-- **Hook `useMilestones`** - CRUD completo para milestones
-- **Hook `useProjectProgress`** - Cálculo de progresso híbrido
-- **Componentes Project Sheet:** MilestonesPane, WorkAreaPane, NotesPane, ProjectFab
-
-### Modificado
-- **ProjectDetail** refatorado para Project Sheet completo
+- **Project Sheet (A.13):** 4 abas completas
+- **useMilestones Hook:** CRUD de milestones
+- **useProjectProgress:** Cálculo híbrido
 
 ---
 
 ## [4.0.0-alpha.4] - 2025-12-15
 
 ### Adicionado
-
-#### Ritual View (A.19/B.19)
-- **Rota `/ritual`** - Experiência imersiva full-screen
-- **Detecção de Período** baseada na hora do sistema
-- **Cores por Período:** Aurora, Zênite, Crepúsculo
-- **Componentes:** Header, Habit Cards, Footer, Debug Selector
-
-#### Ritual Slot Assignment
-- **MacroPickerModal** atualizado para hábitos com seletor de ritual slot
-
-#### Hook useRitual
-- Filtragem por período, contagem de pendentes, funções de override
+- **Ritual View (B.19):** Experiência imersiva
+- **Detecção de Período:** Aurora, Zênite, Crepúsculo
+- **useRitual Hook:** Lógica completa
 
 ---
 
 ## [4.0.0-alpha.3] - 2025-12-15
 
 ### Adicionado
-
-#### Dashboard Engine (B.10)
-- **Hook `useDashboardData`** - Filtros e organização para dashboard
-- **RitualBanner**, **FocusBlock**, **TodayList**
-
-#### Project Engine (B.9)
-- Rotas `/projects` e `/projects/:id`
-- **ProjectCard** com barra de progresso
-
-#### Sistema de Navegação
-- **AppNavigation** - Bottom nav (mobile) + Sidebar (desktop)
-- **AppLayout** - Wrapper com auth handling
+- **Dashboard Engine (B.10):** Filtros organizados
+- **Project Engine (B.9):** Lista e cards
+- **AppNavigation:** Sidebar + Bottom nav
 
 ---
 
 ## [4.0.0-alpha.2] - 2025-12-15
 
 ### Adicionado
-
-#### Inbox Engine (B.6)
-- **Rota `/inbox`** - Captura e processamento
-- **InboxItemCard** - Card com título, chips de tags, botão "Processar"
-
-#### MacroPicker Engine (B.8)
-- **Modal MacroPicker** - Interface de promoção de itens
-- **Seleção de Tipo**, **Projeto**, **Sugestões Inteligentes**
+- **Inbox Engine (B.6):** Captura de itens
+- **MacroPicker Engine (B.8):** Promoção de itens
 
 ---
 
 ## [4.0.0-alpha.1] - 2025-12-15
 
 ### Adicionado
-
-#### Banco de Dados (Lovable Cloud)
-- Tabela `items` com schema completo
-- Enums, índices, RLS Policies, Realtime
-
-#### Core Engine
-- **Tipos TypeScript** (`src/types/atom-engine.ts`)
-- **Parsing Engine** (`src/lib/parsing-engine.ts`)
-
-#### Hooks
-- **useAtomItems**, **useEngineLogger**, **useDebugConsole**
-
-#### UI/Debug
-- **EngineDebugConsole**, **AuthForm**, **Index Page**
-
-#### Design System
-- Tema terminal/hacker, cores customizadas, fonte monospace
+- **Banco de Dados:** Tabela `items` com RLS
+- **Parsing Engine (B.7):** Parser de linguagem natural
+- **Debug Console:** God Mode para validação
+- **Autenticação:** Login/Signup com Supabase
 
 ---
 
-## Tipos de Mudanças
+# STATUS DE IMPLEMENTAÇÃO
 
-- `Adicionado` para novas funcionalidades
-- `Modificado` para mudanças em funcionalidades existentes
-- `Descontinuado` para funcionalidades que serão removidas em breve
-- `Removido` para funcionalidades removidas
-- `Corrigido` para correções de bugs
-- `Segurança` para vulnerabilidades
+## ✅ Engines Implementados
+- [x] Parsing Engine (B.7)
+- [x] Inbox Engine (B.6)
+- [x] MacroPicker Engine (B.8)
+- [x] Dashboard Engine (B.10)
+- [x] Calendar Engine (B.4)
+- [x] Ritual Engine (B.19)
+- [x] Project Engine (B.9/B.13)
+- [x] Reflection Engine (B.11)
 
----
----
----
+## ✅ UI Implementada
+- [x] Dashboard com Focus/Today/Ritual
+- [x] Inbox com captura rápida
+- [x] Project Sheet com 4 abas
+- [x] Calendar com drag & drop
+- [x] Ritual View com Check-in
+- [x] Journal com prompts e busca
+- [x] Command Palette (⌘K)
+- [x] Empty States ilustrados
+- [x] Confetti de celebração
 
-# CONTRIBUTING
-
-## 📋 Índice
-
-- [Código de Conduta](#código-de-conduta)
-- [Começando](#começando)
-- [Arquitetura do Projeto](#arquitetura-do-projeto)
-- [Padrões de Código](#padrões-de-código)
-- [Fluxo de Trabalho](#fluxo-de-trabalho)
-- [Convenções de Commit](#convenções-de-commit)
-- [Criando Issues](#criando-issues)
-- [Pull Requests](#pull-requests)
-
----
-
-## 📜 Código de Conduta
-
-- Seja respeitoso e inclusivo
-- Aceite críticas construtivas
-- Foque no que é melhor para o projeto
-- Mantenha discussões técnicas e produtivas
+## 🔲 Próximas Etapas
+- [ ] CRUD completo para reflexões
+- [ ] Exportação do Journal em Markdown
+- [ ] Recorrência de hábitos (RRULE)
+- [ ] Notificações e lembretes
+- [ ] Estatísticas e analytics
+- [ ] PWA + Offline mode
 
 ---
 
-## 🚀 Começando
+<div align="center">
 
-### Pré-requisitos
+**MindMate - Atom Engine 4.0** 💚
 
-- Conta no [Lovable](https://lovable.dev)
-- Conhecimento básico de React, TypeScript e Tailwind CSS
-- Familiaridade com o modelo de dados
-
-### Ambiente de Desenvolvimento
-
-O projeto roda no Lovable Cloud, então não é necessário configurar ambiente local. Porém, você pode:
-
-1. **Conectar ao GitHub** via Lovable para ter o código no seu repositório
-2. **Clonar localmente** para análise e edição no seu IDE favorito
-3. **Sincronizar** mudanças via GitHub (sync bidirecional)
-
----
-
-## 🏗️ Arquitetura do Projeto
-
-### Engines (Domínio)
-
-Os engines são a lógica central do sistema:
-
-| Engine | Arquivo | Responsabilidade |
-|--------|---------|------------------|
-| Parsing | `lib/parsing-engine.ts` | Parser de linguagem natural |
-| Inbox | `pages/Inbox.tsx` | Captura de itens |
-| MacroPicker | `components/inbox/MacroPickerModal.tsx` | Promoção de itens |
-| Dashboard | `hooks/useDashboardData.ts` | Filtros e agregação |
-| Ritual | `hooks/useRitual.ts` | Lógica de rituais |
-| Project | `hooks/useProjectProgress.ts` | Cálculo de progresso |
-
-### Modelo de Dados
-
-**IMPORTANTE**: O modelo de dados está definido em `src/types/atom-engine.ts`. Este é o **SOURCE OF TRUTH**.
-
-```typescript
-// Tipos principais
-type ItemType = 'project' | 'task' | 'habit' | 'note' | 'reflection' | 'resource' | 'list';
-type RitualSlot = 'manha' | 'meio_dia' | 'noite' | null;
-type ProjectStatus = 'draft' | 'active' | 'paused' | 'completed' | 'archived';
-```
-
-### Banco de Dados
-
-- Tabela `items`: Todos os tipos de itens
-- Tabela `project_milestones`: Milestones de projetos
-- RLS habilitado em todas as tabelas
-
----
-
-## 📝 Padrões de Código
-
-### TypeScript
-
-```typescript
-// ✅ BOM - Tipagem explícita
-const createItem = async (item: Omit<AtomItem, 'id' | 'created_at'>): Promise<AtomItem> => {
-  // ...
-};
-
-// ❌ RUIM - any ou tipagem implícita
-const createItem = async (item: any) => {
-  // ...
-};
-```
-
-### React Components
-
-```tsx
-// ✅ BOM - Componente funcional com props tipadas
-interface TaskCardProps {
-  task: AtomItem;
-  onComplete: (id: string) => void;
-}
-
-export const TaskCard = ({ task, onComplete }: TaskCardProps) => {
-  return (
-    <div className="p-4 rounded-lg bg-card">
-      {/* ... */}
-    </div>
-  );
-};
-
-// ❌ RUIM - Props inline sem interface
-export const TaskCard = ({ task, onComplete }: { task: any; onComplete: any }) => {
-  // ...
-};
-```
-
-### Tailwind CSS
-
-```tsx
-// ✅ BOM - Usa tokens semânticos do design system
-<div className="bg-background text-foreground border-border">
-
-// ❌ RUIM - Cores diretas
-<div className="bg-slate-900 text-white border-gray-700">
-```
-
-### Hooks Customizados
-
-```typescript
-// ✅ BOM - Hook focado com responsabilidade única
-export const useProjectProgress = (projectId: string) => {
-  // Apenas calcula progresso
-};
-
-// ❌ RUIM - Hook fazendo muitas coisas
-export const useProjectEverything = (projectId: string) => {
-  // Progress, milestones, tasks, notes, etc.
-};
-```
-
----
-
-## 🔄 Fluxo de Trabalho
-
-### 1. Entenda o Contexto
-
-Antes de implementar, leia:
-- [ ] Issue relacionada (se existir)
-- [ ] Arquitetura para entender a estrutura
-- [ ] API para hooks e tipos disponíveis
-- [ ] Código existente relacionado
-
-### 2. Planeje a Implementação
-
-Para features novas:
-```
-1. Qual engine será afetado?
-2. Precisa de nova tabela/coluna no banco?
-3. Precisa de novo hook?
-4. Quais componentes serão criados/modificados?
-```
-
-### 3. Implemente Incrementalmente
-
-```
-1. Comece pelo modelo de dados (se necessário)
-2. Crie/atualize hooks
-3. Crie/atualize componentes
-4. Teste manualmente
-5. Atualize documentação
-```
-
-### 4. Documente
-
-- Atualize CHANGELOG.md com suas mudanças
-- Atualize API.md se criou novos hooks/tipos
-- Atualize ARCHITECTURE.md se mudou estrutura
-
----
-
-## 💬 Convenções de Commit
-
-Usamos [Conventional Commits](https://www.conventionalcommits.org/):
-
-```
-<tipo>(<escopo>): <descrição>
-
-[corpo opcional]
-
-[rodapé opcional]
-```
-
-### Tipos
-
-| Tipo | Uso |
-|------|-----|
-| `feat` | Nova feature |
-| `fix` | Correção de bug |
-| `docs` | Apenas documentação |
-| `style` | Formatação (não afeta lógica) |
-| `refactor` | Refatoração sem mudança de comportamento |
-| `test` | Adição/modificação de testes |
-| `chore` | Manutenção, configs |
-
-### Escopos Comuns
-
-- `parsing-engine`
-- `inbox`
-- `dashboard`
-- `ritual`
-- `project-sheet`
-- `ui`
-- `db`
-
-### Exemplos
-
-```bash
-feat(ritual): add period detection based on system time
-fix(parsing-engine): handle empty input gracefully
-docs(api): add useRitual hook documentation
-refactor(dashboard): extract filter logic to separate hooks
-```
-
----
-
-## 🐛 Criando Issues
-
-### Bug Report
-
-```markdown
-## Descrição
-[Descreva o bug de forma clara]
-
-## Passos para Reproduzir
-1. Vá para '...'
-2. Clique em '...'
-3. Observe o erro
-
-## Comportamento Esperado
-[O que deveria acontecer]
-
-## Comportamento Atual
-[O que está acontecendo]
-
-## Screenshots
-[Se aplicável]
-
-## Contexto Adicional
-- Navegador:
-- Rota:
-- Console errors:
-```
-
-### Feature Request
-
-```markdown
-## Descrição
-[Descreva a feature desejada]
-
-## Motivação
-[Por que isso seria útil?]
-
-## Solução Proposta
-[Como você imagina a implementação?]
-
-## Alternativas Consideradas
-[Outras abordagens pensadas]
-
-## Engine Relacionado
-[Qual engine seria afetado: Parsing, Inbox, Dashboard, etc.]
-```
-
----
-
-## 🔀 Pull Requests
-
-### Checklist
-
-- [ ] Código segue os padrões estabelecidos
-- [ ] Tipos TypeScript estão corretos
-- [ ] Usa tokens do design system (não cores diretas)
-- [ ] Componentes são pequenos e focados
-- [ ] Hooks seguem responsabilidade única
-- [ ] CHANGELOG.md atualizado
-- [ ] Documentação atualizada (se necessário)
-- [ ] Testado manualmente no Lovable
-
-### Template de PR
-
-```markdown
-## Descrição
-[Resumo das mudanças]
-
-## Tipo de Mudança
-- [ ] Bug fix
-- [ ] Nova feature
-- [ ] Breaking change
-- [ ] Documentação
-
-## Engine Afetado
-- [ ] Parsing Engine
-- [ ] Inbox Engine
-- [ ] MacroPicker Engine
-- [ ] Dashboard Engine
-- [ ] Ritual Engine
-- [ ] Project Engine
-- [ ] Nenhum (UI/docs only)
-
-## Como Testar
-1. ...
-2. ...
-
-## Screenshots
-[Se aplicável]
-```
-
----
-
-## 🔧 Debug Console (God Mode)
-
-Use o Debug Console (`Ctrl+Shift+E`) para:
-
-1. **Tab State**: Ver JSON dos items carregados
-2. **Tab Logs**: Ver logs dos engines
-3. **Tab Input Test**: Testar o Parsing Engine em tempo real
-4. **Tab Tokens**: Referência de todos os tokens # e @
-
-### Adicionando Logs
-
-```typescript
-import { useEngineLogger } from '@/hooks/useEngineLogger';
-
-const MyComponent = () => {
-  const { log } = useEngineLogger();
-  
-  const handleAction = () => {
-    log('MyEngine', 'Ação executada', { data: 'contexto' });
-  };
-};
-```
-
----
-
-## 📚 Recursos Úteis
-
-- [Lovable Docs](https://docs.lovable.dev/) - Documentação do Lovable
-- [shadcn/ui](https://ui.shadcn.com/) - Componentes UI
-- [Tailwind CSS](https://tailwindcss.com/docs) - Documentação Tailwind
-
----
-
-## ❓ Dúvidas?
-
-- Abra uma issue com a tag `question`
-- Consulte a documentação existente
-- Verifique issues fechadas para problemas similares
-
----
-
-**Obrigado por contribuir! 💚**
-
----
----
----
-
-# FIM DA DOCUMENTAÇÃO
-
-**MindMate - Atom Engine 4.0**  
-Versão: 4.0.0-alpha.8  
-Última atualização: 2025-12-16
+</div>
