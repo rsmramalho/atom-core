@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AppLayout } from "@/components/layout/AppLayout";
+import { OnboardingProvider, WelcomeModal, TourOverlay } from "@/components/onboarding";
 import Index from "./pages/Index";
 import Inbox from "./pages/Inbox";
 import Projects from "./pages/Projects";
@@ -23,25 +24,29 @@ function LayoutRoute({ children }: { children: React.ReactNode }) {
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          {/* Immersive Ritual View - NO AppLayout */}
-          <Route path="/ritual" element={<RitualView />} />
-          
-          {/* Main App routes WITH AppLayout */}
-          <Route path="/" element={<LayoutRoute><Index /></LayoutRoute>} />
-          <Route path="/inbox" element={<LayoutRoute><Inbox /></LayoutRoute>} />
-          <Route path="/projects" element={<LayoutRoute><Projects /></LayoutRoute>} />
-          <Route path="/projects/:id" element={<LayoutRoute><ProjectDetail /></LayoutRoute>} />
-          <Route path="/journal" element={<LayoutRoute><Journal /></LayoutRoute>} />
-          <Route path="/calendar" element={<LayoutRoute><Calendar /></LayoutRoute>} />
-          
-          {/* Catch-all */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
+      <OnboardingProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <WelcomeModal />
+          <TourOverlay />
+          <Routes>
+            {/* Immersive Ritual View - NO AppLayout */}
+            <Route path="/ritual" element={<RitualView />} />
+            
+            {/* Main App routes WITH AppLayout */}
+            <Route path="/" element={<LayoutRoute><Index /></LayoutRoute>} />
+            <Route path="/inbox" element={<LayoutRoute><Inbox /></LayoutRoute>} />
+            <Route path="/projects" element={<LayoutRoute><Projects /></LayoutRoute>} />
+            <Route path="/projects/:id" element={<LayoutRoute><ProjectDetail /></LayoutRoute>} />
+            <Route path="/journal" element={<LayoutRoute><Journal /></LayoutRoute>} />
+            <Route path="/calendar" element={<LayoutRoute><Calendar /></LayoutRoute>} />
+            
+            {/* Catch-all */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </OnboardingProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );
