@@ -7,6 +7,92 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [4.0.0-alpha.8] - 2025-12-15
+
+### Adicionado
+
+#### Reflection Engine - Fase 3 (B.11)
+
+##### Página Journal (/journal)
+- **Design Zen:** Layout focado em tipografia, espaço em branco, sem distrações
+- **JournalComposer:** Textarea auto-expansível para captura de reflexões
+  - Placeholder acolhedor: "O que está na sua mente agora?"
+  - Atalho ⌘Enter / Ctrl+Enter para salvar
+  - Extração automática de tags do conteúdo (#checkin, #mood:*)
+  - Toast de sucesso ao salvar
+- **JournalFeed:** Timeline visual de reflexões
+  - Linha vertical conectando entradas
+  - Datas formatadas (Hoje, Ontem, formato completo)
+  - Tags exibidas como pílulas discretas
+  - Ordenação por data (mais recente primeiro)
+- **JournalFilters:** Sistema duplo de filtros
+  - Filtro por tags: extração dinâmica das reflexões existentes
+  - Filtro por período: all, today, week, month, year
+  - Filtros combinam entre si
+  - Estado vazio quando nenhuma reflexão corresponde
+
+##### Busca Full-Text no Journal
+- **Busca Global (/journal):**
+  - Input de busca com ícone e botão limpar
+  - Atalho "/" para focar na busca
+  - Hint visual do atalho no campo
+  - Destaque (highlight) dos termos encontrados
+  - Busca em conteúdo e tags
+- **Busca no Projeto (Project Sheet):**
+  - Mesmo comportamento na aba Journal do projeto
+  - Atalho "/" funciona também no contexto do projeto
+
+##### Prompts de Reflexão Guiada
+- **Biblioteca de Prompts:** `src/lib/reflection-prompts.ts`
+  - 20+ prompts organizados por categoria
+  - Categorias: gratitude, growth, feelings, goals, learning, general
+  - Prompts específicos para projetos
+- **UI de Prompts no JournalComposer:**
+  - Seletor de categorias como pills clicáveis
+  - Ícones visuais por categoria (Heart, TrendingUp, Smile, Target, Lightbulb)
+  - Botão "Usar este prompt" insere no textarea
+  - Botão "Outro" randomiza novo prompt
+  - Prompt muda automaticamente após salvar reflexão
+- **Prompts no JournalPane (Projetos):**
+  - Prompts contextuais para decisões, bloqueios, ideias
+  - Mesmo padrão visual do JournalComposer
+
+##### Integração Ritual + Reflexão
+- **Check-in no Ritual View:**
+  - Novo passo no fluxo: Hábitos → Check-in → Encerramento
+  - Pergunta contextual por período:
+    - Aurora: "Qual é sua intenção para hoje?"
+    - Zênite: "Como está sendo seu dia até agora?"
+    - Crepúsculo: "Como você encerra este ciclo?"
+  - Textarea para resposta livre
+  - Botões "Pular" e "Registrar"
+- **Salvamento Contextual:**
+  - Cria item type='reflection' automaticamente
+  - Tags automáticas: `#ritual:{período}`, `#checkin`
+  - Reflexão aparece no Journal global
+
+##### Aba Journal na Project Sheet
+- **Nova Aba:** "Journal" ao lado de Trabalho/Jornada/Notas
+- **JournalPane:** Feed de reflexões filtrado por project_id
+- **Criação Contextual:**
+  - Botão "Adicionar nota ou reflexão"
+  - project_id definido automaticamente
+  - Tag de contexto: `#project:{nome-do-projeto}`
+- **Timeline Visual:** Mesmo estilo do JournalFeed global
+
+##### Navegação e Atalhos
+- **Rota /journal** adicionada ao sistema
+- **Atalho ⌘J / Ctrl+J** para acesso rápido ao Journal
+- **Command Palette** atualizado com opção Journal
+- **Sidebar/Bottom Nav** com link "Diário"
+- **KeyboardShortcutsHelp** atualizado
+
+### Modificado
+- **ProjectDetail.tsx:** Refatorado para usar Tabs com 4 abas (Trabalho, Jornada, Notas, Journal)
+- **RitualView.tsx:** Adicionado gerenciamento de steps e componente de Check-in
+
+---
+
 ## [4.0.0-alpha.7] - 2025-12-15
 
 ### Adicionado
@@ -60,27 +146,12 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 #### Ilustrações SVG Customizadas
 - **ZenCircleIllustration** - Círculo zen animado (enso) para Inbox Zero
-  - Anel rotativo com gradiente
-  - Partículas flutuantes com pulse
-  - Checkmark central e folha decorativa
 - **FreeDayIllustration** - Cena aconchegante de café para Dashboard vazio
-  - Xícara com vapor animado
-  - Sol com raios pulsantes
-  - Nuvem e partículas decorativas
 - **RocketLaunchIllustration** - Foguete dinâmico para Projeto novo
-  - Chama animada no propulsor
-  - Trilha de trajetória
-  - Estrelas e bandeira de destino
 - **TargetFocusIllustration** - Alvo minimalista para Focus vazio
-  - Anéis concêntricos com pulse
-  - Crosshairs e ponto central
-  - Sparkle decorativo
 
 #### Confetti Celebration
 - **Componente Confetti** - Explosão de confetes para celebração
-  - 60 peças com cores variadas (primary, gold, green, blue, pink, purple)
-  - Animação de queda com rotação e drift horizontal
-  - Duração e delay randomizados para efeito natural
 - **Detecção automática** - Dispara ao completar todas as tasks do dia
 - **Toast de celebração** - Mensagem "Parabéns!" ao zerar pendências
 
@@ -88,44 +159,20 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 - **DragOverlay** - Preview flutuante do item sendo arrastado
 - **Transições suaves** - Cubic-bezier easing para movimentação natural
 - **Feedback visual** - Escala, opacidade, bordas e rotação sutil durante arraste
-- **Estados visuais** - Distinção clara entre item original e overlay
 
 #### Haptic Feedback (Mobile)
 - **Vibração no pickup** - Feedback médio (25ms) ao iniciar arraste
 - **Vibração no hover** - Feedback leve (10ms) ao passar sobre nova posição
 - **Vibração de sucesso** - Padrão [10, 50, 20]ms ao soltar com sucesso
-- **Vibração de erro** - Feedback pesado (50ms) em caso de falha
 
 #### Module System (UX)
 - **ModuleBadge** - Componente de badge colorido para módulos
-  - Cores distintas: Work (azul), Body (laranja), Mind (roxo), Family (rosa)
-  - Ícones visuais: Briefcase, Dumbbell, Brain, Users
-  - Suporte a tamanhos sm/md e ícone opcional
-- **MacroPicker atualizado:**
-  - Seletor de Módulo obrigatório ao criar projeto
-  - Herança automática do módulo ao selecionar projeto
-  - Override manual do módulo disponível
-- **EditItemModal atualizado:**
-  - Campo Módulo obrigatório para projetos
-  - Seletor visual com 4 opções coloridas
-- **Visualização em Cards:**
-  - ProjectCard exibe ModuleBadge colorido
-  - InboxItemCard exibe ModuleBadge do item
-- **Regra de Negócio:**
-  - Itens sem módulo recebem "geral" automaticamente
-  - Projetos nunca podem ter módulo null
+- **MacroPicker atualizado** com seletor de Módulo obrigatório
+- **Regra de Negócio:** Itens sem módulo recebem "geral" automaticamente
 
 #### Projects Page - Filtros e Ordenação
-- **Filtros por Módulo:**
-  - Pills compactas para Work, Body, Mind, Family e Todos
-  - Cores distintas por módulo
-  - Contador de projetos por categoria
-  - Estado vazio quando nenhum projeto no filtro
-- **Ordenação de Projetos:**
-  - Dropdown com opções: Nome, Progresso, Data de Criação
-  - Toggle de direção (asc/desc) ao clicar no mesmo campo
-  - Indicador visual de direção atual
-  - Ordenação alfabética PT-BR para nomes
+- **Filtros por Módulo:** Pills compactas para Work, Body, Mind, Family
+- **Ordenação de Projetos:** Nome, Progresso, Data de Criação
 
 ---
 
@@ -135,29 +182,12 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 #### Project Sheet (A.13/B.13)
 - **Tabela `project_milestones`** - Milestones como entidades independentes
-  - `id`, `project_id`, `user_id`, `title`, `completed`, `weight`, `due_date`
-  - RLS policies para isolamento por usuário
-  - Peso padrão: 3x (tasks = 1x)
 - **Hook `useMilestones`** - CRUD completo para milestones
-  - `createMilestone()`, `updateMilestone()`, `deleteMilestone()`
-  - `toggleComplete()` - Toggle de conclusão
 - **Hook `useProjectProgress`** - Cálculo de progresso híbrido
-  - Fórmula: `(Peso Concluído / Peso Total) * 100`
-  - Considera tasks (peso 1) + milestones (peso 3)
-- **Componentes Project Sheet:**
-  - `MilestonesPane` - Timeline visual da "Jornada"
-  - `WorkAreaPane` - Tasks e Hábitos separados
-  - `NotesPane` - Notas e Recursos vinculados
-  - `ProjectFab` - Botão flutuante com opções Task/Milestone
-  - `QuickAddTaskModal` - Criação rápida de task
-  - `QuickAddMilestoneModal` - Criação rápida de milestone
+- **Componentes Project Sheet:** MilestonesPane, WorkAreaPane, NotesPane, ProjectFab
 
 ### Modificado
 - **ProjectDetail** refatorado para Project Sheet completo
-  - Header com título, módulo e status
-  - Barra de progresso híbrido (tasks + milestones)
-  - Layout em blocos verticais (não abas)
-  - FAB para criação rápida dentro do projeto
 
 ---
 
@@ -167,36 +197,15 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 #### Ritual View (A.19/B.19)
 - **Rota `/ritual`** - Experiência imersiva full-screen
-- **Detecção de Período** baseada na hora do sistema:
-  - Aurora (manhã): < 11:00
-  - Zênite (meio-dia): 11:00 - 17:00
-  - Crepúsculo (noite): > 17:00
-- **Cores por Período:**
-  - Aurora: tons quentes (laranja/amarelo)
-  - Zênite: tons claros (amarelo brilhante)
-  - Crepúsculo: tons frios (roxo/azul)
-- **Componentes:**
-  - Header com ícone de sol e frase motivacional
-  - Lista de hábitos com cards grandes e clicáveis
-  - Feedback visual de conclusão (checkmark verde)
-  - Botão "Encerrar Ritual" para voltar ao dashboard
-- **Debug Selector** - Seletor para forçar período (dev only)
+- **Detecção de Período** baseada na hora do sistema
+- **Cores por Período:** Aurora, Zênite, Crepúsculo
+- **Componentes:** Header, Habit Cards, Footer, Debug Selector
 
 #### Ritual Slot Assignment
-- **MacroPickerModal** atualizado para hábitos:
-  - Seletor de ritual slot (Manhã, Meio-dia, Noite)
-  - Só aparece quando `type === "habit"`
-  - Ícones visuais: Sunrise, Sun, Sunset
+- **MacroPickerModal** atualizado para hábitos com seletor de ritual slot
 
 #### Hook useRitual
-- **Filtragem por período** - Hábitos do slot atual
-- **Contagem de pendentes** - Para badge no dashboard
-- **Funções de override** - Para debug/testes
-
-### Modificado
-- **Dashboard** agora mostra RitualBanner com botão "Entrar no Ritual"
-- **Inbox** passa `ritualSlot` no `handlePromote`
-- **AppLayout** não renderiza nav no `/ritual` (experiência imersiva)
+- Filtragem por período, contagem de pendentes, funções de override
 
 ---
 
@@ -206,34 +215,15 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 #### Dashboard Engine (B.10)
 - **Hook `useDashboardData`** - Filtros e organização para dashboard
-  - `filterFocus()`: Itens com tag `#focus`
-  - `filterToday()`: Itens com due_date <= hoje (exclui rituais)
-  - `filterRitual()`: Hábitos com ritual_slot do período atual
-  - `filterProjects()`: Projetos ativos com cálculo de progresso
-  - `toggleComplete()`: Ação para completar itens do dashboard
-- **RitualBanner** - Card de ritual ativo baseado na hora do sistema
-- **FocusBlock** - Bloco de destaque para itens #focus
-- **TodayList** - Lista do dia com separação Atrasados/Hoje
+- **RitualBanner**, **FocusBlock**, **TodayList**
 
 #### Project Engine (B.9)
-- **Rota `/projects`** - Visão macro de todos os projetos
-- **ProjectCard** - Card com título, módulo e barra de progresso
-- **Cálculo de Progresso** - (itens completos / total) * 100
-- **Rota `/projects/:id`** - Detalhes do projeto com lista de itens
+- Rotas `/projects` e `/projects/:id`
+- **ProjectCard** com barra de progresso
 
 #### Sistema de Navegação
 - **AppNavigation** - Bottom nav (mobile) + Sidebar (desktop)
-- **AppLayout** - Wrapper com auth handling e navegação
-- **Rotas**: Home (/), Projects (/projects), Inbox (/inbox), Debug (Ctrl+Shift+E)
-
-### Modificado
-- Index.tsx agora é o Dashboard principal (não mais debug-only)
-- Inbox.tsx simplificado (navegação movida para AppLayout)
-- AuthForm.onSuccess agora é opcional
-
-### Corrigido
-- Modal MacroPicker agora fecha após confirmação
-- Conversão para projeto agora define campos project_status, progress_mode, progress
+- **AppLayout** - Wrapper com auth handling
 
 ---
 
@@ -242,25 +232,12 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 ### Adicionado
 
 #### Inbox Engine (B.6)
-- **Rota `/inbox`** - Tela operacional de captura e processamento
-- **Input de Captura** - Campo "O que está na sua mente?" com parsing automático
-- **Filtro por tag** - Exibe apenas itens com `#inbox`
-- **InboxItemCard** - Card com título, chips de tags, e botão "Processar"
-- **Remoção automática** - Item some do inbox ao ser processado (remove `#inbox`)
+- **Rota `/inbox`** - Captura e processamento
+- **InboxItemCard** - Card com título, chips de tags, botão "Processar"
 
 #### MacroPicker Engine (B.8)
 - **Modal MacroPicker** - Interface de promoção de itens
-- **Seleção de Tipo** - Botões para Task, Habit, Note, Project
-- **Seleção de Projeto** - Combobox com projetos existentes
-- **Criação de Projeto** - Opção de criar "Projeto Geral" inline
-- **Sugestões Inteligentes** - Destaca projetos do mesmo módulo (`#mod_*`)
-- **Regra de Ouro** - Botão "Confirmar" só habilita com projeto selecionado
-- **Tags de Promoção** - Adiciona `#macro:NomeProjeto` ao promover
-
-#### UI/Navegação
-- Botão "Abrir Inbox" na página principal
-- Header do Inbox com contagem de itens
-- Botão de acesso rápido ao Debug Console no Inbox
+- **Seleção de Tipo**, **Projeto**, **Sugestões Inteligentes**
 
 ---
 
@@ -269,56 +246,21 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 ### Adicionado
 
 #### Banco de Dados (Lovable Cloud)
-- Tabela `items` com schema completo baseado no Doc B.3/B.9
-- Enums: `item_type`, `ritual_slot`, `project_status`, `progress_mode`
-- Índices para performance: user_id, type, project_id, parent_id, due_date, tags (GIN)
-- RLS Policies para isolamento de dados por usuário
-- Trigger para atualização automática de `updated_at`
-- Realtime habilitado na tabela items
+- Tabela `items` com schema completo
+- Enums, índices, RLS Policies, Realtime
 
 #### Core Engine
 - **Tipos TypeScript** (`src/types/atom-engine.ts`)
-  - `AtomItem` - Interface principal
-  - `ParsedInput` - Resultado do parsing
-  - `EngineLogEntry` - Entrada de log
-  - Tipos auxiliares: `ItemType`, `RitualSlot`, `ProjectStatus`, etc.
-
-- **Parsing Engine** (`src/lib/parsing-engine.ts`) - Doc B.7
-  - Detecção de `@hoje` e `@amanha` → `due_date`
-  - Detecção de `@ritual_*` → `ritual_slot` + tipo `habit`
-  - Extração de `@who:*` e `@where:*` → tags de contexto
-  - Extração de `#tags` genéricas
-  - Inferência de módulo por palavras-chave
-  - Inferência de tipo por palavras-chave
-  - Suporte a `#mod_*` para módulo explícito
+- **Parsing Engine** (`src/lib/parsing-engine.ts`)
 
 #### Hooks
-- **useAtomItems** - CRUD completo via React Query + Supabase
-- **useEngineLogger** - Sistema de logs global com Zustand (mantém últimos 500)
-- **useDebugConsole** - Controle de visibilidade + atalho de teclado
+- **useAtomItems**, **useEngineLogger**, **useDebugConsole**
 
 #### UI/Debug
-- **EngineDebugConsole** - Overlay flutuante estilo terminal
-  - Aba State: JSON cru dos itens
-  - Aba Logs: Histórico de ações das engines
-  - Aba Input Test: Tester do ParsingEngine em tempo real
-  - Atalho: `Ctrl+Shift+E` / `Cmd+Shift+E`
-
-- **AuthForm** - Login/signup simples para testes
-
-- **Index Page** - Interface de debug com botão de acesso ao console
+- **EngineDebugConsole**, **AuthForm**, **Index Page**
 
 #### Design System
-- Tema terminal/hacker (dark mode only)
-- Cores customizadas: console-*, accent verde
-- Fonte monospace: JetBrains Mono
-- Scrollbar customizada
-- Tokens semânticos em index.css + tailwind.config.ts
-
-### Configurado
-- Lovable Cloud habilitado
-- Auto-confirm email ativado
-- Dependência `zustand` instalada
+- Tema terminal/hacker, cores customizadas, fonte monospace
 
 ---
 
