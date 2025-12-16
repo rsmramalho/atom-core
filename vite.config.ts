@@ -16,13 +16,13 @@ export default defineConfig(({ mode }) => ({
     mode === "development" && componentTagger(),
     VitePWA({
       registerType: "autoUpdate",
-      includeAssets: ["favicon.ico", "pwa-icons/*.png"],
+      includeAssets: ["favicon.svg", "favicon.ico", "pwa-icons/*.png"],
       manifest: {
         name: "MindMate - Atom Engine",
         short_name: "MindMate",
         description: "Sistema de produtividade pessoal com rituais, hábitos e projetos",
-        theme_color: "#7c3aed",
-        background_color: "#0a0a0b",
+        theme_color: "#111318",
+        background_color: "#111318",
         display: "standalone",
         orientation: "portrait",
         scope: "/",
