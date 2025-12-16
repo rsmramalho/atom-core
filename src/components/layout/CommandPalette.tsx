@@ -24,6 +24,7 @@ import {
   LogOut,
   BookOpen,
   Calendar,
+  ListChecks,
 } from "lucide-react";
 import { useAtomItems } from "@/hooks/useAtomItems";
 import { supabase } from "@/integrations/supabase/client";
@@ -42,6 +43,11 @@ export function CommandPalette({ onNewItem }: CommandPaletteProps) {
   // Get projects for search
   const projects = useMemo(() => {
     return items.filter(item => item.type === "project" && item.project_status !== "archived");
+  }, [items]);
+
+  // Get lists for search
+  const lists = useMemo(() => {
+    return items.filter(item => item.type === "list");
   }, [items]);
 
   // Keyboard shortcuts
@@ -86,8 +92,13 @@ export function CommandPalette({ onNewItem }: CommandPaletteProps) {
             navigate("/journal");
             break;
           case "l":
-            e.preventDefault();
-            navigate("/calendar");
+            if (e.shiftKey) {
+              e.preventDefault();
+              navigate("/lists");
+            } else {
+              e.preventDefault();
+              navigate("/calendar");
+            }
             break;
         }
       }
@@ -119,7 +130,7 @@ export function CommandPalette({ onNewItem }: CommandPaletteProps) {
 
   return (
     <CommandDialog open={open} onOpenChange={setOpen}>
-      <CommandInput placeholder="Buscar ações, projetos..." />
+      <CommandInput placeholder="Buscar ações, projetos, listas..." />
       <CommandList>
         <CommandEmpty>Nenhum resultado encontrado.</CommandEmpty>
 
@@ -139,6 +150,11 @@ export function CommandPalette({ onNewItem }: CommandPaletteProps) {
             <FolderKanban className="mr-2 h-4 w-4" />
             Ir para Projetos
             <CommandShortcut>⌘P</CommandShortcut>
+          </CommandItem>
+          <CommandItem onSelect={() => runCommand(() => navigate("/lists"))}>
+            <ListChecks className="mr-2 h-4 w-4" />
+            Ir para Listas
+            <CommandShortcut>⌘⇧L</CommandShortcut>
           </CommandItem>
           <CommandItem onSelect={() => runCommand(() => navigate("/ritual"))}>
             <Sunrise className="mr-2 h-4 w-4" />
@@ -194,6 +210,25 @@ export function CommandPalette({ onNewItem }: CommandPaletteProps) {
               </CommandItem>
             ))}
           </CommandGroup>
+        )}
+
+        {/* Lists Search */}
+        {lists.length > 0 && (
+          <>
+            <CommandSeparator />
+            <CommandGroup heading="Listas">
+              {lists.map((list) => (
+                <CommandItem
+                  key={list.id}
+                  onSelect={() => runCommand(() => navigate("/lists"))}
+                  className="flex items-center gap-2"
+                >
+                  <ListChecks className="mr-2 h-4 w-4 text-muted-foreground" />
+                  <span className="flex-1">{list.title}</span>
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </>
         )}
 
         <CommandSeparator />
