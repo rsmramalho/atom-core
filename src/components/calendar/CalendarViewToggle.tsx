@@ -1,4 +1,4 @@
-// Calendar Engine - View Toggle Component
+// Calendar Engine - View Toggle Component with Keyboard Hints
 import { Calendar, CalendarDays } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -20,9 +20,16 @@ export function CalendarViewToggle({ view, onViewChange }: CalendarViewTogglePro
             ? "bg-background text-foreground shadow-sm"
             : "text-muted-foreground hover:text-foreground"
         )}
+        title="Pressione M"
       >
         <CalendarDays className="h-3.5 w-3.5" />
         Mês
+        <kbd className={cn(
+          "ml-1 text-[10px] px-1 py-0.5 rounded border",
+          view === "month" 
+            ? "border-border bg-muted/50" 
+            : "border-transparent bg-transparent opacity-50"
+        )}>M</kbd>
       </button>
       <button
         onClick={() => onViewChange("week")}
@@ -32,9 +39,16 @@ export function CalendarViewToggle({ view, onViewChange }: CalendarViewTogglePro
             ? "bg-background text-foreground shadow-sm"
             : "text-muted-foreground hover:text-foreground"
         )}
+        title="Pressione W"
       >
         <Calendar className="h-3.5 w-3.5" />
         Semana
+        <kbd className={cn(
+          "ml-1 text-[10px] px-1 py-0.5 rounded border",
+          view === "week" 
+            ? "border-border bg-muted/50" 
+            : "border-transparent bg-transparent opacity-50"
+        )}>W</kbd>
       </button>
     </div>
   );

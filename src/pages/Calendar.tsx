@@ -1,5 +1,5 @@
 // Calendar Engine - Main Page (B.4) with Drag & Drop, Filters, and View Modes
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import {
@@ -81,6 +81,25 @@ export default function Calendar() {
     setViewMode(view);
     localStorage.setItem("calendar-view-mode", view);
   }, []);
+
+  // Keyboard shortcuts for view toggle (M = month, W = week)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Ignore if typing in input/textarea
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+        return;
+      }
+      
+      if (e.key.toLowerCase() === "m" && !e.metaKey && !e.ctrlKey) {
+        handleViewChange("month");
+      } else if (e.key.toLowerCase() === "w" && !e.metaKey && !e.ctrlKey) {
+        handleViewChange("week");
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [handleViewChange]);
 
   // Persist filters to localStorage
   const handleTypeChange = useCallback((type: ItemTypeFilter) => {
