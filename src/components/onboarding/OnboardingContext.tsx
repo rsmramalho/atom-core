@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 
 interface OnboardingStep {
   id: string;
@@ -21,6 +22,7 @@ interface OnboardingContextType {
   showTour: boolean;
   showChecklist: boolean;
   checklistProgress: ChecklistProgress;
+  isLoading: boolean;
   setShowWelcome: (show: boolean) => void;
   completeWelcome: () => void;
   startTour: () => void;
@@ -68,8 +70,6 @@ const tourSteps: OnboardingStep[] = [
 
 const OnboardingContext = createContext<OnboardingContextType | undefined>(undefined);
 
-const STORAGE_KEY = 'mindmate_onboarding';
-
 export function OnboardingProvider({ children }: { children: ReactNode }) {
   const [hasCompletedWelcome, setHasCompletedWelcome] = useState(true);
   const [hasCompletedTour, setHasCompletedTour] = useState(true);
@@ -78,38 +78,110 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
   const [showChecklist, setShowChecklist] = useState(false);
   const [checklistProgress, setChecklistProgress] = useState<ChecklistProgress>({});
   const [currentTourStep, setCurrentTourStep] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+  const [userId, setUserId] = useState<string | null>(null);
 
+  // Load onboarding state from Supabase
   useEffect(() => {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      const data = JSON.parse(stored);
-      setHasCompletedWelcome(data.hasCompletedWelcome ?? false);
-      setHasCompletedTour(data.hasCompletedTour ?? false);
-      setShowChecklist(data.showChecklist ?? false);
-      setChecklistProgress(data.checklistProgress ?? {});
-    } else {
-      // First time user
-      setHasCompletedWelcome(false);
-      setHasCompletedTour(false);
-      setShowWelcome(true);
-    }
+    const loadOnboardingState = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        setIsLoading(false);
+        return;
+      }
+      
+      setUserId(user.id);
+
+      const { data, error } = await supabase
+        .from('onboarding_progress')
+        .select('*')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (error) {
+        console.error('Error loading onboarding state:', error);
+        setIsLoading(false);
+        return;
+      }
+
+      if (data) {
+        setHasCompletedWelcome(data.has_completed_welcome);
+        setHasCompletedTour(data.has_completed_tour);
+        setShowChecklist(data.show_checklist);
+        setChecklistProgress((data.checklist_progress as ChecklistProgress) ?? {});
+        
+        // Show welcome if not completed
+        if (!data.has_completed_welcome) {
+          setShowWelcome(true);
+        }
+      } else {
+        // First time user - create initial record
+        const { error: insertError } = await supabase
+          .from('onboarding_progress')
+          .insert({
+            user_id: user.id,
+            has_completed_welcome: false,
+            has_completed_tour: false,
+            show_checklist: false,
+            checklist_progress: {}
+          });
+
+        if (insertError) {
+          console.error('Error creating onboarding record:', insertError);
+        }
+
+        setHasCompletedWelcome(false);
+        setHasCompletedTour(false);
+        setShowWelcome(true);
+      }
+      
+      setIsLoading(false);
+    };
+
+    loadOnboardingState();
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN' && session?.user) {
+        setUserId(session.user.id);
+        loadOnboardingState();
+      } else if (event === 'SIGNED_OUT') {
+        setUserId(null);
+        setHasCompletedWelcome(true);
+        setHasCompletedTour(true);
+        setShowWelcome(false);
+        setShowTour(false);
+        setShowChecklist(false);
+        setChecklistProgress({});
+      }
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
-  const saveState = (updates: Partial<{
-    hasCompletedWelcome: boolean;
-    hasCompletedTour: boolean;
-    showChecklist: boolean;
-    checklistProgress: ChecklistProgress;
-  }>) => {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    const current = stored ? JSON.parse(stored) : {};
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...current, ...updates }));
+  const saveState = async (updates: {
+    has_completed_welcome?: boolean;
+    has_completed_tour?: boolean;
+    show_checklist?: boolean;
+    checklist_progress?: ChecklistProgress;
+  }) => {
+    if (!userId) return;
+
+    const { error } = await supabase
+      .from('onboarding_progress')
+      .update(updates)
+      .eq('user_id', userId);
+
+    if (error) {
+      console.error('Error saving onboarding state:', error);
+    }
   };
 
   const completeWelcome = () => {
     setHasCompletedWelcome(true);
     setShowWelcome(false);
-    saveState({ hasCompletedWelcome: true });
+    saveState({ has_completed_welcome: true });
   };
 
   const startTour = () => {
@@ -136,29 +208,45 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
     setShowTour(false);
     setHasCompletedTour(true);
     setShowChecklist(true);
-    saveState({ hasCompletedTour: true, showChecklist: true });
+    saveState({ has_completed_tour: true, show_checklist: true });
   };
 
   const completeTour = () => {
     setShowTour(false);
     setHasCompletedTour(true);
     setShowChecklist(true);
-    saveState({ hasCompletedTour: true, showChecklist: true });
+    saveState({ has_completed_tour: true, show_checklist: true });
   };
 
   const markChecklistItem = (itemId: string) => {
     const updated = { ...checklistProgress, [itemId]: true };
     setChecklistProgress(updated);
-    saveState({ checklistProgress: updated });
+    saveState({ checklist_progress: updated });
   };
 
   const dismissChecklist = () => {
     setShowChecklist(false);
-    saveState({ showChecklist: false });
+    saveState({ show_checklist: false });
   };
 
-  const resetOnboarding = () => {
-    localStorage.removeItem(STORAGE_KEY);
+  const resetOnboarding = async () => {
+    if (!userId) return;
+
+    const { error } = await supabase
+      .from('onboarding_progress')
+      .update({
+        has_completed_welcome: false,
+        has_completed_tour: false,
+        show_checklist: false,
+        checklist_progress: {}
+      })
+      .eq('user_id', userId);
+
+    if (error) {
+      console.error('Error resetting onboarding:', error);
+      return;
+    }
+
     setHasCompletedWelcome(false);
     setHasCompletedTour(false);
     setShowWelcome(true);
@@ -178,6 +266,7 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
       showTour,
       showChecklist,
       checklistProgress,
+      isLoading,
       setShowWelcome,
       completeWelcome,
       startTour,
