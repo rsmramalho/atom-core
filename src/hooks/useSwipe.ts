@@ -1,5 +1,5 @@
 // Custom hook for swipe gesture detection with haptic feedback
-import { useState, useCallback, TouchEvent } from "react";
+import { useState, useCallback, useRef, TouchEvent } from "react";
 
 interface SwipeHandlers {
   onTouchStart: (e: TouchEvent) => void;
@@ -12,6 +12,7 @@ interface SwipeState {
   direction: "left" | "right" | "up" | "down" | null;
   offsetX: number;
   offsetY: number;
+  passedThreshold: boolean;
 }
 
 interface UseSwipeOptions {
@@ -29,10 +30,18 @@ interface UseSwipeResult {
 }
 
 /**
- * Trigger haptic feedback using Web Vibration API
- * @param pattern - Vibration pattern in ms (single number or array)
+ * Haptic feedback patterns using Web Vibration API
  */
-function triggerHaptic(pattern: number | number[] = 15) {
+const HAPTIC_PATTERNS = {
+  dragStart: 10,        // Light vibration when starting drag
+  passThreshold: 15,    // Medium vibration when passing threshold
+  swipeComplete: [20, 10, 20] as number[], // Strong double-tap vibration on complete
+};
+
+/**
+ * Trigger haptic feedback using Web Vibration API
+ */
+function triggerHaptic(pattern: number | number[]) {
   if (typeof navigator !== "undefined" && "vibrate" in navigator) {
     try {
       navigator.vibrate(pattern);
@@ -57,7 +66,11 @@ export function useSwipe({
     direction: null,
     offsetX: 0,
     offsetY: 0,
+    passedThreshold: false,
   });
+  
+  // Track if threshold haptic has been triggered (to avoid repeated vibrations)
+  const thresholdHapticTriggered = useRef(false);
 
   const onTouchStart = useCallback((e: TouchEvent) => {
     setTouchEnd(null);
@@ -70,8 +83,15 @@ export function useSwipe({
       direction: null,
       offsetX: 0,
       offsetY: 0,
+      passedThreshold: false,
     });
-  }, []);
+    thresholdHapticTriggered.current = false;
+    
+    // Light haptic on drag start
+    if (enableHaptics) {
+      triggerHaptic(HAPTIC_PATTERNS.dragStart);
+    }
+  }, [enableHaptics]);
 
   const onTouchMove = useCallback((e: TouchEvent) => {
     if (!touchStart) return;
@@ -93,17 +113,29 @@ export function useSwipe({
       direction = offsetY > 0 ? "down" : "up";
     }
     
+    // Check if threshold is passed
+    const passedThreshold = isHorizontal 
+      ? Math.abs(offsetX) > threshold 
+      : Math.abs(offsetY) > threshold;
+    
+    // Medium haptic when first passing threshold
+    if (passedThreshold && !thresholdHapticTriggered.current && enableHaptics) {
+      triggerHaptic(HAPTIC_PATTERNS.passThreshold);
+      thresholdHapticTriggered.current = true;
+    }
+    
     setSwipeState({
       isSwiping: true,
       direction,
       offsetX,
       offsetY,
+      passedThreshold,
     });
-  }, [touchStart]);
+  }, [touchStart, threshold, enableHaptics]);
 
   const onTouchEnd = useCallback(() => {
     if (!touchStart || !touchEnd) {
-      setSwipeState({ isSwiping: false, direction: null, offsetX: 0, offsetY: 0 });
+      setSwipeState({ isSwiping: false, direction: null, offsetX: 0, offsetY: 0, passedThreshold: false });
       setTouchStart(null);
       return;
     }
@@ -131,14 +163,14 @@ export function useSwipe({
       }
     }
 
-    // Haptic feedback on successful swipe
+    // Strong haptic feedback on successful swipe completion
     if (swipeTriggered && enableHaptics) {
-      triggerHaptic(20); // Short vibration (20ms) for success
+      triggerHaptic(HAPTIC_PATTERNS.swipeComplete);
     }
 
     setTouchStart(null);
     setTouchEnd(null);
-    setSwipeState({ isSwiping: false, direction: null, offsetX: 0, offsetY: 0 });
+    setSwipeState({ isSwiping: false, direction: null, offsetX: 0, offsetY: 0, passedThreshold: false });
   }, [touchStart, touchEnd, threshold, onSwipeLeft, onSwipeRight, onSwipeUp, onSwipeDown, enableHaptics]);
 
   return {
