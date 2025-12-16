@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { OnboardingProvider, WelcomeModal, TourOverlay, FirstStepsChecklist } from "@/components/onboarding";
+import { InstallPrompt } from "@/components/pwa";
 import Index from "./pages/Index";
 import Inbox from "./pages/Inbox";
 import Projects from "./pages/Projects";
@@ -28,6 +29,7 @@ const App = () => (
       <OnboardingProvider>
         <Toaster />
         <Sonner />
+        <InstallPrompt />
         <BrowserRouter>
           <WelcomeModal />
           <TourOverlay />
