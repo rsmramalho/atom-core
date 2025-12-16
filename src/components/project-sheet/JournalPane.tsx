@@ -1,7 +1,7 @@
 // Project Journal Pane - Reflections scoped to a project
 // Displays project-specific reflections with contextual creation
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import { useAtomItems } from "@/hooks/useAtomItems";
 import { AtomItem } from "@/types/atom-engine";
 import { format, isToday, isYesterday, parseISO } from "date-fns";
@@ -113,6 +113,25 @@ export function JournalPane({ projectId, projectTitle, projectModule }: JournalP
   const [content, setContent] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  // Keyboard shortcut: "/" to focus search
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement;
+      if (target.tagName === "INPUT" || target.tagName === "TEXTAREA") {
+        return;
+      }
+
+      if (e.key === "/") {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   // Filter reflections for this project
   const projectReflections = useMemo(() => {
@@ -261,18 +280,23 @@ export function JournalPane({ projectId, projectTitle, projectModule }: JournalP
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
+            ref={searchInputRef}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Buscar decisões, ideias..."
-            className="pl-9 pr-9"
+            className="pl-9 pr-14"
           />
-          {searchQuery && (
+          {searchQuery ? (
             <button
               onClick={() => setSearchQuery("")}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
             >
               <X className="h-4 w-4" />
             </button>
+          ) : (
+            <kbd className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-[10px] text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
+              /
+            </kbd>
           )}
         </div>
       )}
