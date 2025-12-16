@@ -2,7 +2,7 @@
 // Floating overlay for debugging the engine
 
 import { useState, useMemo } from "react";
-import { X, Database, FileText, Terminal, Play, Trash2, RefreshCw } from "lucide-react";
+import { X, Database, FileText, Terminal, Play, Trash2, RefreshCw, Hash, AtSign } from "lucide-react";
 import { useAtomItems } from "@/hooks/useAtomItems";
 import { useEngineLogger } from "@/hooks/useEngineLogger";
 import { parseInput } from "@/lib/parsing-engine";
@@ -13,7 +13,7 @@ interface EngineDebugConsoleProps {
   onClose: () => void;
 }
 
-type TabType = "state" | "logs" | "input";
+type TabType = "state" | "logs" | "input" | "tokens";
 
 export function EngineDebugConsole({ isOpen, onClose }: EngineDebugConsoleProps) {
   const [activeTab, setActiveTab] = useState<TabType>("state");
@@ -32,6 +32,7 @@ export function EngineDebugConsole({ isOpen, onClose }: EngineDebugConsoleProps)
     { id: "state", label: "State", icon: <Database className="w-4 h-4" /> },
     { id: "logs", label: "Logs", icon: <FileText className="w-4 h-4" /> },
     { id: "input", label: "Input Test", icon: <Terminal className="w-4 h-4" /> },
+    { id: "tokens", label: "Tokens", icon: <Hash className="w-4 h-4" /> },
   ];
 
   return (
@@ -91,6 +92,7 @@ export function EngineDebugConsole({ isOpen, onClose }: EngineDebugConsoleProps)
               parsedResult={parsedResult}
             />
           )}
+          {activeTab === "tokens" && <TokensTab />}
         </div>
 
         {/* Footer */}
@@ -248,6 +250,125 @@ function InputTestTab({
             </pre>
           )}
         </div>
+      </div>
+    </div>
+  );
+}
+
+// Tokens Reference Tab Component
+function TokensTab() {
+  const atTokens = [
+    { token: "@hoje", description: "Define due_date como hoje", example: "Fazer exercício @hoje" },
+    { token: "@amanha", description: "Define due_date como amanhã", example: "Entregar relatório @amanha" },
+    { token: "@ritual_manha", description: "Vincula ao ritual Aurora (manhã)", example: "Meditar @ritual_manha" },
+    { token: "@ritual_meio_dia", description: "Vincula ao ritual Zênite (meio-dia)", example: "Revisão @ritual_meio_dia" },
+    { token: "@ritual_noite", description: "Vincula ao ritual Crepúsculo (noite)", example: "Journaling @ritual_noite" },
+    { token: "@who:nome", description: "Adiciona tag de contexto (pessoa)", example: "Reunião @who:andre" },
+    { token: "@where:local", description: "Adiciona tag de contexto (lugar)", example: "Compras @where:mercado" },
+  ];
+
+  const hashTokens = [
+    { token: "#tag", description: "Adiciona tag customizada", example: "Estudar #python #curso" },
+    { token: "#mod_trabalho", description: "Define módulo: Trabalho", example: "Relatório #mod_trabalho" },
+    { token: "#mod_corpo", description: "Define módulo: Corpo", example: "Academia #mod_corpo" },
+    { token: "#mod_mente", description: "Define módulo: Mente", example: "Ler livro #mod_mente" },
+    { token: "#mod_familia", description: "Define módulo: Família", example: "Jantar #mod_familia" },
+    { token: "#mod_casa", description: "Define módulo: Casa", example: "Limpar #mod_casa" },
+    { token: "#focus", description: "Marca como item de foco", example: "Prioridade #focus" },
+    { token: "#inbox", description: "Item de entrada (automático)", example: "Novo item #inbox" },
+  ];
+
+  const specialTags = [
+    { token: "#checkin", description: "Tag de check-in do ritual", auto: true },
+    { token: "#ritual:aurora", description: "Reflexão do ritual matinal", auto: true },
+    { token: "#ritual:zenite", description: "Reflexão do ritual do meio-dia", auto: true },
+    { token: "#ritual:crepusculo", description: "Reflexão do ritual noturno", auto: true },
+    { token: "#macro:NomeProjeto", description: "Referência ao projeto macro", auto: true },
+    { token: "#project:NomeProjeto", description: "Referência ao projeto (journal)", auto: true },
+  ];
+
+  const typeKeywords = [
+    { keywords: "nota, note, lembrete, ideia", infersType: "note" },
+    { keywords: "hábito, habit, rotina, diário", infersType: "habit" },
+    { keywords: "projeto, project, initiative", infersType: "project" },
+    { keywords: "reflexão, reflection, pensamento", infersType: "reflection" },
+    { keywords: "(default)", infersType: "task" },
+  ];
+
+  return (
+    <div className="h-full overflow-auto p-6">
+      <div className="max-w-4xl mx-auto space-y-8">
+        {/* @ Tokens */}
+        <section>
+          <div className="flex items-center gap-2 mb-4">
+            <AtSign className="w-5 h-5 text-blue-400" />
+            <h3 className="text-console-text font-mono text-lg font-semibold">@ Tokens (Temporais e Contexto)</h3>
+          </div>
+          <div className="grid gap-2">
+            {atTokens.map((item) => (
+              <div key={item.token} className="bg-console-input border border-console-border rounded p-3 grid grid-cols-[120px_1fr_1fr] gap-4 items-center">
+                <code className="text-blue-400 font-mono text-sm font-bold">{item.token}</code>
+                <span className="text-console-text font-mono text-xs">{item.description}</span>
+                <span className="text-console-muted font-mono text-xs italic">ex: {item.example}</span>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* # Tokens */}
+        <section>
+          <div className="flex items-center gap-2 mb-4">
+            <Hash className="w-5 h-5 text-green-400" />
+            <h3 className="text-console-text font-mono text-lg font-semibold"># Tokens (Tags e Módulos)</h3>
+          </div>
+          <div className="grid gap-2">
+            {hashTokens.map((item) => (
+              <div key={item.token} className="bg-console-input border border-console-border rounded p-3 grid grid-cols-[120px_1fr_1fr] gap-4 items-center">
+                <code className="text-green-400 font-mono text-sm font-bold">{item.token}</code>
+                <span className="text-console-text font-mono text-xs">{item.description}</span>
+                <span className="text-console-muted font-mono text-xs italic">ex: {item.example}</span>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Auto-generated Tags */}
+        <section>
+          <div className="flex items-center gap-2 mb-4">
+            <Hash className="w-5 h-5 text-yellow-400" />
+            <h3 className="text-console-text font-mono text-lg font-semibold">Tags Automáticas (Sistema)</h3>
+          </div>
+          <div className="grid gap-2">
+            {specialTags.map((item) => (
+              <div key={item.token} className="bg-console-input border border-console-border rounded p-3 grid grid-cols-[180px_1fr] gap-4 items-center">
+                <code className="text-yellow-400 font-mono text-sm font-bold">{item.token}</code>
+                <span className="text-console-text font-mono text-xs">{item.description}</span>
+              </div>
+            ))}
+          </div>
+          <p className="text-console-muted font-mono text-xs mt-2 italic">
+            * Tags automáticas são geradas pelo sistema durante ações específicas
+          </p>
+        </section>
+
+        {/* Type Inference */}
+        <section>
+          <div className="flex items-center gap-2 mb-4">
+            <Terminal className="w-5 h-5 text-purple-400" />
+            <h3 className="text-console-text font-mono text-lg font-semibold">Inferência de Tipo</h3>
+          </div>
+          <div className="grid gap-2">
+            {typeKeywords.map((item) => (
+              <div key={item.infersType} className="bg-console-input border border-console-border rounded p-3 grid grid-cols-[100px_1fr] gap-4 items-center">
+                <code className="text-purple-400 font-mono text-sm font-bold">{item.infersType}</code>
+                <span className="text-console-muted font-mono text-xs">Keywords: {item.keywords}</span>
+              </div>
+            ))}
+          </div>
+          <p className="text-console-muted font-mono text-xs mt-2 italic">
+            * O tipo é inferido automaticamente com base em palavras-chave no texto
+          </p>
+        </section>
       </div>
     </div>
   );
