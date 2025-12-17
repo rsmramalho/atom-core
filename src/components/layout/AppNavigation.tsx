@@ -132,7 +132,7 @@ export function AppNavigation() {
                 {/* Header */}
                 <div className="p-6 border-b border-border">
                   <h1 className="text-xl font-bold text-primary">MindMate</h1>
-                  <p className="text-xs text-muted-foreground">Atom Engine 4.0</p>
+                  <p className="text-xs text-muted-foreground">v4.0.0-alpha.19</p>
                 </div>
 
                 {/* Nav Items */}
@@ -261,7 +261,10 @@ export function AppNavigation() {
             </SheetContent>
           </Sheet>
 
-          <h1 className="text-lg font-bold text-primary">MindMate</h1>
+          <div className="flex flex-col items-center">
+            <h1 className="text-lg font-bold text-primary leading-none">MindMate</h1>
+            <span className="text-[10px] text-muted-foreground">v4.0.0-alpha.19</span>
+          </div>
 
           {/* Right side buttons */}
           <div className="flex items-center gap-1">
@@ -284,7 +287,7 @@ export function AppNavigation() {
           <div className="mb-8 flex items-start justify-between">
             <div>
               <h1 className="text-xl font-bold text-primary">MindMate</h1>
-              <p className="text-xs text-muted-foreground">Atom Engine 4.0</p>
+              <p className="text-xs text-muted-foreground">v4.0.0-alpha.19</p>
             </div>
             <NotificationSettings />
           </div>
