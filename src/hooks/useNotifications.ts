@@ -182,6 +182,6 @@ export function useNotifications() {
     requestPermission,
     showNotification,
     checkAndNotify,
-    isSupported: "Notification" in window,
+    isSupported: typeof window !== "undefined" && "Notification" in window,
   };
 }
