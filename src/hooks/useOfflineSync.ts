@@ -157,5 +157,6 @@ export function useOfflineSync() {
     isSyncing,
     queueOperation,
     syncPendingOperations,
+    updatePendingCount,
   };
 }

@@ -11,6 +11,7 @@ interface OfflineSyncContextType {
     data: Record<string, unknown>
   ) => Promise<string | null>;
   syncPendingOperations: (isAutoSync?: boolean) => Promise<void>;
+  updatePendingCount: () => Promise<void>;
 }
 
 const OfflineSyncContext = createContext<OfflineSyncContextType | null>(null);

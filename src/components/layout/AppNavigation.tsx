@@ -35,7 +35,7 @@ export function AppNavigation() {
   const [showClearCacheDialog, setShowClearCacheDialog] = useState(false);
   const [showPendingModal, setShowPendingModal] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { isOnline, isSyncing, pendingCount, syncPendingOperations } = useOfflineSyncContext();
+  const { isOnline, isSyncing, pendingCount, syncPendingOperations, updatePendingCount } = useOfflineSyncContext();
 
   // Update sync time every minute
   useEffect(() => {
@@ -421,6 +421,7 @@ export function AppNavigation() {
       <PendingOperationsModal
         open={showPendingModal}
         onOpenChange={setShowPendingModal}
+        onOperationsChanged={updatePendingCount}
       />
     </>
   );
