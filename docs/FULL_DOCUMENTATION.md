@@ -23,7 +23,8 @@
 9. [Rotas](#rotas)
 10. [Design System](#design-system)
 11. [Guia de Contribuição](#guia-de-contribuição)
-12. [Changelog](#changelog)
+12. [Testes & CI/CD](#testes--cicd) ⭐ NOVO
+13. [Changelog](#changelog)
 
 ## Documentos Relacionados
 
@@ -980,11 +981,111 @@ Use `Ctrl+Shift+E` para:
 
 ---
 
+# TESTES & CI/CD
+
+## Visão Geral
+
+O MindMate possui uma suíte de testes abrangente com integração contínua via GitHub Actions.
+
+## Tipos de Testes
+
+### 1. Testes Unitários (Vitest)
+
+```bash
+npm run test
+```
+
+- **150+ testes** cobrindo:
+  - Parsing Engine (tokens temporais, contexto, módulos)
+  - Dashboard filters (filterFocus, filterToday, filterRitual)
+  - Cálculo de progresso de projetos
+  - Offline queue (IndexedDB)
+  - Integrity guards (arquitetura)
+
+### 2. Testes E2E (Playwright)
+
+```bash
+npx playwright test
+```
+
+**Projetos disponíveis:**
+
+| Projeto | Comando | Descrição |
+|---------|---------|-----------|
+| `public` | `--project=public` | Fluxos não autenticados |
+| `authenticated` | `--project=authenticated` | Fluxos com login |
+| `mobile` | `--project=mobile` | Viewport mobile (Pixel 5) |
+| `visual` | `--project=visual` | Regressão visual |
+
+**Nota:** Os testes E2E **não requerem** `SUPABASE_SERVICE_ROLE_KEY`. Usam signup/login normal com auto-confirmação de email habilitada.
+
+### 3. Testes Visuais
+
+```bash
+npx playwright test --project=visual --update-snapshots
+```
+
+- Capturam screenshots de páginas e componentes
+- Comparam com baselines armazenadas
+- Detectam regressões visuais automaticamente
+
+## CI/CD com GitHub Actions
+
+O workflow `.github/workflows/test.yml` executa automaticamente em push/PR:
+
+### Jobs
+
+| Job | Descrição | Quando |
+|-----|-----------|--------|
+| **Unit Tests** | Vitest + coverage | Sempre |
+| **E2E Tests** | Playwright (public, authenticated, mobile) | Sempre |
+| **Visual Regression** | Screenshots comparativos | Apenas `main` |
+
+### Configuração
+
+```yaml
+# Não requer secrets para testes E2E!
+# Auto-confirm está habilitado no Supabase Auth
+```
+
+### Artefatos
+
+Em caso de falha, o workflow faz upload de:
+- `playwright-report/` - Relatório HTML completo
+- `e2e-screenshots/` - Screenshots de diferenças visuais
+- `coverage/` - Relatório de cobertura
+
+## Executando Localmente
+
+```bash
+# Instalar dependências
+npm install
+npx playwright install
+
+# Rodar testes unitários
+npm run test
+
+# Rodar testes E2E
+npx playwright test --project=public
+npx playwright test --project=authenticated
+
+# Ver relatório HTML
+npx playwright show-report
+```
+
+---
+
 # CHANGELOG
 
 ## [4.0.0-alpha.17] - 2025-12-17
 
 ### Adicionado
+
+#### CI/CD Completo ⭐ NOVO
+- **GitHub Actions:** Workflow com 3 jobs (unit, E2E, visual)
+- **E2E sem service_role_key:** Testes usam signup/login normal
+- **Auto-confirm habilitado:** Emails de teste confirmados automaticamente
+- **Artefatos de falha:** Upload de relatórios e screenshots
 
 #### PWA Branding Completo
 - **Ícones PWA:** 8 tamanhos regenerados (72x72 até 512x512) com design do átomo verde
@@ -1005,6 +1106,13 @@ Use `Ctrl+Shift+E` para:
 - **AnimatePresence:** Corrigido uso incorreto no InstallPrompt.tsx
 - **Causa:** Condição de renderização fora do AnimatePresence causava React Error #310
 - **Solução:** Condição movida para dentro do AnimatePresence com key no motion.div
+
+### Alterado
+
+#### Testes E2E Simplificados
+- **Fixture atualizado:** Usa signup/login normal em vez de Admin API
+- **Sem dependência externa:** Não precisa de `SUPABASE_SERVICE_ROLE_KEY`
+- **README atualizado:** Instruções simplificadas
 
 ---
 
@@ -1230,7 +1338,8 @@ Use `Ctrl+Shift+E` para:
 - [x] **Analytics Dashboard**
 - [x] **Testes de Arquitetura (50+ tests)**
 - [x] **Testes Offline Queue (IndexedDB)**
-- [x] **PWA Branding Completo (ícones + splash screens)** ⭐ NOVO
+- [x] **PWA Branding Completo (ícones + splash screens)**
+- [x] **CI/CD com GitHub Actions (unit + E2E + visual)** ⭐ NOVO
 
 ## 🔲 Próximas Etapas
 - [ ] Metas diárias de produtividade
