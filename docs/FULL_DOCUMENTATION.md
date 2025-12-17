@@ -131,6 +131,7 @@ Sistema de journaling com design zen:
 - **Filtros** por tags e período de tempo
 - **Timeline Visual** conectando reflexões
 - **Atalho /** para focar na busca
+- **Exportação Markdown** ⭐ NOVO - Baixa todas as reflexões em arquivo .md
 
 ## 📅 Calendar Engine
 
@@ -978,6 +979,11 @@ Use `Ctrl+Shift+E` para:
 - **OfflineSyncProvider:** Context provider para estado global de sync
 - **updatePendingCount:** Função exposta para atualização manual do contador
 
+#### Exportação do Journal
+- **Exportar Markdown:** Botão para baixar todas as reflexões em arquivo .md
+- **Formatação:** Agrupamento por data, título, conteúdo e tags
+- **journal-export.ts:** Utilitário para conversão e download
+
 ---
 
 ## [4.0.0-alpha.11] - 2025-12-16
@@ -1112,13 +1118,12 @@ Use `Ctrl+Shift+E` para:
 - [x] Command Palette (⌘K)
 - [x] Empty States ilustrados
 - [x] Confetti de celebração
-- [x] **Listas com cores personalizadas** ⭐ NOVO
-- [x] **Habit Streaks + Heatmap** ⭐ NOVO
-
-- [x] **PWA + Offline Sync** ⭐ NOVO
+- [x] **Listas com cores personalizadas**
+- [x] **Habit Streaks + Heatmap**
+- [x] **PWA + Offline Sync**
+- [x] **Exportação Journal Markdown** ⭐ NOVO
 
 ## 🔲 Próximas Etapas
-- [ ] Exportação do Journal em Markdown
 - [ ] Notificações e lembretes
 - [ ] Estatísticas e analytics
 

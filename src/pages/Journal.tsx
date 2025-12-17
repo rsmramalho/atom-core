@@ -3,9 +3,12 @@
 
 import { useState, useCallback, useRef, useEffect } from "react";
 import { JournalComposer, JournalFeed, JournalFilters, TimePeriod } from "@/components/journal";
-import { BookOpen, Search, X } from "lucide-react";
+import { BookOpen, Search, X, Download } from "lucide-react";
 import { AtomItem } from "@/types/atom-engine";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { exportJournalAsMarkdown } from "@/lib/journal-export";
+import { toast } from "sonner";
 
 export default function Journal() {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
@@ -17,6 +20,15 @@ export default function Journal() {
   const handleReflectionsChange = useCallback((items: AtomItem[]) => {
     setReflections(items);
   }, []);
+
+  const handleExport = () => {
+    if (reflections.length === 0) {
+      toast.error("Nenhuma reflexão para exportar");
+      return;
+    }
+    exportJournalAsMarkdown(reflections);
+    toast.success(`${reflections.length} reflexão(ões) exportada(s)`);
+  };
 
   // Keyboard shortcut: "/" to focus search
   useEffect(() => {
@@ -47,9 +59,20 @@ export default function Journal() {
             Diário
           </h1>
         </div>
-        <p className="text-muted-foreground text-sm max-w-md mx-auto">
+        <p className="text-muted-foreground text-sm max-w-md mx-auto mb-4">
           Um espaço para reflexões, pensamentos e momentos de clareza.
         </p>
+        {reflections.length > 0 && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleExport}
+            className="gap-2"
+          >
+            <Download className="h-4 w-4" />
+            Exportar Markdown
+          </Button>
+        )}
       </header>
 
       {/* Main content */}
