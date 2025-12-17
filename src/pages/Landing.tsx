@@ -16,7 +16,10 @@ import {
   CheckCircle2,
   Sparkles,
   Play,
-  HelpCircle
+  HelpCircle,
+  Moon,
+  Layers,
+  Code
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -301,6 +304,88 @@ export default function Landing() {
               </Button>
             </Link>
           </motion.div>
+        </div>
+      </section>
+
+      {/* Atom Sovereignty Section */}
+      <section className="py-16 sm:py-24 px-4 sm:px-6 bg-gradient-to-b from-background to-card/30">
+        <div className="max-w-4xl mx-auto text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+          >
+            <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-4 sm:mb-6">
+              Os 3 Pilares da Soberania Atom
+            </h2>
+            <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto mb-10 sm:mb-14 px-2 leading-relaxed">
+              Em uma era de algoritmos que tentam nos confundir, o Atom Engine é sua âncora de clareza. 
+              <span className="text-foreground font-medium"> Gratuito, transparente e desenhado para devolver o controle a você.</span>
+            </p>
+          </motion.div>
+
+          <div className="grid sm:grid-cols-3 gap-6 sm:gap-8">
+            {/* Pilar 1 - Internet Passiva */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.1, duration: 0.5 }}
+              className="p-6 rounded-xl bg-card/50 border border-border/50 text-left"
+            >
+              <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
+                <Moon className="w-5 h-5 text-primary" />
+              </div>
+              <h3 className="text-lg font-semibold text-foreground mb-2">
+                Internet Passiva
+              </h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                Nós não lutamos pela sua atenção. O Atom é uma ferramenta silenciosa que espera pelo seu comando. 
+                <span className="text-foreground/80"> Sem feeds infinitos, sem sugestões algorítmicas opacas.</span> Apenas a estrutura que você criou.
+              </p>
+            </motion.div>
+
+            {/* Pilar 2 - Estrutura Universal */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.2, duration: 0.5 }}
+              className="p-6 rounded-xl bg-card/50 border border-border/50 text-left"
+            >
+              <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
+                <Layers className="w-5 h-5 text-primary" />
+              </div>
+              <h3 className="text-lg font-semibold text-foreground mb-2">
+                Estrutura Universal
+              </h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                Capture tudo, em qualquer lugar. O Atom padroniza o caos da vida em um formato que você controla. 
+                <span className="text-foreground/80"> Se amanhã você quiser mover tudo para outro lugar, seus dados estão estruturados e prontos.</span> A lógica é sua.
+              </p>
+            </motion.div>
+
+            {/* Pilar 3 - Transparência Radical */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.3, duration: 0.5 }}
+              className="p-6 rounded-xl bg-card/50 border border-border/50 text-left"
+            >
+              <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
+                <Code className="w-5 h-5 text-primary" />
+              </div>
+              <h3 className="text-lg font-semibold text-foreground mb-2">
+                Transparência Radical
+              </h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                Não confie em "mágica". <span className="text-foreground/80">Confie em lógica.</span> Nosso código é aberto para que você saiba 
+                exatamente como suas informações são processadas. Sem custos ocultos, sem venda de dados.
+              </p>
+            </motion.div>
+          </div>
         </div>
       </section>
 
