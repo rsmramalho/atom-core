@@ -8,6 +8,10 @@
 */
 
 @layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  
   :root {
     /* Core Background */
     --background: 220 20% 8%;
