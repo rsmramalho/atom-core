@@ -317,7 +317,7 @@ export default function Landing() {
       </section>
 
       {/* Atom Sovereignty Section */}
-      <section className="py-16 sm:py-24 px-4 sm:px-6 bg-background relative">
+      <section className="py-16 sm:py-24 px-4 sm:px-6 bg-card/30 relative">
         {/* Divider top */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
         <div className="max-w-4xl mx-auto text-center">
@@ -401,7 +401,7 @@ export default function Landing() {
       </section>
 
       {/* Agnostic System Section */}
-      <section className="py-16 sm:py-24 px-4 sm:px-6 bg-card/30 relative">
+      <section className="py-16 sm:py-24 px-4 sm:px-6 bg-background relative">
         {/* Divider top */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
         <div className="max-w-5xl mx-auto">
@@ -710,7 +710,7 @@ export default function Landing() {
       </section>
 
       {/* Para Desenvolvedores Section */}
-      <section className="py-16 sm:py-24 px-4 sm:px-6 bg-card/30 relative">
+      <section className="py-16 sm:py-24 px-4 sm:px-6 bg-background relative">
         {/* Divider top */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
         <div className="max-w-4xl mx-auto">
@@ -806,7 +806,7 @@ export default function Landing() {
       </section>
 
       {/* FAQ Section */}
-      <section id="faq" className="py-12 sm:py-20 px-4 sm:px-6 bg-background scroll-mt-16 relative">
+      <section id="faq" className="py-12 sm:py-20 px-4 sm:px-6 bg-card/30 scroll-mt-16 relative">
         {/* Divider top */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
         <div className="max-w-3xl mx-auto">
