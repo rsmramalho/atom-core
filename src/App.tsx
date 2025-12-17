@@ -15,6 +15,7 @@ import Journal from "./pages/Journal";
 import Calendar from "./pages/Calendar";
 import Lists from "./pages/Lists";
 import Analytics from "./pages/Analytics";
+import Install from "./pages/Install";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -38,8 +39,9 @@ const App = () => (
             <TourOverlay />
             <FirstStepsChecklist />
             <Routes>
-              {/* Immersive Ritual View - NO AppLayout */}
+{/* Immersive routes - NO AppLayout */}
               <Route path="/ritual" element={<RitualView />} />
+              <Route path="/install" element={<Install />} />
               
               {/* Main App routes WITH AppLayout */}
               <Route path="/" element={<LayoutRoute><Index /></LayoutRoute>} />

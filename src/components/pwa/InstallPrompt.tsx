@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
-import { Download, X, Smartphone } from "lucide-react";
+import { Download, X, Smartphone, HelpCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { motion, AnimatePresence } from "framer-motion";
+import { Link } from "react-router-dom";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -98,13 +99,18 @@ export function InstallPrompt() {
                 <p className="text-sm text-muted-foreground mt-1">
                   Instale o app para acesso rápido, funcionar offline e receber notificações.
                 </p>
-                <div className="flex gap-2 mt-3">
+                <div className="flex items-center gap-2 mt-3">
                   <Button size="sm" onClick={handleInstall} className="gap-1.5">
                     <Download className="h-4 w-4" />
                     Instalar
                   </Button>
                   <Button size="sm" variant="ghost" onClick={handleDismiss}>
                     Agora não
+                  </Button>
+                  <Button size="sm" variant="ghost" asChild className="ml-auto p-2">
+                    <Link to="/install" onClick={handleDismiss}>
+                      <HelpCircle className="h-4 w-4" />
+                    </Link>
                   </Button>
                 </div>
               </div>
