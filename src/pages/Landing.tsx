@@ -662,6 +662,7 @@ export default function Landing() {
               className="bg-card/50 rounded-2xl border border-border/50 p-4 sm:p-6"
             >
               <div className="font-mono text-xs sm:text-sm space-y-2">
+                {/* First command: --status */}
                 <motion.div 
                   initial={{ opacity: 0 }}
                   whileInView={{ opacity: 1 }}
@@ -707,11 +708,71 @@ export default function Landing() {
                 >
                   <span className="text-green-500">✓</span> Foco: 3 tasks prioritárias
                 </motion.div>
+
+                {/* Second command: add task */}
                 <motion.div 
                   initial={{ opacity: 0 }}
                   whileInView={{ opacity: 1 }}
                   viewport={{ once: true }}
-                  transition={{ delay: 1.5 }}
+                  transition={{ delay: 1.8 }}
+                  className="mt-4 text-muted-foreground"
+                >
+                  <span className="text-primary">$</span> mindmate add "Revisar projeto @amanha #focus"
+                </motion.div>
+                <motion.div 
+                  initial={{ opacity: 0, x: -10 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: 2.2 }}
+                  className="text-muted-foreground/70 pl-4"
+                >
+                  <span className="text-blue-400">→</span> Parsing: detectado @amanha, #focus
+                </motion.div>
+                <motion.div 
+                  initial={{ opacity: 0, x: -10 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: 2.5 }}
+                  className="text-muted-foreground/70 pl-4"
+                >
+                  <span className="text-green-500">✓</span> Task criada com sucesso
+                </motion.div>
+
+                {/* Third command: ritual */}
+                <motion.div 
+                  initial={{ opacity: 0 }}
+                  whileInView={{ opacity: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: 3.0 }}
+                  className="mt-4 text-muted-foreground"
+                >
+                  <span className="text-primary">$</span> mindmate ritual --start
+                </motion.div>
+                <motion.div 
+                  initial={{ opacity: 0, x: -10 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: 3.4 }}
+                  className="text-muted-foreground/70 pl-4"
+                >
+                  <span className="text-amber-400">☀</span> Iniciando ritual Aurora...
+                </motion.div>
+                <motion.div 
+                  initial={{ opacity: 0, x: -10 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: 3.7 }}
+                  className="text-muted-foreground/70 pl-4"
+                >
+                  <span className="text-green-500">✓</span> 4 hábitos carregados
+                </motion.div>
+
+                {/* Cursor */}
+                <motion.div 
+                  initial={{ opacity: 0 }}
+                  whileInView={{ opacity: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: 4.2 }}
                   className="mt-4 text-primary"
                 >
                   <span className="text-muted-foreground">$</span> _
