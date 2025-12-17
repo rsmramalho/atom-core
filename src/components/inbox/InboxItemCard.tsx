@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, memo } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -13,7 +13,7 @@ interface InboxItemCardProps {
   onProcess: (item: AtomItem) => void;
 }
 
-export function InboxItemCard({ item, onProcess }: InboxItemCardProps) {
+export const InboxItemCard = memo(function InboxItemCard({ item, onProcess }: InboxItemCardProps) {
   const { updateItem, deleteItem, isUpdating, isDeleting } = useAtomItems();
   
   const [editModalOpen, setEditModalOpen] = useState(false);
@@ -190,4 +190,4 @@ export function InboxItemCard({ item, onProcess }: InboxItemCardProps) {
       />
     </>
   );
-}
+});
