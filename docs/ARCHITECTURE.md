@@ -2,9 +2,9 @@
 
 ## Arquitetura do Sistema
 
-**Versão:** 4.0.0-alpha.14  
-**Data:** 2025-12-16  
-**Status:** Core Engine + Inbox + MacroPicker + Dashboard + Ritual + Project Sheet + Reflection Engine + Project Intelligence + **List Engine** + **Habit Streaks**
+**Versão:** 4.0.0-alpha.19  
+**Data:** 2025-12-17  
+**Status:** Production Ready - All Core Engines + PWA + Offline + Analytics
 
 ---
 
@@ -16,33 +16,78 @@ src/
 │   ├── ui/                         # Componentes Shadcn (base)
 │   ├── inbox/
 │   │   ├── InboxItemCard.tsx       # Card de item no inbox
+│   │   ├── InboxItemCardSkeleton.tsx # Skeleton loading
 │   │   └── MacroPickerModal.tsx    # Modal de promoção (B.8)
 │   ├── dashboard/
 │   │   ├── FocusBlock.tsx          # Bloco de itens #focus
 │   │   ├── RitualBanner.tsx        # Banner do ritual ativo
 │   │   └── TodayList.tsx           # Lista do dia
 │   ├── projects/
-│   │   └── ProjectCard.tsx         # Card de projeto na lista
+│   │   ├── ProjectCard.tsx         # Card de projeto na lista
+│   │   └── ProjectCardSkeleton.tsx # Skeleton loading
 │   ├── project-sheet/
 │   │   ├── MilestonesPane.tsx      # Timeline de milestones
 │   │   ├── WorkAreaPane.tsx        # Tasks & Hábitos
 │   │   ├── NotesPane.tsx           # Notas & Recursos
-│   │   ├── JournalPane.tsx         # Reflexões do projeto ⭐ NOVO
+│   │   ├── JournalPane.tsx         # Reflexões do projeto
 │   │   ├── ProjectFab.tsx          # FAB flutuante
+│   │   ├── ProjectSettingsModal.tsx # Config de progresso
+│   │   ├── ProjectStatusDropdown.tsx # State machine UI
 │   │   ├── QuickAddTaskModal.tsx   # Modal criação task
 │   │   └── QuickAddMilestoneModal.tsx
-│   ├── journal/                    # ⭐ NOVO - Reflection Engine
+│   ├── calendar/
+│   │   ├── CalendarGrid.tsx        # Grid mensal
+│   │   ├── CalendarGridSkeleton.tsx # Skeleton loading
+│   │   ├── WeekGrid.tsx            # Grid semanal
+│   │   ├── DayCell.tsx             # Célula do dia
+│   │   ├── CalendarItem.tsx        # Item no calendário
+│   │   ├── CalendarFilters.tsx     # Filtros tipo/módulo
+│   │   └── OverdueSection.tsx      # Itens atrasados
+│   ├── journal/
 │   │   ├── JournalComposer.tsx     # Input de reflexões
 │   │   ├── JournalFeed.tsx         # Timeline de reflexões
 │   │   ├── JournalFilters.tsx      # Filtros por tag/período
-│   │   └── index.ts                # Exports
+│   │   └── index.ts
+│   ├── lists/
+│   │   ├── ListCard.tsx            # Card de lista
+│   │   ├── ListDetailModal.tsx     # Modal de edição
+│   │   ├── QuickAddListModal.tsx   # Criação rápida
+│   │   └── index.ts
+│   ├── notifications/
+│   │   ├── NotificationManager.tsx # Gerenciador de notificações
+│   │   ├── NotificationSettings.tsx # Config de preferências
+│   │   └── index.ts
+│   ├── pwa/
+│   │   ├── InstallPrompt.tsx       # Prompt de instalação
+│   │   ├── NetworkStatusIndicator.tsx # Badge online/offline
+│   │   ├── OfflineSyncContext.tsx  # Context de sync
+│   │   ├── PendingIndicator.tsx    # Indicador de pendências
+│   │   ├── PendingOperationsModal.tsx # Lista de operações
+│   │   └── index.ts
+│   ├── onboarding/
+│   │   ├── WelcomeModal.tsx        # Modal de boas-vindas
+│   │   ├── TourOverlay.tsx         # Tour guiado
+│   │   ├── FirstStepsChecklist.tsx # Checklist gamificado
+│   │   ├── OnboardingContext.tsx   # State management
+│   │   └── index.ts
 │   ├── layout/
 │   │   ├── AppLayout.tsx           # Layout principal com auth
 │   │   ├── AppNavigation.tsx       # Nav sidebar/bottom
 │   │   ├── CommandPalette.tsx      # Busca global (⌘K)
-│   │   └── KeyboardShortcutsHelp.tsx # Modal de atalhos
+│   │   ├── KeyboardShortcutsHelp.tsx # Modal de atalhos
+│   │   └── PageTransition.tsx      # AnimatePresence wrapper
 │   ├── empty-states/               # Estados vazios com ilustrações
-│   ├── shared/                     # Componentes compartilhados
+│   ├── shared/
+│   │   ├── ErrorBoundary.tsx       # Error handling global
+│   │   ├── PageLoader.tsx          # Loading states
+│   │   ├── Confetti.tsx            # Celebração
+│   │   ├── DeleteConfirmDialog.tsx # Confirmação de exclusão
+│   │   ├── EditItemModal.tsx       # Edição de itens
+│   │   ├── HabitHeatmap.tsx        # Visualização de streaks
+│   │   ├── ItemContextMenu.tsx     # Menu de contexto
+│   │   ├── RecurrencePickerModal.tsx # Config de recorrência
+│   │   ├── StreakBadge.tsx         # Badge de streak
+│   │   └── TagGlossary.tsx         # Referência de tags
 │   ├── AuthForm.tsx
 │   ├── EngineDebugConsole.tsx
 │   └── NavLink.tsx
@@ -50,9 +95,15 @@ src/
 ├── hooks/
 │   ├── useAtomItems.ts             # CRUD de itens via Supabase
 │   ├── useDashboardData.ts         # Filtros do dashboard (B.10)
+│   ├── useCalendarItems.ts         # Items para calendário
 │   ├── useMilestones.ts            # CRUD de milestones
 │   ├── useProjectProgress.ts       # Cálculo de progresso híbrido
 │   ├── useRitual.ts                # Lógica do ritual (B.19)
+│   ├── useRecurrence.ts            # Virtual projection
+│   ├── useNetworkStatus.ts         # Detecção online/offline
+│   ├── useOfflineSync.ts           # Sync queue management
+│   ├── useNotifications.ts         # Web Notifications API
+│   ├── useSwipe.ts                 # Touch/swipe gestures
 │   ├── useDebugConsole.ts          # Controle do console
 │   ├── useEngineLogger.ts          # Sistema de logs (Zustand)
 │   └── use-toast.ts                # Toasts do sistema
@@ -60,11 +111,17 @@ src/
 ├── lib/
 │   ├── parsing-engine.ts           # Motor de parsing (B.7)
 │   ├── dashboard-filters.ts        # Filtros do dashboard
-│   ├── reflection-prompts.ts       # Prompts de reflexão ⭐ NOVO
+│   ├── recurrence-engine.ts        # RRULE projection
+│   ├── reflection-prompts.ts       # Prompts de reflexão
+│   ├── journal-export.ts           # Export MD/JSON/PDF
+│   ├── offline-queue.ts            # IndexedDB queue
+│   ├── local-cache.ts              # localStorage cache
 │   └── utils.ts                    # Utilitários (cn, etc)
 │
 ├── types/
-│   └── atom-engine.ts              # Tipos TypeScript do domínio
+│   ├── atom-engine.ts              # Tipos do domínio
+│   ├── auth.ts                     # Tipos de autenticação
+│   └── database.ts                 # Tipos de mapeamento DB
 │
 ├── pages/
 │   ├── Index.tsx                   # Dashboard principal
@@ -74,7 +131,10 @@ src/
 │   ├── Calendar.tsx                # Calendário (B.4)
 │   ├── RitualView.tsx              # Ritual imersivo (B.19)
 │   ├── Journal.tsx                 # Página de reflexões
-│   ├── Lists.tsx                   # List Engine ⭐ NOVO
+│   ├── Lists.tsx                   # List Engine
+│   ├── Analytics.tsx               # Dashboard de métricas
+│   ├── Install.tsx                 # Guia de instalação PWA
+│   ├── Privacy.tsx                 # Política de privacidade
 │   └── NotFound.tsx                # 404
 │
 └── integrations/
@@ -94,15 +154,19 @@ Todos os tipos de itens em uma única tabela (Doc B.3, B.9).
 | `id` | uuid | Chave primária |
 | `user_id` | uuid | FK para auth.users |
 | `title` | text | Título do item |
-| `type` | item_type | Tipo: project, task, habit, note, **reflection**, resource, list |
+| `type` | item_type | Tipo: project, task, habit, note, reflection, resource, list |
 | `module` | text | Módulo (work, body, mind, family, geral) |
 | `tags` | text[] | Array de tags (inclui #milestone para milestones) |
 | `parent_id` | uuid | FK para item pai |
 | `project_id` | uuid | FK para projeto container |
 | `due_date` | date | Data de vencimento |
+| `recurrence_rule` | text | RRULE string para recorrência |
+| `completion_log` | jsonb | Array de datas de conclusão (recorrência) |
 | `ritual_slot` | ritual_slot | Slot de ritual (manha, meio_dia, noite) |
 | `completed` | boolean | Estado de conclusão |
+| `completed_at` | timestamptz | Timestamp de conclusão |
 | `notes` | text | Conteúdo/notas |
+| `checklist` | jsonb | Checklist items |
 | `weight` | integer | Peso para progresso (default: 1, milestones: 3) |
 | `order_index` | integer | Índice para ordenação drag & drop |
 | `project_status` | project_status | Status do projeto (apenas type='project') |
@@ -112,19 +176,24 @@ Todos os tipos de itens em uma única tabela (Doc B.3, B.9).
 | `created_at` | timestamptz | Timestamp de criação |
 | `updated_at` | timestamptz | Timestamp de atualização |
 
-### Milestones (Single Table Design)
+### Tabelas Auxiliares
 
-Milestones são items com `type='task'` e tag `#milestone`. Não há tabela separada.
+#### `onboarding_progress`
+| Coluna | Tipo | Descrição |
+|--------|------|-----------|
+| `user_id` | uuid | FK para auth.users |
+| `has_completed_welcome` | boolean | Modal de boas-vindas visto |
+| `has_completed_tour` | boolean | Tour guiado concluído |
+| `show_checklist` | boolean | Exibir checklist |
+| `checklist_progress` | jsonb | Progresso do checklist |
 
-```typescript
-// Exemplo de milestone
-{
-  type: "task",
-  tags: ["#milestone", "#work"],
-  weight: 3, // Peso maior que tasks normais
-  project_id: "uuid-do-projeto"
-}
-```
+#### `onboarding_analytics`
+| Coluna | Tipo | Descrição |
+|--------|------|-----------|
+| `user_id` | uuid | FK para auth.users |
+| `event_type` | text | Tipo do evento |
+| `event_data` | jsonb | Dados do evento |
+| `created_at` | timestamptz | Timestamp |
 
 ### Enums
 
@@ -192,9 +261,10 @@ Experiência imersiva para hábitos diários com check-in integrado.
 #### Fluxo do Ritual
 
 ```
-1. Hábitos → Lista de hábitos do período com toggle de conclusão
-2. Check-in → Pergunta contextual + textarea para reflexão
-3. Encerramento → Retorna ao dashboard
+1. Intro → Tela de boas-vindas com período
+2. Hábitos → Lista de hábitos do período com toggle de conclusão
+3. Check-in → Pergunta contextual + textarea para reflexão
+4. Encerramento → Retorna ao dashboard
 ```
 
 #### Check-in por Período
@@ -223,11 +293,6 @@ Gestão de projetos com State Machine, Progress Engine Híbrido e Journal integr
 | `completed` | Finalizado (bloqueado) | → archived, active |
 | `archived` | Histórico | → active |
 
-**Regras Visuais:**
-- Pausado: opacity-60, borda amber
-- Concluído: confetti + toast com sugestão de reflexão
-- Arquivado: opacity-50, borda slate
-
 #### Progress Engine Híbrido
 
 | Modo | Fórmula | Uso |
@@ -245,7 +310,7 @@ Gestão de projetos com State Machine, Progress Engine Híbrido e Journal integr
 
 ---
 
-### 7. Reflection Engine (B.11) ⭐ NOVO
+### 7. Reflection Engine (B.11)
 
 **Arquivos:** `src/pages/Journal.tsx`, `src/components/journal/*`
 
@@ -259,21 +324,85 @@ Sistema de journaling e reflexões.
 - **Filtros**: Por tag e por período (today, week, month, year)
 - **Busca Full-Text**: Com highlight de termos encontrados
 - **Prompts Guiados**: Perguntas por categoria para inspirar
+- **Export**: Markdown, JSON, PDF
 
-#### Prompts de Reflexão
+---
 
-**Categorias:**
-- Gratidão (Heart)
-- Crescimento (TrendingUp)
-- Sentimentos (Smile)
-- Metas (Target)
-- Aprendizado (Lightbulb)
-- Geral (Sparkles)
+### 8. Calendar Engine (B.4)
 
-**Prompts de Projeto:**
-- "Qual decisão importante foi tomada aqui?"
-- "O que está bloqueando o progresso?"
-- "Qual ideia surgiu para este projeto?"
+**Arquivos:** `src/pages/Calendar.tsx`, `src/components/calendar/*`
+
+Visualização temporal de items com due_date.
+
+#### Características
+
+- **Views**: Mensal e semanal com toggle (M/W keys)
+- **Navegação**: Arrows, swipe, keyboard shortcuts
+- **Drag & Drop**: Reschedule entre dias
+- **Overdue Section**: Items atrasados em destaque
+- **Filtering**: Por tipo e módulo
+- **Virtual Recurrence**: Projeção de instâncias recorrentes
+
+---
+
+### 9. List Engine
+
+**Arquivos:** `src/pages/Lists.tsx`, `src/components/lists/*`
+
+Listas rápidas estilo Google Keep.
+
+#### Características
+
+- **Cores Personalizadas**: 18 opções via picker
+- **Drag & Drop**: Reordenação de items
+- **Ações**: Duplicar, limpar concluídos, excluir
+- **Hierarquia**: Listas são containers, items são tasks com parent_id
+- **Isolamento**: Items NÃO aparecem no Dashboard (a menos que tenham due_date)
+
+---
+
+### 10. Recurrence Engine (B.5)
+
+**Arquivos:** `src/lib/recurrence-engine.ts`, `src/hooks/useRecurrence.ts`
+
+Suporte a padrões de repetição complexos.
+
+#### Características
+
+- **RRULE Support**: Biblioteca rrule para padrões complexos
+- **Virtual Projection**: Instâncias projetadas sem persistir no DB
+- **Completion Log**: JSONB array para tracking de conclusões
+- **Presets**: Diário, semanal (dias específicos), mensal
+
+---
+
+### 11. Notification Engine
+
+**Arquivos:** `src/hooks/useNotifications.ts`, `src/components/notifications/*`
+
+Sistema de lembretes via Web Notifications API.
+
+#### Características
+
+- **Tipos**: Tasks hoje, amanhã, atrasadas
+- **Permissões**: Request via settings
+- **Periódico**: Check a cada hora
+- **Browser Native**: Sem necessidade de VAPID keys
+
+---
+
+### 12. Offline Engine (PWA)
+
+**Arquivos:** `src/lib/offline-queue.ts`, `src/lib/local-cache.ts`, `src/hooks/useOfflineSync.ts`
+
+Suporte a uso offline com sync automático.
+
+#### Camadas
+
+1. **Network Detection**: useNetworkStatus hook + UI indicator
+2. **Service Worker**: vite-plugin-pwa com NetworkFirst/CacheFirst strategies
+3. **Offline Queue**: IndexedDB para mutations pendentes
+4. **Local Cache**: localStorage para leitura offline
 
 ---
 
@@ -285,8 +414,13 @@ Sistema de journaling e reflexões.
 | `/inbox` | Inbox.tsx | Captura e processamento |
 | `/projects` | Projects.tsx | Lista de projetos |
 | `/projects/:id` | ProjectDetail.tsx | Project Sheet |
+| `/calendar` | Calendar.tsx | Visualização temporal |
 | `/ritual` | RitualView.tsx | Ritual imersivo (sem nav) |
-| `/journal` | Journal.tsx | Página de reflexões ⭐ NOVO |
+| `/journal` | Journal.tsx | Página de reflexões |
+| `/lists` | Lists.tsx | Listas rápidas |
+| `/analytics` | Analytics.tsx | Métricas e estatísticas |
+| `/install` | Install.tsx | Guia de instalação PWA |
+| `/privacy` | Privacy.tsx | Política de privacidade |
 
 ---
 
@@ -298,44 +432,107 @@ Sistema de journaling e reflexões.
 | `⌘H` / `Ctrl+H` | Ir para Home |
 | `⌘I` / `Ctrl+I` | Ir para Inbox |
 | `⌘P` / `Ctrl+P` | Ir para Projetos |
+| `⌘L` / `Ctrl+L` | Ir para Calendário |
 | `⌘R` / `Ctrl+R` | Ir para Ritual |
-| `⌘J` / `Ctrl+J` | Ir para Journal ⭐ NOVO |
+| `⌘J` / `Ctrl+J` | Ir para Journal |
 | `⌘N` / `Ctrl+N` | Novo Item |
+| `⌘/` / `Ctrl+/` | Tag Glossary |
 | `Ctrl+Shift+E` | Debug Console |
-| `/` | Focar busca (Journal) ⭐ NOVO |
+| `/` | Focar busca (Journal) |
+| `M` | View mensal (Calendar) |
+| `W` | View semanal (Calendar) |
+| `←` `→` | Navegar períodos (Calendar) |
+| `T` | Ir para hoje (Calendar) |
+
+---
+
+## 🎨 Performance & UX (Fase 6)
+
+### Error Handling
+
+- **ErrorBoundary**: Wrapper global com fallback elegante
+- **Retry/Home/Reload**: Opções de recuperação
+
+### Loading States
+
+- **Suspense Boundaries**: Em todas as rotas
+- **PageLoader**: Mensagens contextuais por rota
+- **Skeletons**: ProjectCard, InboxItemCard, CalendarGrid
+
+### Optimizations
+
+- **React.memo**: ProjectCard, InboxItemCard, CalendarItem
+- **React.lazy**: Páginas secundárias (Analytics, Install, Privacy)
+- **Lazy SVGs**: Ilustrações em empty states
+
+### Animations
+
+- **Page Transitions**: AnimatePresence com fade + slide (200ms)
+- **Micro-animations**:
+  - Buttons: active:scale-[0.98], hover:shadow-md
+  - Cards: hover-lift + shadow transition
+  - Checkboxes: hover-glow + zoom check icon
+  - Switches: hover-glow + thumb shadow
+  - Badges: interactive variant com scale
+  - Progress bars: 500ms transition + gradient
+
+---
+
+## 🔒 Type Safety (Fase 5)
+
+### Zero Any Policy
+
+- **Nenhum `: any` ou `as any`** em código de produção
+- **Score de Auditoria**: 50/50
+
+### Tipos Centralizados
+
+```typescript
+// src/types/auth.ts
+export interface UserProfile { ... }
+export type User = SupabaseUser;
+export interface AuthError { ... }
+
+// src/types/database.ts
+export type ItemsRow = Tables<'items'>;
+export type TypedItemsRow = { ... };
+export function asTypedRow(row: ItemsRow): TypedItemsRow;
+```
 
 ---
 
 ## 📋 Roadmap
 
-### ✅ Implementado (v4.0.0-alpha.14)
+### ✅ Implementado (v4.0.0-alpha.19)
 
 - [x] Modelo de dados (Single Table Design)
-- [x] Tipos TypeScript completos
+- [x] Tipos TypeScript completos (Zero Any Policy)
 - [x] Parsing Engine (B.7)
 - [x] Inbox Engine (B.6)
 - [x] MacroPicker Engine (B.8)
 - [x] Dashboard Engine (B.10)
-- [x] Ritual View (B.19) com Check-in
+- [x] Ritual View (B.19) com Check-in e animações
 - [x] Project Sheet (A.13) com aba Journal
-- [x] Reflection Engine (B.11)
+- [x] Reflection Engine (B.11) com export
 - [x] Calendar Engine (B.4) com navegação avançada
-- [x] **Project Intelligence (B.9)** - State Machine + Progress Híbrido
-- [x] **WorkArea Drag & Drop** - Conversão de tipo task↔hábito
-- [x] **Ritual Slot via Context Menu** - Edição rápida de período
-- [x] **Visual Badges** - Status de projeto e ritual slot
-- [x] **List Engine** ⭐ NOVO - Listas rápidas com cores personalizadas
-- [x] **Habit Streaks** ⭐ NOVO - Badge de streak + Heatmap de histórico
-- [x] **Recurrence Engine (B.5)** ⭐ NOVO - Suporte a RRULE
+- [x] Project Intelligence (B.9) - State Machine + Progress Híbrido
+- [x] List Engine - Listas rápidas
+- [x] Habit Streaks - Badge + Heatmap
+- [x] Recurrence Engine (B.5) - RRULE support
+- [x] Notification Engine - Web Notifications API
+- [x] Offline Engine - PWA com sync
+- [x] Analytics Dashboard - Métricas e gráficos
+- [x] Onboarding System - Welcome + Tour + Checklist
+- [x] Performance & UX - ErrorBoundary, Suspense, Skeletons
+- [x] Micro-animations - Buttons, cards, checkboxes
 - [x] Sistema de navegação + Command Palette
 - [x] Debug Console (God Mode)
 - [x] Autenticação + RLS
 
 ### 🔲 Próximas Etapas
 
-- [ ] Gráfico de evolução de progresso
-- [ ] Alertas de deadline para milestones
-- [ ] Dashboard de métricas globais
-- [ ] Exportação do Journal em Markdown
-- [ ] Notificações e lembretes
-- [ ] Estatísticas e analytics
+- [ ] Push Notifications (VAPID)
+- [ ] Colaboração multi-usuário
+- [ ] Widgets nativos (Android/iOS)
+- [ ] API pública
+- [ ] Temas customizáveis
