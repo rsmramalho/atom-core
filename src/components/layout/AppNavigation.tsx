@@ -13,6 +13,11 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -132,7 +137,20 @@ export function AppNavigation() {
                 {/* Header */}
                 <div className="p-6 border-b border-border">
                   <h1 className="text-xl font-bold text-primary">MindMate</h1>
-                  <p className="text-xs text-muted-foreground">v4.0.0-alpha.19</p>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <p className="text-xs text-muted-foreground cursor-help hover:text-primary transition-colors">v4.0.0-alpha.19</p>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom" className="max-w-xs">
+                      <p className="font-semibold mb-1">Novidades:</p>
+                      <ul className="text-xs space-y-0.5 list-disc list-inside">
+                        <li>ErrorBoundary global</li>
+                        <li>Skeleton loading states</li>
+                        <li>Page transitions suaves</li>
+                        <li>Micro-animações em UI</li>
+                      </ul>
+                    </TooltipContent>
+                  </Tooltip>
                 </div>
 
                 {/* Nav Items */}
@@ -263,7 +281,20 @@ export function AppNavigation() {
 
           <div className="flex flex-col items-center">
             <h1 className="text-lg font-bold text-primary leading-none">MindMate</h1>
-            <span className="text-[10px] text-muted-foreground">v4.0.0-alpha.19</span>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span className="text-[10px] text-muted-foreground cursor-help hover:text-primary transition-colors">v4.0.0-alpha.19</span>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="max-w-xs">
+                <p className="font-semibold mb-1">Novidades:</p>
+                <ul className="text-xs space-y-0.5 list-disc list-inside">
+                  <li>ErrorBoundary global</li>
+                  <li>Skeleton loading states</li>
+                  <li>Page transitions suaves</li>
+                  <li>Micro-animações em UI</li>
+                </ul>
+              </TooltipContent>
+            </Tooltip>
           </div>
 
           {/* Right side buttons */}
@@ -287,7 +318,20 @@ export function AppNavigation() {
           <div className="mb-8 flex items-start justify-between">
             <div>
               <h1 className="text-xl font-bold text-primary">MindMate</h1>
-              <p className="text-xs text-muted-foreground">v4.0.0-alpha.19</p>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <p className="text-xs text-muted-foreground cursor-help hover:text-primary transition-colors">v4.0.0-alpha.19</p>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="max-w-xs">
+                  <p className="font-semibold mb-1">Novidades:</p>
+                  <ul className="text-xs space-y-0.5 list-disc list-inside">
+                    <li>ErrorBoundary global</li>
+                    <li>Skeleton loading states</li>
+                    <li>Page transitions suaves</li>
+                    <li>Micro-animações em UI</li>
+                  </ul>
+                </TooltipContent>
+              </Tooltip>
             </div>
             <NotificationSettings />
           </div>
