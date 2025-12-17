@@ -118,3 +118,69 @@
     font-family: 'JetBrains Mono', monospace;
   }
 }
+
+/* Micro-animation utilities */
+@layer utilities {
+  /* Interactive hover effects */
+  .hover-lift {
+    @apply transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow-md;
+  }
+
+  .hover-scale {
+    @apply transition-transform duration-150 ease-out hover:scale-[1.02] active:scale-[0.98];
+  }
+
+  .hover-glow {
+    @apply transition-shadow duration-200 hover:shadow-[0_0_15px_hsl(var(--primary)/0.3)];
+  }
+
+  /* Press feedback */
+  .press-effect {
+    @apply transition-transform duration-100 active:scale-[0.97];
+  }
+
+  /* Smooth transitions */
+  .transition-micro {
+    @apply transition-all duration-150 ease-out;
+  }
+
+  /* Interactive card base */
+  .card-interactive {
+    @apply transition-all duration-200 ease-out cursor-pointer
+           hover:-translate-y-0.5 hover:shadow-md hover:border-primary/20
+           active:scale-[0.99] active:shadow-sm;
+  }
+
+  /* Badge hover effect */
+  .badge-interactive {
+    @apply transition-all duration-150 hover:scale-105 hover:shadow-sm cursor-pointer;
+  }
+
+  /* Icon button hover */
+  .icon-btn-hover {
+    @apply transition-all duration-150 
+           hover:bg-accent hover:text-accent-foreground 
+           hover:scale-110 active:scale-95;
+  }
+
+  /* Subtle pulse for attention */
+  .attention-pulse {
+    @apply animate-pulse-soft;
+  }
+
+  /* Fade in animation */
+  .animate-fade-in {
+    animation: fade-in 0.3s ease-out;
+  }
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}

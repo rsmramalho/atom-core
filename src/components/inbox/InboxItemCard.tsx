@@ -82,7 +82,7 @@ export const InboxItemCard = memo(function InboxItemCard({ item, onProcess }: In
 
   return (
     <>
-      <Card className="p-4 bg-card hover:bg-card/80 border-border transition-all hover:border-primary/30 group">
+      <Card className="p-4 bg-card card-interactive group">
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1 min-w-0">
             {/* Title */}
