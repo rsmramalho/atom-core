@@ -20,6 +20,7 @@ import { getCacheTimestamp, formatCacheAge, clearLocalCache, exportCacheAsBackup
 import { useOfflineSyncContext } from "@/components/pwa/OfflineSyncContext";
 import { PendingIndicator } from "@/components/pwa/PendingIndicator";
 import { PendingOperationsModal } from "@/components/pwa/PendingOperationsModal";
+import { NotificationSettings } from "@/components/notifications";
 const navItems = [
   { title: "Home", url: "/", icon: Home },
   { title: "Projetos", url: "/projects", icon: FolderKanban },
@@ -261,15 +262,17 @@ export function AppNavigation() {
 
           <h1 className="text-lg font-bold text-primary">MindMate</h1>
 
-          {/* Command Palette Button */}
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            className="-mr-2"
-            onClick={openCommandPalette}
-          >
-            <Command className="h-5 w-5" />
-          </Button>
+          {/* Right side buttons */}
+          <div className="flex items-center gap-1">
+            <NotificationSettings />
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={openCommandPalette}
+            >
+              <Command className="h-5 w-5" />
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -277,9 +280,12 @@ export function AppNavigation() {
       <nav className="hidden md:flex md:flex-col md:border-r md:border-border md:h-screen md:w-64 md:flex-shrink-0 md:bg-card/50">
         <div className="flex flex-col h-full py-6 px-4">
           {/* Logo */}
-          <div className="mb-8">
-            <h1 className="text-xl font-bold text-primary">MindMate</h1>
-            <p className="text-xs text-muted-foreground">Atom Engine 4.0</p>
+          <div className="mb-8 flex items-start justify-between">
+            <div>
+              <h1 className="text-xl font-bold text-primary">MindMate</h1>
+              <p className="text-xs text-muted-foreground">Atom Engine 4.0</p>
+            </div>
+            <NotificationSettings />
           </div>
 
           {/* Command Palette Hint */}

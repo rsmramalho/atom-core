@@ -5,6 +5,7 @@ import { AppNavigation } from "./AppNavigation";
 import { CommandPalette } from "./CommandPalette";
 import { EngineDebugConsole } from "@/components/EngineDebugConsole";
 import { KeyboardShortcutsHelp } from "./KeyboardShortcutsHelp";
+import { NotificationManager } from "@/components/notifications";
 import { useDebugConsole } from "@/hooks/useDebugConsole";
 import { Loader2 } from "lucide-react";
 
@@ -63,6 +64,9 @@ export function AppLayout({ children }: AppLayoutProps) {
 
       {/* Keyboard Shortcuts Help */}
       <KeyboardShortcutsHelp />
+
+      {/* Notification Manager (background checks) */}
+      <NotificationManager />
 
       {/* Debug Console */}
       {isOpen && <EngineDebugConsole isOpen={isOpen} onClose={() => {}} />}
