@@ -291,6 +291,12 @@ export default function Landing() {
               title="Offline First"
               description="Funciona sem internet. Sincroniza automaticamente quando reconectar. Seus dados sempre acessíveis."
             />
+            <FeatureCard 
+              icon={BookOpen}
+              title="Journal & Reflexões"
+              description="Capture pensamentos, sentimentos e insights. Prompts guiados ajudam quando a página em branco paralisa."
+              isZen
+            />
           </motion.div>
         </div>
       </section>
