@@ -1,8 +1,10 @@
 // Empty State - New Project
 // Clear CTA to create first milestone
 
+import { Suspense } from "react";
 import { Flag, Plus, ArrowDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { RocketLaunchIllustration } from "./illustrations";
 
 interface EmptyProjectStartProps {
@@ -14,7 +16,9 @@ export function EmptyProjectStart({ onCreateMilestone, onCreateTask }: EmptyProj
   return (
     <div className="flex flex-col items-center justify-center py-12 px-4 animate-fade-in">
       {/* Custom SVG Illustration */}
-      <RocketLaunchIllustration className="w-28 h-28 mb-4" />
+      <Suspense fallback={<Skeleton className="w-28 h-28 rounded-full mb-4" />}>
+        <RocketLaunchIllustration className="w-28 h-28 mb-4" />
+      </Suspense>
 
       {/* Text */}
       <h3 className="text-lg font-semibold text-foreground mb-2">

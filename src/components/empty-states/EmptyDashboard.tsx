@@ -1,13 +1,17 @@
 // Empty State - Dashboard Vazio
 // Encouraging "free day" message
 
+import { Suspense } from "react";
 import { FreeDayIllustration } from "./illustrations";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export function EmptyDashboard() {
   return (
     <div className="flex flex-col items-center justify-center py-16 px-4 animate-fade-in">
       {/* Custom SVG Illustration */}
-      <FreeDayIllustration className="w-36 h-36 mb-4" />
+      <Suspense fallback={<Skeleton className="w-36 h-36 rounded-full mb-4" />}>
+        <FreeDayIllustration className="w-36 h-36 mb-4" />
+      </Suspense>
 
       {/* Text */}
       <h3 className="text-xl font-semibold text-foreground mb-2">

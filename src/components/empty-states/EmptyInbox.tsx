@@ -1,13 +1,17 @@
 // Empty State - Inbox Zero
 // Zen-like illustration conveying peace of mind
 
+import { Suspense } from "react";
 import { ZenCircleIllustration } from "./illustrations";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export function EmptyInbox() {
   return (
     <div className="flex flex-col items-center justify-center py-16 px-4 animate-fade-in">
       {/* Custom SVG Illustration */}
-      <ZenCircleIllustration className="w-28 h-28 mb-6" />
+      <Suspense fallback={<Skeleton className="w-28 h-28 rounded-full mb-6" />}>
+        <ZenCircleIllustration className="w-28 h-28 mb-6" />
+      </Suspense>
 
       {/* Text */}
       <h3 className="text-xl font-semibold text-foreground mb-2">
