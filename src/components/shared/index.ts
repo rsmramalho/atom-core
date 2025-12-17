@@ -7,3 +7,5 @@ export { ModuleBadge, MODULE_OPTIONS, getModuleConfig } from "./ModuleBadge";
 export { TagGlossary } from "./TagGlossary";
 export { StreakBadge } from "./StreakBadge";
 export { HabitHeatmap } from "./HabitHeatmap";
+export { ErrorBoundary } from "./ErrorBoundary";
+export { PageLoader } from "./PageLoader";
