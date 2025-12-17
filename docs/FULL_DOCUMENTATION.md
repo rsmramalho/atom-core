@@ -1,8 +1,8 @@
 # MindMate - Atom Engine 4.0
 # Documentação Completa Consolidada
 
-**Versão:** 4.0.0-alpha.14  
-**Data:** 2025-12-16  
+**Versão:** 4.0.0-alpha.15  
+**Data:** 2025-12-17  
 **Status:** 🚀 **MILESTONE RELEASE** - Fork Point para Desenvolvimento de Produção
 
 > Esta versão representa o marco estável do Atom Engine 4.0, com todas as funcionalidades core
@@ -162,13 +162,24 @@ Listas rápidas para organizar itens simples (compras, filmes, ideias):
 - **Hierarquia:** Listas são `type='list'`, itens são tasks com `parent_id`
 - **Isolamento:** Itens de listas não aparecem no Dashboard Today
 
-## 🔥 Habit Streaks ⭐ NOVO
+## 🔥 Habit Streaks
 
 Sistema de gamificação para hábitos:
 
 - **StreakBadge:** Badge visual mostrando dias consecutivos
 - **HabitHeatmap:** Calendário de histórico de conclusões
 - **Métricas:** Streak atual, maior streak, % conclusão mensal
+
+## 📶 Offline Sync ⭐ NOVO
+
+Sistema robusto de sincronização offline com PWA:
+
+- **Network Status:** Detecção automática de conectividade
+- **Offline Queue:** Operações salvas em IndexedDB quando offline
+- **Auto-Sync:** Sincronização automática ao reconectar
+- **Cache Local:** Dados salvos em localStorage para leitura offline
+- **Indicador Visual:** Badge flutuante com status de pendências
+- **Gestão de Pendências:** Modal para visualizar/cancelar operações
 
 ---
 
@@ -252,6 +263,12 @@ src/
 │   │   └── KeyboardShortcutsHelp.tsx
 │   ├── empty-states/               # Estados vazios com ilustrações
 │   ├── shared/                     # Componentes compartilhados
+│   ├── pwa/                        # PWA e Offline Sync ⭐ NOVO
+│   │   ├── OfflineSyncContext.tsx  # Context provider global
+│   │   ├── PendingIndicator.tsx    # Indicador flutuante de pendências
+│   │   ├── PendingOperationsModal.tsx # Modal de gestão de operações
+│   │   ├── NetworkStatusIndicator.tsx # Badge de status de rede
+│   │   └── InstallPrompt.tsx       # Prompt de instalação PWA
 │   ├── AuthForm.tsx
 │   ├── EngineDebugConsole.tsx
 │   └── NavLink.tsx
@@ -266,12 +283,16 @@ src/
 │   ├── useSwipe.ts                 # Gestos de swipe
 │   ├── useDebugConsole.ts          # Controle do console
 │   ├── useEngineLogger.ts          # Sistema de logs (Zustand)
+│   ├── useNetworkStatus.ts         # Detecção de conectividade ⭐ NOVO
+│   ├── useOfflineSync.ts           # Sincronização offline ⭐ NOVO
 │   └── use-toast.ts                # Toasts do sistema
 │
 ├── lib/
 │   ├── parsing-engine.ts           # Motor de parsing (B.7)
 │   ├── dashboard-filters.ts        # Filtros do dashboard
 │   ├── reflection-prompts.ts       # Prompts de reflexão
+│   ├── offline-queue.ts            # Fila IndexedDB ⭐ NOVO
+│   ├── local-cache.ts              # Cache localStorage ⭐ NOVO
 │   └── utils.ts                    # Utilitários (cn, etc)
 │
 ├── types/
@@ -542,6 +563,94 @@ Sistema de journaling e reflexões.
 - **Filtros**: Por tag e por período (today, week, month, year)
 - **Busca Full-Text**: Com highlight de termos encontrados
 - **Prompts Guiados**: Perguntas por categoria
+
+## 9. Offline Sync Engine ⭐ NOVO
+
+**Arquivos:** `src/hooks/useOfflineSync.ts`, `src/hooks/useNetworkStatus.ts`, `src/lib/offline-queue.ts`, `src/lib/local-cache.ts`, `src/components/pwa/*`
+
+Sistema de sincronização offline com suporte a PWA.
+
+### Arquitetura Multi-Camada
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    PRESENTATION LAYER                        │
+│  ┌─────────────────┐  ┌─────────────────┐                   │
+│  │PendingIndicator │  │PendingOpsModal  │                   │
+│  └────────┬────────┘  └────────┬────────┘                   │
+├───────────┼────────────────────┼────────────────────────────┤
+│           │    CONTEXT LAYER   │                            │
+│  ┌────────▼────────────────────▼────────┐                   │
+│  │       OfflineSyncProvider            │                   │
+│  │  (useOfflineSync + useNetworkStatus) │                   │
+│  └──────────────────────────────────────┘                   │
+├─────────────────────────────────────────────────────────────┤
+│                     DATA LAYER                               │
+│  ┌───────────────┐  ┌───────────────┐  ┌───────────────┐   │
+│  │  IndexedDB    │  │  localStorage │  │ Service Worker│   │
+│  │ (offline-queue│  │ (local-cache) │  │   (Workbox)   │   │
+│  └───────────────┘  └───────────────┘  └───────────────┘   │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Hooks e Funções
+
+| Hook/Função | Arquivo | Descrição |
+|-------------|---------|-----------|
+| `useNetworkStatus()` | `useNetworkStatus.ts` | Detecta conectividade via `navigator.onLine` e eventos |
+| `useOfflineSync()` | `useOfflineSync.ts` | Hook principal: queue, sync, pendingCount |
+| `addToQueue()` | `offline-queue.ts` | Adiciona operação à fila IndexedDB |
+| `getQueuedOperations()` | `offline-queue.ts` | Lista operações pendentes |
+| `removeFromQueue()` | `offline-queue.ts` | Remove operação da fila |
+| `clearQueue()` | `offline-queue.ts` | Limpa todas as operações |
+| `saveToLocalCache()` | `local-cache.ts` | Salva items no localStorage |
+| `getFromLocalCache()` | `local-cache.ts` | Recupera items do cache |
+
+### Fluxo de Operações
+
+```
+ONLINE:
+  Operação → Supabase → Sucesso → Atualiza cache local
+
+OFFLINE:
+  Operação → addToQueue() → IndexedDB → Toast "Salvo offline"
+                                     ↓
+  Conexão restaurada → syncPendingOperations() → Processa fila
+                                               ↓
+                     Sucesso → removeFromQueue() + Toast "Sincronizado"
+                     Falha   → updateRetryCount() (max 3 tentativas)
+```
+
+### Componentes UI
+
+| Componente | Descrição |
+|------------|-----------|
+| `NetworkStatusIndicator` | Badge mostrando online/offline |
+| `PendingIndicator` | Botão flutuante com contagem de pendências, pulsa após 30s |
+| `PendingOperationsModal` | Modal para visualizar/cancelar operações pendentes |
+
+### Estratégias de Cache (Service Worker)
+
+```javascript
+// vite.config.ts - vite-plugin-pwa
+runtimeCaching: [
+  {
+    urlPattern: /supabase\.co\/rest\/v1/,
+    handler: 'NetworkFirst',
+    options: { networkTimeoutSeconds: 10 }
+  },
+  {
+    urlPattern: /fonts\.googleapis\.com/,
+    handler: 'CacheFirst',
+    options: { expiration: { maxAgeSeconds: 60 * 60 * 24 * 365 } }
+  },
+  {
+    urlPattern: /\.(png|jpg|jpeg|svg|gif)$/,
+    handler: 'CacheFirst',
+    options: { expiration: { maxAgeSeconds: 60 * 60 * 24 * 30 } }
+  }
+]
+```
 
 ---
 
@@ -841,6 +950,36 @@ Use `Ctrl+Shift+E` para:
 
 # CHANGELOG
 
+## [4.0.0-alpha.15] - 2025-12-17
+
+### Adicionado
+
+#### Offline Sync Engine (PWA)
+- **Network Status Detection:** Hook `useNetworkStatus` para detecção de conectividade
+- **Offline Queue:** Sistema de fila em IndexedDB (`offline-queue.ts`) para operações offline
+- **Auto-Sync:** Sincronização automática quando conexão é restaurada
+- **Local Cache:** Cache em localStorage (`local-cache.ts`) para leitura offline
+- **Service Worker:** vite-plugin-pwa com estratégias NetworkFirst (API) e CacheFirst (assets)
+
+#### UI de Sincronização
+- **NetworkStatusIndicator:** Badge mostrando status online/offline
+- **PendingIndicator:** Indicador flutuante com contagem de operações pendentes
+- **PendingOperationsModal:** Modal para visualizar e gerenciar operações pendentes
+- **Animação de Pulso:** Indicador pulsa quando operações estão pendentes há mais de 30s
+
+#### Gestão de Operações Pendentes
+- **Cancelamento Individual:** Botão para cancelar operação específica
+- **Cancelamento em Massa:** Botão "Cancelar Todas" com confirmação via AlertDialog
+- **Atualização Automática:** Contador atualiza em tempo real após cancelamentos
+- **Retry Count:** Tracking de tentativas com limite máximo (MAX_RETRIES = 3)
+
+#### Hooks e Contexto
+- **useOfflineSync:** Hook principal para sincronização offline
+- **OfflineSyncProvider:** Context provider para estado global de sync
+- **updatePendingCount:** Função exposta para atualização manual do contador
+
+---
+
 ## [4.0.0-alpha.11] - 2025-12-16
 
 ### Adicionado
@@ -976,11 +1115,12 @@ Use `Ctrl+Shift+E` para:
 - [x] **Listas com cores personalizadas** ⭐ NOVO
 - [x] **Habit Streaks + Heatmap** ⭐ NOVO
 
+- [x] **PWA + Offline Sync** ⭐ NOVO
+
 ## 🔲 Próximas Etapas
 - [ ] Exportação do Journal em Markdown
 - [ ] Notificações e lembretes
 - [ ] Estatísticas e analytics
-- [ ] PWA + Offline mode
 
 ---
 
