@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { 
   Smartphone, 
@@ -16,6 +16,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Link } from "react-router-dom";
+import { 
+  IOSInstallIllustration, 
+  AndroidInstallIllustration, 
+  DesktopInstallIllustration 
+} from "@/components/pwa/install-illustrations";
 
 type Platform = "ios" | "android" | "desktop";
 
@@ -209,7 +214,19 @@ export default function Install() {
           </TabsList>
 
           {(["ios", "android", "desktop"] as Platform[]).map((p) => (
-            <TabsContent key={p} value={p} className="space-y-3">
+            <TabsContent key={p} value={p} className="space-y-4">
+              {/* Platform Illustration */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.3 }}
+                className="py-4"
+              >
+                {p === "ios" && <IOSInstallIllustration />}
+                {p === "android" && <AndroidInstallIllustration />}
+                {p === "desktop" && <DesktopInstallIllustration />}
+              </motion.div>
+
               <div className="flex items-center gap-2 mb-4">
                 <PlatformIcon platform={p} />
                 <h2 className="font-semibold text-foreground">
