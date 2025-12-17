@@ -100,7 +100,11 @@ export function InstallPrompt() {
                   Instale o app para acesso rápido, funcionar offline e receber notificações.
                 </p>
                 <div className="flex items-center gap-2 mt-3">
-                  <Button size="sm" onClick={handleInstall} className="gap-1.5">
+                  <Button 
+                    size="sm" 
+                    onClick={handleInstall} 
+                    className="gap-1.5 animate-pulse hover:animate-none"
+                  >
                     <Download className="h-4 w-4" />
                     Instalar
                   </Button>
