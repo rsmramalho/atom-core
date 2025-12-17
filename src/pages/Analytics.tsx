@@ -12,7 +12,7 @@ import {
   Repeat,
   BookOpen
 } from "lucide-react";
-import { format, subDays, isAfter, parseISO, startOfDay } from "date-fns";
+import { format, subDays, parseISO, startOfDay, isBefore, isEqual } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { 
   ChartContainer, 
@@ -67,12 +67,58 @@ export default function Analytics() {
     const habitStreaks = habits.map(habit => {
       const log = Array.isArray(habit.completion_log) ? habit.completion_log as string[] : [];
       return {
+        id: habit.id,
         title: habit.title,
         currentStreak: calculateStreak(log),
         longestStreak: getLongestStreak(log),
-        totalCompletions: log.length
+        totalCompletions: log.length,
+        completionLog: log
       };
     }).sort((a, b) => b.currentStreak - a.currentStreak);
+
+    // Streak evolution over last 30 days (top 3 habits with most completions)
+    const topHabits = [...habitStreaks]
+      .filter(h => h.totalCompletions > 0)
+      .sort((a, b) => b.totalCompletions - a.totalCompletions)
+      .slice(0, 3);
+
+    const streakEvolution = Array.from({ length: 30 }, (_, i) => {
+      const date = subDays(new Date(), 29 - i);
+      const dateStr = format(date, "yyyy-MM-dd");
+      const dayLabel = format(date, "dd/MM");
+      
+      const dataPoint: Record<string, string | number> = { date: dayLabel };
+      
+      topHabits.forEach((habit, idx) => {
+        // Calculate streak as of this date
+        const logUpToDate = habit.completionLog
+          .filter(d => {
+            const logDate = startOfDay(parseISO(d));
+            const targetDate = startOfDay(date);
+            return isBefore(logDate, targetDate) || isEqual(logDate, targetDate);
+          })
+          .sort((a, b) => parseISO(b).getTime() - parseISO(a).getTime());
+        
+        let streak = 0;
+        let expectedDate = startOfDay(date);
+        
+        for (const logDateStr of logUpToDate) {
+          const logDate = startOfDay(parseISO(logDateStr));
+          const dayDiff = Math.floor((expectedDate.getTime() - logDate.getTime()) / (1000 * 60 * 60 * 24));
+          
+          if (dayDiff === 0 || dayDiff === 1) {
+            streak++;
+            expectedDate = logDate;
+          } else if (dayDiff > 1) {
+            break;
+          }
+        }
+        
+        dataPoint[`habit${idx + 1}`] = streak;
+      });
+      
+      return dataPoint;
+    });
 
     // Items by module
     const moduleStats = items.reduce((acc, item) => {
@@ -101,7 +147,8 @@ export default function Analytics() {
       },
       habits: {
         total: habits.length,
-        streaks: habitStreaks
+        streaks: habitStreaks,
+        topHabits
       },
       projects: {
         total: projects.length,
@@ -110,6 +157,7 @@ export default function Analytics() {
       },
       reflections: reflections.length,
       last7Days,
+      streakEvolution,
       moduleData,
       completionRate
     };
@@ -282,6 +330,85 @@ export default function Analytics() {
           <Progress value={stats.completionRate} className="h-2" />
         </CardContent>
       </Card>
+
+      {/* Streak Evolution Chart */}
+      {stats.habits.topHabits.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base flex items-center gap-2">
+              <Flame className="h-4 w-4" />
+              Evolução de Streaks (30 dias)
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-wrap gap-4 mb-4 text-sm">
+              {stats.habits.topHabits.map((habit, idx) => (
+                <div key={habit.id} className="flex items-center gap-2">
+                  <div 
+                    className="w-3 h-3 rounded-full" 
+                    style={{ backgroundColor: `hsl(var(--chart-${idx + 1}))` }} 
+                  />
+                  <span className="text-muted-foreground truncate max-w-[150px]">
+                    {habit.title}
+                  </span>
+                </div>
+              ))}
+            </div>
+            <ChartContainer
+              config={{
+                habit1: { label: stats.habits.topHabits[0]?.title || "Hábito 1", color: "hsl(var(--chart-1))" },
+                habit2: { label: stats.habits.topHabits[1]?.title || "Hábito 2", color: "hsl(var(--chart-2))" },
+                habit3: { label: stats.habits.topHabits[2]?.title || "Hábito 3", color: "hsl(var(--chart-3))" },
+              }}
+              className="h-[250px]"
+            >
+              <LineChart data={stats.streakEvolution}>
+                <XAxis 
+                  dataKey="date" 
+                  fontSize={10} 
+                  tickLine={false} 
+                  axisLine={false}
+                  interval="preserveStartEnd"
+                />
+                <YAxis 
+                  fontSize={12} 
+                  tickLine={false} 
+                  axisLine={false} 
+                  allowDecimals={false}
+                />
+                <ChartTooltip content={<ChartTooltipContent />} />
+                {stats.habits.topHabits.length >= 1 && (
+                  <Line 
+                    type="monotone"
+                    dataKey="habit1" 
+                    stroke="hsl(var(--chart-1))" 
+                    strokeWidth={2}
+                    dot={false}
+                  />
+                )}
+                {stats.habits.topHabits.length >= 2 && (
+                  <Line 
+                    type="monotone"
+                    dataKey="habit2" 
+                    stroke="hsl(var(--chart-2))" 
+                    strokeWidth={2}
+                    dot={false}
+                  />
+                )}
+                {stats.habits.topHabits.length >= 3 && (
+                  <Line 
+                    type="monotone"
+                    dataKey="habit3" 
+                    stroke="hsl(var(--chart-3))" 
+                    strokeWidth={2}
+                    dot={false}
+                  />
+                )}
+              </LineChart>
+            </ChartContainer>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Habit Streaks */}
       {stats.habits.streaks.length > 0 && (
