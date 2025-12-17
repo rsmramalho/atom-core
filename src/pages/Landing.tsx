@@ -8,6 +8,8 @@ import {
   Sunrise, 
   Repeat, 
   Wifi, 
+  WifiOff,
+  Keyboard,
   Smartphone,
   ArrowRight,
   CheckCircle2,
@@ -446,9 +448,29 @@ export default function Landing() {
                 <div className="mt-4 text-primary">
                   <span className="text-muted-foreground">$</span> _
                   <span className="animate-pulse">▌</span>
-                </div>
-              </div>
-            </motion.div>
+            </div>
+          </div>
+
+          {/* Experiência Section */}
+          <div className="mt-12">
+            <div className="flex items-center gap-2 mb-6 justify-center">
+              <Sparkles className="w-4 h-4 text-primary" />
+              <span className="text-xs font-medium tracking-widest uppercase text-muted-foreground">Experiência</span>
+            </div>
+            <div className="grid md:grid-cols-2 gap-6 max-w-2xl mx-auto">
+              <FeatureCard
+                icon={WifiOff}
+                title="Offline First"
+                description="Funciona sem internet. Sincroniza automaticamente quando você voltar online."
+              />
+              <FeatureCard
+                icon={Keyboard}
+                title="Keyboard Shortcuts"
+                description="Navegue sem mouse. Atalhos globais para máxima produtividade."
+              />
+            </div>
+          </div>
+        </motion.div>
           </div>
         </div>
       </section>
