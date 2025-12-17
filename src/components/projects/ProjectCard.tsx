@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, memo } from "react";
 import { useNavigate } from "react-router-dom";
 import { FolderKanban, ChevronRight, Pause, CheckCircle2, Archive } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -39,7 +39,7 @@ const STATUS_BADGE_CONFIG: Record<ProjectStatus, { label: string; icon: React.Re
   },
 };
 
-export function ProjectCard({ project }: ProjectCardProps) {
+export const ProjectCard = memo(function ProjectCard({ project }: ProjectCardProps) {
   const navigate = useNavigate();
   const { updateItem, deleteItem, items, isUpdating, isDeleting } = useAtomItems();
   
@@ -209,4 +209,4 @@ export function ProjectCard({ project }: ProjectCardProps) {
       />
     </>
   );
-}
+});
