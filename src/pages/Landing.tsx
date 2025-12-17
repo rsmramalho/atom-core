@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { 
@@ -13,9 +14,11 @@ import {
   Smartphone,
   ArrowRight,
   CheckCircle2,
-  Sparkles
+  Sparkles,
+  Play
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { DemoModal } from "@/components/landing/DemoModal";
 
 const fadeInUp = {
   initial: { opacity: 0, y: 20 },
@@ -187,8 +190,11 @@ const BenefitItem = ({ text }: { text: string }) => (
 );
 
 export default function Landing() {
+  const [demoOpen, setDemoOpen] = useState(false);
+
   return (
     <div className="min-h-screen bg-background overflow-x-hidden scroll-smooth">
+      <DemoModal open={demoOpen} onOpenChange={setDemoOpen} />
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border/50">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 sm:h-16 flex items-center justify-between">
@@ -272,12 +278,15 @@ export default function Landing() {
                 <ArrowRight className="w-4 h-4" />
               </Button>
             </Link>
-            <Link to="/install">
-              <Button size="lg" variant="outline" className="gap-2 w-full sm:w-auto">
-                <Smartphone className="w-4 h-4" />
-                Instalar App
-              </Button>
-            </Link>
+            <Button 
+              size="lg" 
+              variant="outline" 
+              className="gap-2 w-full sm:w-auto"
+              onClick={() => setDemoOpen(true)}
+            >
+              <Play className="w-4 h-4" />
+              Ver Demo
+            </Button>
           </motion.div>
         </div>
       </section>
