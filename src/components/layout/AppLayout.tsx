@@ -8,6 +8,7 @@ import { KeyboardShortcutsHelp } from "./KeyboardShortcutsHelp";
 import { NotificationManager } from "@/components/notifications";
 import { useDebugConsole } from "@/hooks/useDebugConsole";
 import { Loader2 } from "lucide-react";
+import type { User } from "@/types/auth";
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -16,7 +17,7 @@ interface AppLayoutProps {
 export function AppLayout({ children }: AppLayoutProps) {
   const navigate = useNavigate();
   const { isOpen } = useDebugConsole();
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

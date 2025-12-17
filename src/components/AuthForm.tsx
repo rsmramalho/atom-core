@@ -5,6 +5,7 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { LogIn, UserPlus, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import type { AuthError } from "@/types/auth";
 
 interface AuthFormProps {
   onSuccess?: () => void;
@@ -38,10 +39,11 @@ export function AuthForm({ onSuccess }: AuthFormProps) {
         toast({ title: "Account created", description: "You can now use the debug console." });
       }
       onSuccess?.();
-    } catch (error: any) {
+    } catch (error) {
+      const authError = error as AuthError;
       toast({
         title: "Error",
-        description: error.message,
+        description: authError.message,
         variant: "destructive",
       });
     } finally {
