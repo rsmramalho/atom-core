@@ -139,7 +139,7 @@ export function AppNavigation() {
                   <h1 className="text-xl font-bold text-primary">MindMate</h1>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <p className="text-xs text-muted-foreground cursor-help hover:text-primary transition-colors">v4.0.0-alpha.19</p>
+                      <p className="text-xs text-muted-foreground cursor-help hover:text-primary transition-colors">v4.0.0-alpha.20</p>
                     </TooltipTrigger>
                     <TooltipContent side="bottom" className="max-w-xs">
                       <p className="font-semibold mb-1">Novidades:</p>
@@ -283,7 +283,7 @@ export function AppNavigation() {
             <h1 className="text-lg font-bold text-primary leading-none">MindMate</h1>
             <Tooltip>
               <TooltipTrigger asChild>
-                <span className="text-[10px] text-muted-foreground cursor-help hover:text-primary transition-colors">v4.0.0-alpha.19</span>
+                <span className="text-[10px] text-muted-foreground cursor-help hover:text-primary transition-colors">v4.0.0-alpha.20</span>
               </TooltipTrigger>
               <TooltipContent side="bottom" className="max-w-xs">
                 <p className="font-semibold mb-1">Novidades:</p>
@@ -320,7 +320,7 @@ export function AppNavigation() {
               <h1 className="text-xl font-bold text-primary">MindMate</h1>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <p className="text-xs text-muted-foreground cursor-help hover:text-primary transition-colors">v4.0.0-alpha.19</p>
+                  <p className="text-xs text-muted-foreground cursor-help hover:text-primary transition-colors">v4.0.0-alpha.20</p>
                 </TooltipTrigger>
                 <TooltipContent side="bottom" className="max-w-xs">
                   <p className="font-semibold mb-1">Novidades:</p>

@@ -1,12 +1,12 @@
 # MindMate - Atom Engine 4.0
 # Documentação Completa Consolidada
 
-**Versão:** 4.0.0-alpha.19  
+**Versão:** 4.0.0-alpha.20  
 **Data:** 2025-12-17  
-**Status:** ✅ **RELEASE CANDIDATE** - Validado para Produção | 🚀 **Performance & UX**
+**Status:** ✅ **RELEASE CANDIDATE** - Validado para Produção | 🚀 **Landing Page & Marketing**
 
 > Esta versão representa o marco estável do Atom Engine 4.0, com todas as funcionalidades core
-> implementadas e testadas. **Fase 6 concluída** com melhorias de Performance & UX.
+> implementadas e testadas. **Landing Page** de marketing com posicionamento estratégico adicionada.
 
 ---
 
@@ -1029,7 +1029,8 @@ const { handlers, swipeState } = useSwipe({
 
 | Rota | Componente | Auth | Nav | Descrição |
 |------|------------|------|-----|-----------|
-| `/` | Index.tsx | ✅ | ✅ | Dashboard |
+| `/` | Landing.tsx | ❌ | ❌ | Landing page de marketing |
+| `/app` | Index.tsx | ✅ | ✅ | Dashboard principal |
 | `/inbox` | Inbox.tsx | ✅ | ✅ | Captura |
 | `/projects` | Projects.tsx | ✅ | ✅ | Lista de projetos |
 | `/projects/:id` | ProjectDetail.tsx | ✅ | ✅ | Project Sheet |

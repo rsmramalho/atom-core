@@ -2,9 +2,9 @@
 
 ## Arquitetura do Sistema
 
-**Versão:** 4.0.0-alpha.19  
+**Versão:** 4.0.0-alpha.20  
 **Data:** 2025-12-17  
-**Status:** Production Ready - All Core Engines + PWA + Offline + Analytics
+**Status:** Production Ready - All Core Engines + PWA + Offline + Analytics + Landing Page
 
 ---
 
@@ -124,18 +124,19 @@ src/
 │   └── database.ts                 # Tipos de mapeamento DB
 │
 ├── pages/
-│   ├── Index.tsx                   # Dashboard principal
-│   ├── Inbox.tsx                   # Inbox Engine UI (B.6)
-│   ├── Projects.tsx                # Lista de projetos
-│   ├── ProjectDetail.tsx           # Project Sheet (A.13)
-│   ├── Calendar.tsx                # Calendário (B.4)
-│   ├── RitualView.tsx              # Ritual imersivo (B.19)
-│   ├── Journal.tsx                 # Página de reflexões
-│   ├── Lists.tsx                   # List Engine
-│   ├── Analytics.tsx               # Dashboard de métricas
-│   ├── Install.tsx                 # Guia de instalação PWA
-│   ├── Privacy.tsx                 # Política de privacidade
-│   └── NotFound.tsx                # 404
+│   ├── Landing.tsx                # Landing page de marketing
+│   ├── Index.tsx                  # Dashboard principal (autenticado)
+│   ├── Inbox.tsx                  # Inbox Engine UI (B.6)
+│   ├── Projects.tsx               # Lista de projetos
+│   ├── ProjectDetail.tsx          # Project Sheet (A.13)
+│   ├── Calendar.tsx               # Calendário (B.4)
+│   ├── RitualView.tsx             # Ritual imersivo (B.19)
+│   ├── Journal.tsx                # Página de reflexões
+│   ├── Lists.tsx                  # List Engine
+│   ├── Analytics.tsx              # Dashboard de métricas
+│   ├── Install.tsx                # Guia de instalação PWA
+│   ├── Privacy.tsx                # Política de privacidade
+│   └── NotFound.tsx               # 404
 │
 └── integrations/
     └── supabase/                   # Cliente Supabase (auto-gerado)
@@ -503,7 +504,7 @@ export function asTypedRow(row: ItemsRow): TypedItemsRow;
 
 ## 📋 Roadmap
 
-### ✅ Implementado (v4.0.0-alpha.19)
+### ✅ Implementado (v4.0.0-alpha.20)
 
 - [x] Modelo de dados (Single Table Design)
 - [x] Tipos TypeScript completos (Zero Any Policy)

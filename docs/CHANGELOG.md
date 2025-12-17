@@ -7,6 +7,45 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [4.0.0-alpha.20] - 2025-12-17 🚀 LANDING PAGE & MARKETING
+
+> **Landing Page de Marketing** - Nova página de entrada com posicionamento estratégico
+
+### Adicionado
+
+#### Landing Page (`/`)
+- **Hero Section:** Tagline "Mindful control" com animação letra-por-letra
+- **3 Pilares da Soberania Atom:** Internet Passiva, Estrutura Universal, Transparência Radical
+- **Sistema Operacional Agnóstico:** Conceito "Plug & Play" com slots de Inteligência e Memória
+- **Features Grid:** Seções de Produtividade e Introspecção com visual duality
+- **Para Desenvolvedores:** Single Table Design, Fork-Friendly, Stack Moderna, Open Source
+- **FAQ Section:** Perguntas frequentes com accordion
+- **CTA Section:** "Gratuito para todos. Open source. Doe se puder, use mesmo se não puder."
+- **Demo Modal:** Vídeo de demonstração
+
+#### Roteamento Atualizado
+- `/` → Landing Page (marketing)
+- `/app` → Dashboard operacional (autenticado)
+- Todos os links internos atualizados para `/app`
+
+#### Design System
+- Cards com sombras (`shadow-lg shadow-black/20`) para profundidade
+- Seções alternadas com `bg-primary/5` para contraste visual
+- Hover effects em cards com `hover:shadow-xl hover:border-primary/20`
+- Divisores sutis entre seções (gradient line)
+
+### Modificado
+- **App.tsx:** Roteamento atualizado (landing em `/`, app em `/app`)
+- **AppNavigation.tsx:** Links atualizados para `/app`
+- **CommandPalette.tsx:** Navegação para `/app`
+- **RitualView.tsx:** Retorno para `/app`
+- **ErrorBoundary.tsx:** Redirecionamento para `/app`
+- **NotFound.tsx:** Link para `/app`
+- **Install.tsx:** Link para `/app`
+- **Privacy.tsx:** Link para `/app`
+
+---
+
 ## [4.0.0-alpha.19] - 2025-12-17 🎨 PERFORMANCE & UX POLISH
 
 > **Fase 6: Performance & UX** - Refinamento final de experiência do usuário
