@@ -185,6 +185,16 @@ Sistema robusto de sincronização offline com PWA:
 - **Indicador Visual:** Badge flutuante com status de pendências
 - **Gestão de Pendências:** Modal para visualizar/cancelar operações
 
+## 🔔 Notificações e Lembretes ⭐ NOVO
+
+Sistema de lembretes via Web Notifications API:
+
+- **Permissão do Navegador:** Solicitação de permissão com UI amigável
+- **Lembretes Configuráveis:** Tarefas atrasadas, para hoje, para amanhã
+- **Notificações Agrupadas:** Resumo diário evitando spam
+- **Configurações Persistentes:** Preferências salvas em localStorage
+- **Controle Individual:** Liga/desliga cada tipo de lembrete
+
 ---
 
 # ATALHOS DE TECLADO
@@ -989,6 +999,13 @@ Use `Ctrl+Shift+E` para:
 - **Filtros aplicados:** Exporta apenas reflexões filtradas quando filtros ativos
 - **journal-export.ts:** Utilitário com funções de conversão e download
 
+#### Sistema de Notificações
+- **useNotifications Hook:** Gerencia permissões e configurações de notificação
+- **NotificationManager:** Componente background que verifica tarefas pendentes
+- **NotificationSettings:** Popover com configurações de lembretes
+- **Lembretes:** Tarefas atrasadas, para hoje, para amanhã (configuráveis)
+- **Anti-spam:** Notificações agrupadas, máximo 1x por hora
+
 ---
 
 ## [4.0.0-alpha.11] - 2025-12-16
@@ -1126,10 +1143,10 @@ Use `Ctrl+Shift+E` para:
 - [x] **Listas com cores personalizadas**
 - [x] **Habit Streaks + Heatmap**
 - [x] **PWA + Offline Sync**
-- [x] **Exportação Journal Markdown** ⭐ NOVO
+- [x] **Exportação Journal Multi-formato**
+- [x] **Notificações e Lembretes** ⭐ NOVO
 
 ## 🔲 Próximas Etapas
-- [ ] Notificações e lembretes
 - [ ] Estatísticas e analytics
 
 ---
