@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { NavLink } from "@/components/NavLink";
-import { Home, FolderKanban, Inbox, Terminal, LogOut, Menu, Command, BookOpen, Calendar, ListChecks, RefreshCw, Loader2, Trash2, Download, Upload } from "lucide-react";
+import { Home, FolderKanban, Inbox, Terminal, LogOut, Menu, Command, BookOpen, Calendar, ListChecks, RefreshCw, Loader2, Trash2, Download, Upload, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
 import {
@@ -28,6 +28,7 @@ const navItems = [
   { title: "Listas", url: "/lists", icon: ListChecks },
   { title: "Calendário", url: "/calendar", icon: Calendar },
   { title: "Diário", url: "/journal", icon: BookOpen },
+  { title: "Estatísticas", url: "/analytics", icon: BarChart3 },
 ];
 
 export function AppNavigation() {

@@ -14,6 +14,7 @@ import RitualView from "./pages/RitualView";
 import Journal from "./pages/Journal";
 import Calendar from "./pages/Calendar";
 import Lists from "./pages/Lists";
+import Analytics from "./pages/Analytics";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -48,6 +49,7 @@ const App = () => (
               <Route path="/lists" element={<LayoutRoute><Lists /></LayoutRoute>} />
               <Route path="/journal" element={<LayoutRoute><Journal /></LayoutRoute>} />
               <Route path="/calendar" element={<LayoutRoute><Calendar /></LayoutRoute>} />
+              <Route path="/analytics" element={<LayoutRoute><Analytics /></LayoutRoute>} />
               
               {/* Catch-all */}
               <Route path="*" element={<NotFound />} />
