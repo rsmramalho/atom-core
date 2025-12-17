@@ -18,6 +18,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { getCacheTimestamp, formatCacheAge, clearLocalCache, exportCacheAsBackup, importCacheFromBackup } from "@/lib/local-cache";
 import { useOfflineSyncContext } from "@/components/pwa/OfflineSyncContext";
+import { PendingIndicator } from "@/components/pwa/PendingIndicator";
 import { PendingOperationsModal } from "@/components/pwa/PendingOperationsModal";
 const navItems = [
   { title: "Home", url: "/", icon: Home },
@@ -423,6 +424,9 @@ export function AppNavigation() {
         onOpenChange={setShowPendingModal}
         onOperationsChanged={updatePendingCount}
       />
+
+      {/* Floating Pending Indicator */}
+      <PendingIndicator onClick={() => setShowPendingModal(true)} />
     </>
   );
 }
