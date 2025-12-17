@@ -193,11 +193,22 @@ export default function RitualView() {
             {isLoading ? (
               <div className="text-center opacity-60">Carregando hábitos...</div>
             ) : habits.length === 0 ? (
-              <div className="text-center opacity-60">
-                <p className="mb-2">Nenhum hábito para este ritual.</p>
-                <p className="text-sm">
-                  Adicione hábitos com ritual_slot = "{config.slot}" no Inbox.
+              <div className="text-center py-8 animate-in fade-in duration-500">
+                <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-white/30 flex items-center justify-center">
+                  <Feather className="h-10 w-10 opacity-70" />
+                </div>
+                <h3 className="text-xl font-medium mb-2">Seu ritual está vazio</h3>
+                <p className="opacity-70 mb-6 max-w-xs mx-auto">
+                  Adicione hábitos para construir uma rotina {config.label.toLowerCase()} que transforma seu dia.
                 </p>
+                <Button
+                  onClick={() => navigate("/inbox")}
+                  variant="outline"
+                  className="bg-white/20 hover:bg-white/30 border-current/30 text-current gap-2"
+                >
+                  <ArrowRight className="h-4 w-4" />
+                  Criar primeiro hábito
+                </Button>
               </div>
             ) : (
               <div className="space-y-4">
