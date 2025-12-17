@@ -1,3 +1,4 @@
+import { Suspense, lazy } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -6,18 +7,23 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { OnboardingProvider, WelcomeModal, TourOverlay, FirstStepsChecklist } from "@/components/onboarding";
 import { InstallPrompt, NetworkStatusIndicator, OfflineSyncProvider } from "@/components/pwa";
+import { ErrorBoundary, PageLoader } from "@/components/shared";
+
+// Eager load critical routes
 import Index from "./pages/Index";
-import Inbox from "./pages/Inbox";
-import Projects from "./pages/Projects";
-import ProjectDetail from "./pages/ProjectDetail";
-import RitualView from "./pages/RitualView";
-import Journal from "./pages/Journal";
-import Calendar from "./pages/Calendar";
-import Lists from "./pages/Lists";
-import Analytics from "./pages/Analytics";
-import Install from "./pages/Install";
-import Privacy from "./pages/Privacy";
 import NotFound from "./pages/NotFound";
+
+// Lazy load secondary routes for better initial load
+const Inbox = lazy(() => import("./pages/Inbox"));
+const Projects = lazy(() => import("./pages/Projects"));
+const ProjectDetail = lazy(() => import("./pages/ProjectDetail"));
+const RitualView = lazy(() => import("./pages/RitualView"));
+const Journal = lazy(() => import("./pages/Journal"));
+const Calendar = lazy(() => import("./pages/Calendar"));
+const Lists = lazy(() => import("./pages/Lists"));
+const Analytics = lazy(() => import("./pages/Analytics"));
+const Install = lazy(() => import("./pages/Install"));
+const Privacy = lazy(() => import("./pages/Privacy"));
 
 const queryClient = new QueryClient();
 
@@ -27,42 +33,128 @@ function LayoutRoute({ children }: { children: React.ReactNode }) {
 }
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <OfflineSyncProvider>
-        <OnboardingProvider>
-          <Toaster />
-          <Sonner />
-          <InstallPrompt />
-          <NetworkStatusIndicator />
-          <BrowserRouter>
-            <WelcomeModal />
-            <TourOverlay />
-            <FirstStepsChecklist />
-            <Routes>
-{/* Immersive routes - NO AppLayout */}
-              <Route path="/ritual" element={<RitualView />} />
-              <Route path="/install" element={<Install />} />
-              <Route path="/privacy" element={<Privacy />} />
-              
-              {/* Main App routes WITH AppLayout */}
-              <Route path="/" element={<LayoutRoute><Index /></LayoutRoute>} />
-              <Route path="/inbox" element={<LayoutRoute><Inbox /></LayoutRoute>} />
-              <Route path="/projects" element={<LayoutRoute><Projects /></LayoutRoute>} />
-              <Route path="/projects/:id" element={<LayoutRoute><ProjectDetail /></LayoutRoute>} />
-              <Route path="/lists" element={<LayoutRoute><Lists /></LayoutRoute>} />
-              <Route path="/journal" element={<LayoutRoute><Journal /></LayoutRoute>} />
-              <Route path="/calendar" element={<LayoutRoute><Calendar /></LayoutRoute>} />
-              <Route path="/analytics" element={<LayoutRoute><Analytics /></LayoutRoute>} />
-              
-              {/* Catch-all */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-        </OnboardingProvider>
-      </OfflineSyncProvider>
-    </TooltipProvider>
-  </QueryClientProvider>
+  <ErrorBoundary>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <OfflineSyncProvider>
+          <OnboardingProvider>
+            <Toaster />
+            <Sonner />
+            <InstallPrompt />
+            <NetworkStatusIndicator />
+            <BrowserRouter>
+              <WelcomeModal />
+              <TourOverlay />
+              <FirstStepsChecklist />
+              <Routes>
+                {/* Immersive routes - NO AppLayout */}
+                <Route
+                  path="/ritual"
+                  element={
+                    <Suspense fallback={<PageLoader message="Preparando ritual..." />}>
+                      <RitualView />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path="/install"
+                  element={
+                    <Suspense fallback={<PageLoader />}>
+                      <Install />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path="/privacy"
+                  element={
+                    <Suspense fallback={<PageLoader />}>
+                      <Privacy />
+                    </Suspense>
+                  }
+                />
+                
+                {/* Main App routes WITH AppLayout */}
+                <Route path="/" element={<LayoutRoute><Index /></LayoutRoute>} />
+                <Route
+                  path="/inbox"
+                  element={
+                    <LayoutRoute>
+                      <Suspense fallback={<PageLoader message="Carregando inbox..." />}>
+                        <Inbox />
+                      </Suspense>
+                    </LayoutRoute>
+                  }
+                />
+                <Route
+                  path="/projects"
+                  element={
+                    <LayoutRoute>
+                      <Suspense fallback={<PageLoader message="Carregando projetos..." />}>
+                        <Projects />
+                      </Suspense>
+                    </LayoutRoute>
+                  }
+                />
+                <Route
+                  path="/projects/:id"
+                  element={
+                    <LayoutRoute>
+                      <Suspense fallback={<PageLoader message="Carregando projeto..." />}>
+                        <ProjectDetail />
+                      </Suspense>
+                    </LayoutRoute>
+                  }
+                />
+                <Route
+                  path="/lists"
+                  element={
+                    <LayoutRoute>
+                      <Suspense fallback={<PageLoader message="Carregando listas..." />}>
+                        <Lists />
+                      </Suspense>
+                    </LayoutRoute>
+                  }
+                />
+                <Route
+                  path="/journal"
+                  element={
+                    <LayoutRoute>
+                      <Suspense fallback={<PageLoader message="Carregando diário..." />}>
+                        <Journal />
+                      </Suspense>
+                    </LayoutRoute>
+                  }
+                />
+                <Route
+                  path="/calendar"
+                  element={
+                    <LayoutRoute>
+                      <Suspense fallback={<PageLoader message="Carregando calendário..." />}>
+                        <Calendar />
+                      </Suspense>
+                    </LayoutRoute>
+                  }
+                />
+                <Route
+                  path="/analytics"
+                  element={
+                    <LayoutRoute>
+                      <Suspense fallback={<PageLoader message="Carregando analytics..." />}>
+                        <Analytics />
+                      </Suspense>
+                    </LayoutRoute>
+                  }
+                />
+                
+                {/* Catch-all */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </BrowserRouter>
+          </OnboardingProvider>
+        </OfflineSyncProvider>
+      </TooltipProvider>
+    </QueryClientProvider>
+  </ErrorBoundary>
 );
 
 export default App;
