@@ -237,16 +237,16 @@ export default function Landing() {
           </div>
           
           <div className="flex items-center gap-2 sm:gap-4">
-            <Link to="/">
+            <Link to="/app">
               <Button variant="ghost" size="sm" className="text-xs sm:text-sm px-2 sm:px-3">Entrar</Button>
             </Link>
-            <Link to="/" className="hidden sm:block">
+            <Link to="/app" className="hidden sm:block">
               <Button size="sm" className="gap-2">
                 Começar Grátis
                 <ArrowRight className="w-4 h-4" />
               </Button>
             </Link>
-            <Link to="/" className="sm:hidden">
+            <Link to="/app" className="sm:hidden">
               <Button size="sm" className="px-3">
                 <ArrowRight className="w-4 h-4" />
               </Button>
@@ -288,7 +288,7 @@ export default function Landing() {
             transition={{ delay: 1.1, duration: 0.5 }}
             className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center px-4 sm:px-0"
           >
-            <Link to="/">
+            <Link to="/app">
               <Button size="lg" className="gap-2 w-full sm:w-auto">
                 Começar Agora
                 <ArrowRight className="w-4 h-4" />
@@ -812,7 +812,7 @@ export default function Landing() {
             Gratuito para todos. Open source. Doe se puder, use mesmo se não puder.
           </p>
           
-          <Link to="/">
+          <Link to="/app">
             <Button size="lg" className="gap-2 w-full sm:w-auto">
               Criar Conta Grátis
               <ArrowRight className="w-4 h-4" />
