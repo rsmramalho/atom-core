@@ -287,6 +287,12 @@ export default function Landing() {
               <Play className="w-4 h-4" />
               Ver Demo
             </Button>
+            <Link to="/install">
+              <Button size="lg" variant="ghost" className="gap-2 w-full sm:w-auto">
+                <Smartphone className="w-4 h-4" />
+                Instalar App
+              </Button>
+            </Link>
           </motion.div>
         </div>
       </section>
