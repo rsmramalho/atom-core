@@ -3,8 +3,10 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { AnimatePresence } from "framer-motion";
 import { AppLayout } from "@/components/layout/AppLayout";
+import { PageTransition } from "@/components/layout/PageTransition";
 import { OnboardingProvider, WelcomeModal, TourOverlay, FirstStepsChecklist } from "@/components/onboarding";
 import { InstallPrompt, NetworkStatusIndicator, OfflineSyncProvider } from "@/components/pwa";
 import { ErrorBoundary, PageLoader } from "@/components/shared";
@@ -27,9 +29,137 @@ const Privacy = lazy(() => import("./pages/Privacy"));
 
 const queryClient = new QueryClient();
 
-// Wrapper for routes that need AppLayout
+// Wrapper for routes that need AppLayout with page transition
 function LayoutRoute({ children }: { children: React.ReactNode }) {
-  return <AppLayout>{children}</AppLayout>;
+  return (
+    <AppLayout>
+      <PageTransition>{children}</PageTransition>
+    </AppLayout>
+  );
+}
+
+// Wrapper for immersive routes (no layout) with page transition
+function ImmersiveRoute({ children }: { children: React.ReactNode }) {
+  return <PageTransition>{children}</PageTransition>;
+}
+
+// Animated routes component that uses location for AnimatePresence
+function AnimatedRoutes() {
+  const location = useLocation();
+
+  return (
+    <AnimatePresence mode="wait">
+      <Routes location={location} key={location.pathname}>
+        {/* Immersive routes - NO AppLayout */}
+        <Route
+          path="/ritual"
+          element={
+            <ImmersiveRoute>
+              <Suspense fallback={<PageLoader message="Preparando ritual..." />}>
+                <RitualView />
+              </Suspense>
+            </ImmersiveRoute>
+          }
+        />
+        <Route
+          path="/install"
+          element={
+            <ImmersiveRoute>
+              <Suspense fallback={<PageLoader />}>
+                <Install />
+              </Suspense>
+            </ImmersiveRoute>
+          }
+        />
+        <Route
+          path="/privacy"
+          element={
+            <ImmersiveRoute>
+              <Suspense fallback={<PageLoader />}>
+                <Privacy />
+              </Suspense>
+            </ImmersiveRoute>
+          }
+        />
+        
+        {/* Main App routes WITH AppLayout */}
+        <Route path="/" element={<LayoutRoute><Index /></LayoutRoute>} />
+        <Route
+          path="/inbox"
+          element={
+            <LayoutRoute>
+              <Suspense fallback={<PageLoader message="Carregando inbox..." />}>
+                <Inbox />
+              </Suspense>
+            </LayoutRoute>
+          }
+        />
+        <Route
+          path="/projects"
+          element={
+            <LayoutRoute>
+              <Suspense fallback={<PageLoader message="Carregando projetos..." />}>
+                <Projects />
+              </Suspense>
+            </LayoutRoute>
+          }
+        />
+        <Route
+          path="/projects/:id"
+          element={
+            <LayoutRoute>
+              <Suspense fallback={<PageLoader message="Carregando projeto..." />}>
+                <ProjectDetail />
+              </Suspense>
+            </LayoutRoute>
+          }
+        />
+        <Route
+          path="/lists"
+          element={
+            <LayoutRoute>
+              <Suspense fallback={<PageLoader message="Carregando listas..." />}>
+                <Lists />
+              </Suspense>
+            </LayoutRoute>
+          }
+        />
+        <Route
+          path="/journal"
+          element={
+            <LayoutRoute>
+              <Suspense fallback={<PageLoader message="Carregando diário..." />}>
+                <Journal />
+              </Suspense>
+            </LayoutRoute>
+          }
+        />
+        <Route
+          path="/calendar"
+          element={
+            <LayoutRoute>
+              <Suspense fallback={<PageLoader message="Carregando calendário..." />}>
+                <Calendar />
+              </Suspense>
+            </LayoutRoute>
+          }
+        />
+        <Route
+          path="/analytics"
+          element={
+            <LayoutRoute>
+              <Suspense fallback={<PageLoader message="Carregando analytics..." />}>
+                <Analytics />
+              </Suspense>
+            </LayoutRoute>
+          }
+        />
+        
+        {/* Catch-all */}
+        <Route path="*" element={<ImmersiveRoute><NotFound /></ImmersiveRoute>} />
+      </Routes>
+    </AnimatePresence>
+  );
 }
 
 const App = () => (
@@ -46,109 +176,7 @@ const App = () => (
               <WelcomeModal />
               <TourOverlay />
               <FirstStepsChecklist />
-              <Routes>
-                {/* Immersive routes - NO AppLayout */}
-                <Route
-                  path="/ritual"
-                  element={
-                    <Suspense fallback={<PageLoader message="Preparando ritual..." />}>
-                      <RitualView />
-                    </Suspense>
-                  }
-                />
-                <Route
-                  path="/install"
-                  element={
-                    <Suspense fallback={<PageLoader />}>
-                      <Install />
-                    </Suspense>
-                  }
-                />
-                <Route
-                  path="/privacy"
-                  element={
-                    <Suspense fallback={<PageLoader />}>
-                      <Privacy />
-                    </Suspense>
-                  }
-                />
-                
-                {/* Main App routes WITH AppLayout */}
-                <Route path="/" element={<LayoutRoute><Index /></LayoutRoute>} />
-                <Route
-                  path="/inbox"
-                  element={
-                    <LayoutRoute>
-                      <Suspense fallback={<PageLoader message="Carregando inbox..." />}>
-                        <Inbox />
-                      </Suspense>
-                    </LayoutRoute>
-                  }
-                />
-                <Route
-                  path="/projects"
-                  element={
-                    <LayoutRoute>
-                      <Suspense fallback={<PageLoader message="Carregando projetos..." />}>
-                        <Projects />
-                      </Suspense>
-                    </LayoutRoute>
-                  }
-                />
-                <Route
-                  path="/projects/:id"
-                  element={
-                    <LayoutRoute>
-                      <Suspense fallback={<PageLoader message="Carregando projeto..." />}>
-                        <ProjectDetail />
-                      </Suspense>
-                    </LayoutRoute>
-                  }
-                />
-                <Route
-                  path="/lists"
-                  element={
-                    <LayoutRoute>
-                      <Suspense fallback={<PageLoader message="Carregando listas..." />}>
-                        <Lists />
-                      </Suspense>
-                    </LayoutRoute>
-                  }
-                />
-                <Route
-                  path="/journal"
-                  element={
-                    <LayoutRoute>
-                      <Suspense fallback={<PageLoader message="Carregando diário..." />}>
-                        <Journal />
-                      </Suspense>
-                    </LayoutRoute>
-                  }
-                />
-                <Route
-                  path="/calendar"
-                  element={
-                    <LayoutRoute>
-                      <Suspense fallback={<PageLoader message="Carregando calendário..." />}>
-                        <Calendar />
-                      </Suspense>
-                    </LayoutRoute>
-                  }
-                />
-                <Route
-                  path="/analytics"
-                  element={
-                    <LayoutRoute>
-                      <Suspense fallback={<PageLoader message="Carregando analytics..." />}>
-                        <Analytics />
-                      </Suspense>
-                    </LayoutRoute>
-                  }
-                />
-                
-                {/* Catch-all */}
-                <Route path="*" element={<NotFound />} />
-              </Routes>
+              <AnimatedRoutes />
             </BrowserRouter>
           </OnboardingProvider>
         </OfflineSyncProvider>
