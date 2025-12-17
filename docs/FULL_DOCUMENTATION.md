@@ -30,6 +30,7 @@
 
 | Documento | Descrição |
 |-----------|-----------|
+| [EXECUTIVE_SUMMARY.md](./EXECUTIVE_SUMMARY.md) | Resumo executivo de 1 página |
 | [FORK_GUIDE.md](./FORK_GUIDE.md) | Guia completo para configurar ambiente de desenvolvimento a partir do milestone |
 | [DEPLOYMENT_CHECKLIST.md](./DEPLOYMENT_CHECKLIST.md) | Checklist para deploy em produção |
 | [ARCHITECTURE.md](./ARCHITECTURE.md) | Visão geral da arquitetura |
