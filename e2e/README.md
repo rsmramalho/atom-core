@@ -9,20 +9,19 @@ npm install
 npx playwright install
 ```
 
-### 2. Configure Environment Variables
+### 2. Configure Environment Variables (Optional)
 
-Create a `.env.test` file with Supabase credentials for authenticated tests:
+The tests now use normal signup/login with auto-confirm enabled, so **no service role key is required**.
+
+Optionally create a `.env.test` file to override defaults:
 
 ```bash
-# Supabase Configuration
+# Supabase Configuration (optional - defaults are embedded)
 VITE_SUPABASE_URL=https://jsmebwwhlxdhvztgovpq.supabase.co
 VITE_SUPABASE_PUBLISHABLE_KEY=your_anon_key_here
-
-# Required for authenticated tests (create test users)
-SUPABASE_SERVICE_ROLE_KEY=your_service_role_key_here
 ```
 
-**Note:** The service role key is required for creating/deleting test users. Never commit this key to version control.
+**Note:** Auto-confirm is enabled in Supabase Auth settings, so test users are confirmed immediately upon signup.
 
 ## Running Tests
 
@@ -39,7 +38,7 @@ npx playwright test e2e/auth.spec.ts
 ### Authenticated Tests
 
 ```bash
-# Run authenticated tests (requires SUPABASE_SERVICE_ROLE_KEY)
+# Run authenticated tests (no service_role_key required!)
 npx playwright test --project=authenticated
 
 # Run with debug mode
@@ -105,14 +104,15 @@ e2e/
 ## Test Fixtures
 
 ### `testUser`
-Creates a fresh Supabase user before each test and deletes it after.
+Creates a fresh Supabase user via normal signup before each test.
+Users are created with unique emails so they don't conflict.
 
 ```typescript
 import { test, expect } from '../fixtures/auth.fixture';
 
 test('my authenticated test', async ({ testUser }) => {
   console.log('Test user:', testUser.email);
-  // Test user is automatically cleaned up after test
+  // Test user is created via signup with auto-confirm
 });
 ```
 
@@ -193,10 +193,9 @@ npx playwright show-trace trace.zip
 
 ## CI/CD
 
-In CI environments, set these environment variables:
+In CI environments, set these environment variables (optional - defaults are embedded):
 - `VITE_SUPABASE_URL`
 - `VITE_SUPABASE_PUBLISHABLE_KEY`
-- `SUPABASE_SERVICE_ROLE_KEY` (for authenticated tests)
 
 Example GitHub Actions:
 
@@ -205,7 +204,6 @@ Example GitHub Actions:
   env:
     VITE_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
     VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
-    SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
   run: npx playwright test
 
 - name: Upload Visual Diff Artifacts
@@ -215,3 +213,9 @@ Example GitHub Actions:
     name: visual-diff
     path: e2e/__snapshots__/**/*-diff.png
 ```
+
+## Notes
+
+- **Auto-confirm enabled**: Test users are confirmed immediately upon signup
+- **No cleanup needed**: Test users use unique timestamped emails
+- **No service_role_key**: Tests work without admin API access

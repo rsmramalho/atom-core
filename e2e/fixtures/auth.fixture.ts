@@ -1,10 +1,9 @@
 import { test as base, expect, Page } from '@playwright/test';
-import { createClient, SupabaseClient, User } from '@supabase/supabase-js';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
 // Environment variables for test configuration
-const SUPABASE_URL = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || '';
-const SUPABASE_ANON_KEY = process.env.VITE_SUPABASE_PUBLISHABLE_KEY || process.env.SUPABASE_ANON_KEY || '';
-const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+const SUPABASE_URL = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || 'https://jsmebwwhlxdhvztgovpq.supabase.co';
+const SUPABASE_ANON_KEY = process.env.VITE_SUPABASE_PUBLISHABLE_KEY || process.env.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpzbWVid3dobHhkaHZ6dGdvdnBxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU3NjQ0NDMsImV4cCI6MjA4MTM0MDQ0M30.UpmKC_agNGXfufsG9cdJ2RyMwDyZd9PrlxRgxDiVN2s';
 
 // Test user configuration
 interface TestUserConfig {
@@ -22,39 +21,20 @@ interface TestUser {
 interface AuthFixtures {
   testUser: TestUser;
   authenticatedPage: Page;
-  supabaseAdmin: SupabaseClient;
   supabaseClient: SupabaseClient;
 }
 
 /**
- * Creates a Supabase Admin client with service role key
- * Used for creating/deleting test users
+ * Creates a Supabase client with anon key
+ * Used for regular authentication (signup/login)
  */
-function createAdminClient(): SupabaseClient | null {
-  if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
-    console.warn('Supabase credentials not configured. Skipping admin client creation.');
-    return null;
-  }
-  
-  return createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
+function createAnonClient(): SupabaseClient {
+  return createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     auth: {
       autoRefreshToken: false,
       persistSession: false,
     },
   });
-}
-
-/**
- * Creates a Supabase client with anon key
- * Used for regular authentication
- */
-function createAnonClient(): SupabaseClient | null {
-  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-    console.warn('Supabase credentials not configured. Skipping anon client creation.');
-    return null;
-  }
-  
-  return createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 }
 
 /**
@@ -67,32 +47,56 @@ function generateTestEmail(): string {
 }
 
 /**
- * Creates a test user via Supabase Admin API
+ * Creates a test user via normal signup
+ * Requires auto-confirm to be enabled in Supabase Auth settings
  */
 async function createTestUser(
-  adminClient: SupabaseClient,
+  anonClient: SupabaseClient,
   config: TestUserConfig = {}
 ): Promise<TestUser | null> {
   const email = config.email || generateTestEmail();
   const password = config.password || 'E2ETestPassword123!';
 
   try {
-    const { data, error } = await adminClient.auth.admin.createUser({
+    const { data, error } = await anonClient.auth.signUp({
       email,
       password,
-      email_confirm: true, // Auto-confirm email
-      user_metadata: config.metadata || { isTestUser: true },
+      options: {
+        data: config.metadata || { isTestUser: true },
+      },
     });
 
     if (error) {
+      // If user already exists, try to sign in
+      if (error.message.includes('already registered')) {
+        const { data: signInData, error: signInError } = await anonClient.auth.signInWithPassword({
+          email,
+          password,
+        });
+        
+        if (signInError || !signInData.user) {
+          console.error('Failed to sign in existing user:', signInError?.message);
+          return null;
+        }
+        
+        return {
+          id: signInData.user.id,
+          email,
+          password,
+        };
+      }
+      
       console.error('Failed to create test user:', error.message);
       return null;
     }
 
     if (!data.user) {
-      console.error('No user data returned');
+      console.error('No user data returned from signup');
       return null;
     }
+
+    // Sign out after creating so we can sign in fresh
+    await anonClient.auth.signOut();
 
     return {
       id: data.user.id,
@@ -102,28 +106,6 @@ async function createTestUser(
   } catch (err) {
     console.error('Error creating test user:', err);
     return null;
-  }
-}
-
-/**
- * Deletes a test user via Supabase Admin API
- */
-async function deleteTestUser(
-  adminClient: SupabaseClient,
-  userId: string
-): Promise<boolean> {
-  try {
-    const { error } = await adminClient.auth.admin.deleteUser(userId);
-    
-    if (error) {
-      console.error('Failed to delete test user:', error.message);
-      return false;
-    }
-    
-    return true;
-  } catch (err) {
-    console.error('Error deleting test user:', err);
-    return false;
   }
 }
 
@@ -241,40 +223,29 @@ async function logout(page: Page): Promise<void> {
 
 /**
  * Extended test with authentication fixtures
+ * No longer requires SUPABASE_SERVICE_ROLE_KEY - uses normal signup/login
  */
 export const test = base.extend<AuthFixtures>({
-  // Supabase Admin client fixture
-  supabaseAdmin: async ({}, use) => {
-    const client = createAdminClient();
-    if (!client) {
-      throw new Error('Supabase Admin client not configured. Set SUPABASE_SERVICE_ROLE_KEY.');
-    }
-    await use(client);
-  },
-
   // Supabase Anon client fixture
   supabaseClient: async ({}, use) => {
     const client = createAnonClient();
-    if (!client) {
-      throw new Error('Supabase Anon client not configured.');
-    }
     await use(client);
   },
 
-  // Test user fixture - creates user before test, deletes after
-  testUser: async ({ supabaseAdmin }, use) => {
-    // Create test user
-    const user = await createTestUser(supabaseAdmin);
+  // Test user fixture - creates user via signup (auto-confirm enabled)
+  testUser: async ({ supabaseClient }, use) => {
+    // Create test user via normal signup
+    const user = await createTestUser(supabaseClient);
     
     if (!user) {
-      throw new Error('Failed to create test user');
+      throw new Error('Failed to create test user. Ensure auto-confirm is enabled in Supabase Auth settings.');
     }
 
     // Provide user to test
     await use(user);
 
-    // Cleanup: delete test user after test
-    await deleteTestUser(supabaseAdmin, user.id);
+    // Note: We don't delete test users since we can't without service_role_key
+    // Test users use unique emails so they won't conflict
   },
 
   // Authenticated page fixture - logs in before providing page
@@ -307,10 +278,8 @@ export { expect };
 
 // Export helpers for use in other test files
 export {
-  createAdminClient,
   createAnonClient,
   createTestUser,
-  deleteTestUser,
   loginViaUI,
   loginProgrammatically,
   logout,
