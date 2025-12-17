@@ -252,52 +252,74 @@ export default function Landing() {
             </p>
           </motion.div>
 
-          <motion.div 
-            variants={staggerContainer}
-            initial="initial"
-            whileInView="animate"
-            viewport={{ once: true }}
-            className="grid md:grid-cols-2 lg:grid-cols-3 gap-6"
-          >
-            <FeatureCard 
-              icon={Inbox}
-              title="Inbox Zero"
-              description="Capture pensamentos rapidamente e processe depois. Parsing inteligente extrai datas, tags e contexto automaticamente."
-            />
-            <FeatureCard 
-              icon={Target}
-              title="Projetos & Milestones"
-              description="Organize trabalho em projetos com progresso visual. Milestones marcam conquistas importantes na jornada."
-            />
-            <FeatureCard 
-              icon={Calendar}
-              title="Calendário Inteligente"
-              description="Visualize timeline de tarefas e hábitos. Drag-and-drop para reagendar. Overdue nunca esquecido."
-            />
-            <FeatureCard 
-              icon={Sunrise}
-              title="Rituais Diários"
-              description="Manhã, tarde e noite: organize hábitos em rituais. Experiência imersiva para foco total."
-              isZen
-            />
-            <FeatureCard 
-              icon={Repeat}
-              title="Recorrência Flexível"
-              description="Padrões complexos de repetição. Streaks e heatmaps mostram consistência ao longo do tempo."
-              isZen
-            />
-            <FeatureCard 
-              icon={Wifi}
-              title="Offline First"
-              description="Funciona sem internet. Sincroniza automaticamente quando reconectar. Seus dados sempre acessíveis."
-            />
-            <FeatureCard 
-              icon={BookOpen}
-              title="Journal & Reflexões"
-              description="Capture pensamentos, sentimentos e insights. Prompts guiados ajudam quando a página em branco paralisa."
-              isZen
-            />
-          </motion.div>
+          {/* Operational Features */}
+          <div className="mb-12">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                <Target className="w-4 h-4 text-primary" />
+              </div>
+              <h3 className="text-lg font-semibold text-foreground">Produtividade</h3>
+            </div>
+            <motion.div 
+              variants={staggerContainer}
+              initial="initial"
+              whileInView="animate"
+              viewport={{ once: true }}
+              className="grid md:grid-cols-3 gap-6"
+            >
+              <FeatureCard 
+                icon={Inbox}
+                title="Inbox Zero"
+                description="Capture pensamentos rapidamente e processe depois. Parsing inteligente extrai datas, tags e contexto automaticamente."
+              />
+              <FeatureCard 
+                icon={Target}
+                title="Projetos & Milestones"
+                description="Organize trabalho em projetos com progresso visual. Milestones marcam conquistas importantes na jornada."
+              />
+              <FeatureCard 
+                icon={Calendar}
+                title="Calendário Inteligente"
+                description="Visualize timeline de tarefas e hábitos. Drag-and-drop para reagendar. Overdue nunca esquecido."
+              />
+            </motion.div>
+          </div>
+
+          {/* Zen Features */}
+          <div>
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center">
+                <Sparkles className="w-4 h-4 text-amber-500" />
+              </div>
+              <h3 className="text-lg font-semibold text-foreground">Introspecção</h3>
+            </div>
+            <motion.div 
+              variants={staggerContainer}
+              initial="initial"
+              whileInView="animate"
+              viewport={{ once: true }}
+              className="grid md:grid-cols-3 gap-6"
+            >
+              <FeatureCard 
+                icon={Sunrise}
+                title="Rituais Diários"
+                description="Manhã, tarde e noite: organize hábitos em rituais. Experiência imersiva para foco total."
+                isZen
+              />
+              <FeatureCard 
+                icon={Repeat}
+                title="Hábitos & Streaks"
+                description="Padrões complexos de repetição. Streaks e heatmaps mostram consistência ao longo do tempo."
+                isZen
+              />
+              <FeatureCard 
+                icon={BookOpen}
+                title="Journal & Reflexões"
+                description="Capture pensamentos, sentimentos e insights. Prompts guiados ajudam quando a página em branco paralisa."
+                isZen
+              />
+            </motion.div>
+          </div>
         </div>
       </section>
 
