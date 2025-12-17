@@ -328,22 +328,30 @@ export default function Landing() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.2 }}
-            className="bg-card/30 backdrop-blur-sm rounded-2xl border border-border/30 p-8 md:p-12"
+            className="group relative overflow-hidden bg-card/30 backdrop-blur-sm rounded-2xl border border-border/30 p-8 md:p-12 transition-all duration-500 hover:bg-slate-50 hover:border-slate-200 hover:shadow-xl hover:shadow-slate-200/20 cursor-pointer"
           >
+            {/* Zen gradient on hover */}
+            <div className="absolute inset-0 bg-gradient-to-br from-amber-50/0 via-rose-50/0 to-violet-50/0 group-hover:from-amber-50/80 group-hover:via-rose-50/60 group-hover:to-violet-50/80 transition-all duration-500 -z-10" />
+            
+            {/* Zen symbol */}
+            <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+              <span className="text-amber-400 text-xl">✧</span>
+            </div>
+            
             <div className="flex items-start gap-4 mb-8">
-              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                <BookOpen className="w-5 h-5 text-primary/70" />
+              <div className="w-10 h-10 rounded-full bg-primary/10 group-hover:bg-gradient-to-br group-hover:from-amber-100 group-hover:to-rose-100 flex items-center justify-center shrink-0 transition-all duration-500">
+                <BookOpen className="w-5 h-5 text-primary/70 group-hover:text-amber-600 transition-colors duration-500" />
               </div>
               <div>
-                <h3 className="text-xl font-medium text-foreground/90 mb-2">Journal</h3>
-                <p className="text-muted-foreground/70 font-light">
+                <h3 className="text-xl font-medium text-foreground/90 group-hover:text-slate-800 mb-2 transition-colors duration-500">Journal</h3>
+                <p className="text-muted-foreground/70 group-hover:text-slate-600 font-light transition-colors duration-500">
                   Capture reflexões, sentimentos e insights. 
                   Prompts guiados ajudam quando a página em branco paralisa.
                 </p>
               </div>
             </div>
 
-            <div className="border-l-2 border-primary/20 pl-6 space-y-4 text-muted-foreground/60 italic font-light">
+            <div className="border-l-2 border-primary/20 group-hover:border-amber-300 pl-6 space-y-4 text-muted-foreground/60 group-hover:text-slate-500 italic font-light transition-colors duration-500">
               <p>"Como você encerra este ciclo?"</p>
               <p>"O que você aprendeu hoje que não sabia ontem?"</p>
               <p>"Pelo que você é grato neste momento?"</p>
