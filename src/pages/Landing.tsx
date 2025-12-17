@@ -732,10 +732,12 @@ export default function Landing() {
                   O MindMate é gratuito?
                 </AccordionTrigger>
                 <AccordionContent className="text-muted-foreground text-sm">
-                  <strong className="text-foreground">Sim, 100% gratuito e sempre será!</strong> O MindMate é também 
-                  open source — você pode ver, modificar e contribuir com o código. Todas as funcionalidades 
-                  estão disponíveis sem limitações: projetos ilimitados, hábitos, rituais, journal, offline e mais.
-                  Acreditamos que ferramentas de produtividade e bem-estar devem ser acessíveis a todos.
+                  <strong className="text-foreground">Sim, 100% gratuito e open source!</strong> Todas as 
+                  funcionalidades estão disponíveis para todos, sem limitações. Se você vê valor e pode 
+                  contribuir, aceitamos doações — mas se não puder, sem problema nenhum. 
+                  <span className="text-foreground font-medium"> MindMate é para todos.</span> Acreditamos 
+                  que ferramentas de bem-estar e produtividade devem ser acessíveis, independentemente da 
+                  sua situação financeira.
                 </AccordionContent>
               </AccordionItem>
 
@@ -807,7 +809,7 @@ export default function Landing() {
             Pronto para organizar sua mente?
           </h2>
           <p className="text-sm sm:text-base text-muted-foreground mb-6 sm:mb-8 px-2">
-            Gratuito para sempre. Open source. Sem pegadinhas.
+            Gratuito para todos. Open source. Doe se puder, use mesmo se não puder.
           </p>
           
           <Link to="/">
