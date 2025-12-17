@@ -43,7 +43,7 @@ const AnimatedTagline = () => {
   
   return (
     <motion.h1 
-      className="text-5xl md:text-7xl lg:text-8xl font-display font-extrabold text-foreground mb-6 leading-[0.9] tracking-tight"
+      className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-display font-extrabold text-foreground mb-4 sm:mb-6 leading-[0.9] tracking-tight"
       initial="initial"
       animate="animate"
     >
@@ -63,7 +63,7 @@ const AnimatedTagline = () => {
           </motion.span>
         ))}
       </span>
-      <span className="inline-block mx-3" />
+      <span className="inline-block mx-2 sm:mx-3" />
       <span className="inline-block overflow-hidden">
         {word2.split("").map((letter, index) => (
           <motion.span
@@ -100,7 +100,7 @@ const FeatureCard = ({
   <motion.div 
     variants={fadeInUp}
     className={`
-      p-6 rounded-xl border transition-all duration-500 ease-out group relative overflow-hidden
+      p-4 sm:p-6 rounded-xl border transition-all duration-500 ease-out group relative overflow-hidden
       ${isZen 
         ? 'bg-card/50 border-border/50 hover:bg-slate-50 hover:border-slate-200 hover:shadow-xl hover:shadow-slate-200/20' 
         : isExperience
@@ -191,20 +191,25 @@ export default function Landing() {
     <div className="min-h-screen bg-background overflow-x-hidden">
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border/50">
-        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 sm:h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center">
-              <Sparkles className="w-4 h-4 text-primary" />
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-primary/20 flex items-center justify-center">
+              <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary" />
             </div>
-            <span className="font-bold text-lg text-foreground">MindMate</span>
+            <span className="font-bold text-base sm:text-lg text-foreground">MindMate</span>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4">
             <Link to="/">
-              <Button variant="ghost" size="sm">Entrar</Button>
+              <Button variant="ghost" size="sm" className="text-xs sm:text-sm px-2 sm:px-3">Entrar</Button>
             </Link>
-            <Link to="/">
+            <Link to="/" className="hidden sm:block">
               <Button size="sm" className="gap-2">
                 Começar Grátis
+                <ArrowRight className="w-4 h-4" />
+              </Button>
+            </Link>
+            <Link to="/" className="sm:hidden">
+              <Button size="sm" className="px-3">
                 <ArrowRight className="w-4 h-4" />
               </Button>
             </Link>
@@ -213,7 +218,7 @@ export default function Landing() {
       </nav>
 
       {/* Hero Section - Terminal Style */}
-      <section className="pt-32 pb-20 px-6 relative">
+      <section className="pt-24 sm:pt-32 pb-12 sm:pb-20 px-4 sm:px-6 relative">
         <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-transparent" />
         <div className="max-w-4xl mx-auto text-center relative">
           <motion.div
@@ -221,7 +226,7 @@ export default function Landing() {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5 }}
           >
-            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm mb-8">
+            <span className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs sm:text-sm mb-6 sm:mb-8">
               <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
               Atom Engine v4.0
             </span>
@@ -233,7 +238,7 @@ export default function Landing() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.9, duration: 0.5 }}
-            className="text-xl text-muted-foreground mb-10 max-w-2xl mx-auto"
+            className="text-base sm:text-xl text-muted-foreground mb-8 sm:mb-10 max-w-2xl mx-auto px-2"
           >
             MindMate combina produtividade e introspecção em um único app. 
             Capture tarefas, cultive hábitos, e reflita sobre sua jornada.
@@ -243,7 +248,7 @@ export default function Landing() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1.1, duration: 0.5 }}
-            className="flex flex-col sm:flex-row gap-4 justify-center"
+            className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center px-4 sm:px-0"
           >
             <Link to="/">
               <Button size="lg" className="gap-2 w-full sm:w-auto">
@@ -262,36 +267,36 @@ export default function Landing() {
       </section>
 
       {/* Features Grid - Terminal Style */}
-      <section className="py-20 px-6 bg-card/30">
+      <section className="py-12 sm:py-20 px-4 sm:px-6 bg-card/30">
         <div className="max-w-6xl mx-auto">
           <motion.div 
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
-            className="text-center mb-16"
+            className="text-center mb-10 sm:mb-16"
           >
-            <h2 className="text-3xl font-bold text-foreground mb-4">
+            <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-3 sm:mb-4">
               Engines Poderosos
             </h2>
-            <p className="text-muted-foreground max-w-xl mx-auto">
+            <p className="text-sm sm:text-base text-muted-foreground max-w-xl mx-auto px-2">
               Cada funcionalidade foi projetada para reduzir fricção e maximizar foco.
             </p>
           </motion.div>
 
           {/* Operational Features */}
-          <div className="mb-12">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                <Target className="w-4 h-4 text-primary" />
+          <div className="mb-8 sm:mb-12">
+            <div className="flex items-center gap-3 mb-4 sm:mb-6">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                <Target className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary" />
               </div>
-              <h3 className="text-lg font-semibold text-foreground">Produtividade</h3>
+              <h3 className="text-base sm:text-lg font-semibold text-foreground">Produtividade</h3>
             </div>
             <motion.div 
               variants={staggerContainer}
               initial="initial"
               whileInView="animate"
               viewport={{ once: true }}
-              className="grid md:grid-cols-3 gap-6"
+              className="grid sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6"
             >
               <FeatureCard 
                 icon={Inbox}
@@ -313,18 +318,18 @@ export default function Landing() {
 
           {/* Zen Features */}
           <div>
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center">
-                <Sparkles className="w-4 h-4 text-amber-500" />
+            <div className="flex items-center gap-3 mb-4 sm:mb-6">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-amber-500/10 flex items-center justify-center">
+                <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-500" />
               </div>
-              <h3 className="text-lg font-semibold text-foreground">Introspecção</h3>
+              <h3 className="text-base sm:text-lg font-semibold text-foreground">Introspecção</h3>
             </div>
             <motion.div 
               variants={staggerContainer}
               initial="initial"
               whileInView="animate"
               viewport={{ once: true }}
-              className="grid md:grid-cols-3 gap-6"
+              className="grid sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6"
             >
               <FeatureCard 
                 icon={Sunrise}
@@ -352,19 +357,19 @@ export default function Landing() {
 
 
       {/* Benefits Section */}
-      <section className="py-20 px-6">
+      <section className="py-12 sm:py-20 px-4 sm:px-6">
         <div className="max-w-4xl mx-auto">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
+          <div className="grid md:grid-cols-2 gap-8 sm:gap-12 items-center">
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
             >
-              <h2 className="text-3xl font-bold text-foreground mb-6">
+              <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-4 sm:mb-6">
                 Projetado para{" "}
                 <span className="text-primary">power users</span>
               </h2>
-              <p className="text-muted-foreground mb-8">
+              <p className="text-sm sm:text-base text-muted-foreground mb-6 sm:mb-8">
                 Navegação por teclado, feedback háptico, e zero fricção. 
                 Cada interação foi otimizada para velocidade.
               </p>
@@ -374,7 +379,7 @@ export default function Landing() {
                 initial="initial"
                 whileInView="animate"
                 viewport={{ once: true }}
-                className="space-y-4"
+                className="space-y-3 sm:space-y-4"
               >
                 <BenefitItem text="Atalhos globais (⌘H, ⌘I, ⌘P, ⌘J...)" />
                 <BenefitItem text="Command Palette para acesso rápido" />
@@ -388,9 +393,9 @@ export default function Landing() {
               initial={{ opacity: 0, x: 20 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
-              className="bg-card/50 rounded-2xl border border-border/50 p-6"
+              className="bg-card/50 rounded-2xl border border-border/50 p-4 sm:p-6"
             >
-              <div className="font-mono text-sm space-y-2">
+              <div className="font-mono text-xs sm:text-sm space-y-2">
                 <div className="text-muted-foreground">
                   <span className="text-primary">$</span> mindmate --status
                 </div>
@@ -409,16 +414,16 @@ export default function Landing() {
                 <div className="mt-4 text-primary">
                   <span className="text-muted-foreground">$</span> _
                   <span className="animate-pulse">▌</span>
-            </div>
-          </div>
+                </div>
+              </div>
 
           {/* Experiência Section */}
-          <div className="mt-12">
-            <div className="flex items-center gap-2 mb-6 justify-center">
+          <div className="mt-8 sm:mt-12">
+            <div className="flex items-center gap-2 mb-4 sm:mb-6 justify-center">
               <Sparkles className="w-4 h-4 text-primary" />
               <span className="text-xs font-medium tracking-widest uppercase text-muted-foreground">Experiência</span>
             </div>
-            <div className="grid md:grid-cols-2 gap-6 max-w-2xl mx-auto">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 max-w-2xl mx-auto">
               <FeatureCard
                 icon={WifiOff}
                 title="Offline First"
@@ -439,22 +444,22 @@ export default function Landing() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 px-6 bg-gradient-to-t from-primary/5 to-transparent">
+      <section className="py-12 sm:py-20 px-4 sm:px-6 bg-gradient-to-t from-primary/5 to-transparent">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           className="max-w-2xl mx-auto text-center"
         >
-          <h2 className="text-3xl font-bold text-foreground mb-4">
+          <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-3 sm:mb-4">
             Pronto para organizar sua mente?
           </h2>
-          <p className="text-muted-foreground mb-8">
+          <p className="text-sm sm:text-base text-muted-foreground mb-6 sm:mb-8 px-2">
             Comece gratuitamente. Sem cartão de crédito.
           </p>
           
           <Link to="/">
-            <Button size="lg" className="gap-2">
+            <Button size="lg" className="gap-2 w-full sm:w-auto">
               Criar Conta Grátis
               <ArrowRight className="w-4 h-4" />
             </Button>
@@ -463,8 +468,8 @@ export default function Landing() {
       </section>
 
       {/* Footer */}
-      <footer className="py-12 px-6 border-t border-border/50">
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
+      <footer className="py-8 sm:py-12 px-4 sm:px-6 border-t border-border/50">
+        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-6">
           <div className="flex items-center gap-2">
             <div className="w-6 h-6 rounded bg-primary/20 flex items-center justify-center">
               <Sparkles className="w-3 h-3 text-primary" />
@@ -473,7 +478,7 @@ export default function Landing() {
             <span className="text-muted-foreground text-sm">v4.0.0</span>
           </div>
           
-          <div className="flex items-center gap-6 text-sm text-muted-foreground">
+          <div className="flex items-center gap-4 sm:gap-6 text-sm text-muted-foreground">
             <Link to="/privacy" className="hover:text-foreground transition-colors">
               Privacidade
             </Link>
