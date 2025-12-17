@@ -1327,6 +1327,22 @@ npx playwright show-report
 
 ---
 
+## [4.0.0-alpha.19] - 2025-12-17
+
+### Adicionado
+
+#### Fase 6: Performance & UX Polish
+- **ErrorBoundary Global:** Componente de fallback elegante com opções retry/home/reload
+- **Suspense Boundaries:** Em todas as rotas com PageLoader contextual
+- **Skeleton Components:** ProjectCardSkeleton, InboxItemCardSkeleton, CalendarGridSkeleton
+- **React.memo:** Aplicado em ProjectCard, InboxItemCard, CalendarItem
+- **React.lazy:** Carregamento lazy para páginas secundárias
+- **PageTransition:** AnimatePresence com fade + slide (200ms)
+- **Micro-animações:** Buttons, cards, checkboxes, switches, badges, progress bars
+- **Ritual View Polish:** Empty state, step transitions, completion feedback
+
+---
+
 ## [4.0.0-alpha.18] - 2025-12-17
 
 ### Adicionado
