@@ -349,70 +349,7 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Reflection Section - Zen Style */}
-      <section className="py-24 px-6 bg-gradient-to-b from-background via-slate-50/5 to-background relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(38,217,110,0.03),transparent_70%)]" />
-        
-        <div className="max-w-4xl mx-auto relative">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-16"
-          >
-            <div className="inline-flex items-center gap-2 text-primary/70 text-sm mb-6 tracking-widest uppercase">
-              <span className="w-8 h-px bg-primary/30" />
-              Introspecção
-              <span className="w-8 h-px bg-primary/30" />
-            </div>
-            
-            <h2 className="text-3xl md:text-4xl font-light text-foreground/90 mb-6 tracking-tight">
-              Espaço para reflexão
-            </h2>
-            
-            <p className="text-lg text-muted-foreground/80 max-w-2xl mx-auto leading-relaxed font-light">
-              Produtividade não é apenas completar tarefas. 
-              É entender seus pensamentos, reconhecer padrões, 
-              e cultivar clareza mental.
-            </p>
-          </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.2 }}
-            className="group relative overflow-hidden bg-card/30 backdrop-blur-sm rounded-2xl border border-border/30 p-8 md:p-12 transition-all duration-500 hover:bg-slate-50 hover:border-slate-200 hover:shadow-xl hover:shadow-slate-200/20 cursor-pointer"
-          >
-            {/* Zen gradient on hover */}
-            <div className="absolute inset-0 bg-gradient-to-br from-amber-50/0 via-rose-50/0 to-violet-50/0 group-hover:from-amber-50/80 group-hover:via-rose-50/60 group-hover:to-violet-50/80 transition-all duration-500 -z-10" />
-            
-            {/* Zen symbol */}
-            <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-              <span className="text-amber-400 text-xl">✧</span>
-            </div>
-            
-            <div className="flex items-start gap-4 mb-8">
-              <div className="w-10 h-10 rounded-full bg-primary/10 group-hover:bg-gradient-to-br group-hover:from-amber-100 group-hover:to-rose-100 flex items-center justify-center shrink-0 transition-all duration-500">
-                <BookOpen className="w-5 h-5 text-primary/70 group-hover:text-amber-600 transition-colors duration-500" />
-              </div>
-              <div>
-                <h3 className="text-xl font-medium text-foreground/90 group-hover:text-slate-800 mb-2 transition-colors duration-500">Journal</h3>
-                <p className="text-muted-foreground/70 group-hover:text-slate-600 font-light transition-colors duration-500">
-                  Capture reflexões, sentimentos e insights. 
-                  Prompts guiados ajudam quando a página em branco paralisa.
-                </p>
-              </div>
-            </div>
-
-            <div className="border-l-2 border-primary/20 group-hover:border-amber-300 pl-6 space-y-4 text-muted-foreground/60 group-hover:text-slate-500 italic font-light transition-colors duration-500">
-              <p>"Como você encerra este ciclo?"</p>
-              <p>"O que você aprendeu hoje que não sabia ontem?"</p>
-              <p>"Pelo que você é grato neste momento?"</p>
-            </div>
-          </motion.div>
-        </div>
-      </section>
 
       {/* Benefits Section */}
       <section className="py-20 px-6">
