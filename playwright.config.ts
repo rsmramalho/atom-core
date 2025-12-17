@@ -14,6 +14,19 @@ export default defineConfig({
     ['html'],
     ['list'],
   ],
+  
+  // Visual regression settings
+  expect: {
+    toHaveScreenshot: {
+      maxDiffPixels: 100,
+      threshold: 0.2,
+    },
+  },
+  
+  // Snapshot settings
+  snapshotDir: './e2e/__snapshots__',
+  snapshotPathTemplate: '{snapshotDir}/{testFilePath}/{arg}{ext}',
+  
   use: {
     baseURL: 'http://localhost:8080',
     trace: 'on-first-retry',
@@ -24,7 +37,7 @@ export default defineConfig({
     // Public tests (no auth required)
     {
       name: 'public',
-      testMatch: /^(?!.*\.auth\.spec\.ts).*\.spec\.ts$/,
+      testMatch: /^(?!.*\.(auth|visual)\.spec\.ts).*\.spec\.ts$/,
       use: { ...devices['Desktop Chrome'] },
     },
     // Authenticated tests
@@ -33,10 +46,38 @@ export default defineConfig({
       testMatch: /\.auth\.spec\.ts$/,
       use: { ...devices['Desktop Chrome'] },
     },
+    // Visual regression tests (public)
+    {
+      name: 'visual',
+      testMatch: /visual\/public\.visual\.spec\.ts$/,
+      use: { 
+        ...devices['Desktop Chrome'],
+        // Consistent viewport for visual tests
+        viewport: { width: 1280, height: 720 },
+      },
+    },
+    // Visual regression tests (authenticated)
+    {
+      name: 'visual-auth',
+      testMatch: /visual\/(authenticated|components)\.visual\.spec\.ts$/,
+      use: { 
+        ...devices['Desktop Chrome'],
+        viewport: { width: 1280, height: 720 },
+      },
+    },
+    // Theme visual tests
+    {
+      name: 'visual-themes',
+      testMatch: /visual\/themes\.visual\.spec\.ts$/,
+      use: { 
+        ...devices['Desktop Chrome'],
+        viewport: { width: 1280, height: 720 },
+      },
+    },
     // Mobile tests
     {
       name: 'mobile',
-      testMatch: /^(?!.*\.auth\.spec\.ts).*\.spec\.ts$/,
+      testMatch: /^(?!.*\.(auth|visual)\.spec\.ts).*\.spec\.ts$/,
       use: { ...devices['Pixel 5'] },
     },
   ],
