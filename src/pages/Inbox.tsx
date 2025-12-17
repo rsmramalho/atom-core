@@ -4,11 +4,12 @@ import { useAtomItems } from "@/hooks/useAtomItems";
 import { useEngineLogger } from "@/hooks/useEngineLogger";
 import { parseInput } from "@/lib/parsing-engine";
 import { InboxItemCard } from "@/components/inbox/InboxItemCard";
+import { InboxItemCardSkeletonList } from "@/components/inbox/InboxItemCardSkeleton";
 import { EmptyInbox } from "@/components/empty-states";
 import { MacroPickerModal } from "@/components/inbox/MacroPickerModal";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Inbox as InboxIcon, Loader2 } from "lucide-react";
+import { Inbox as InboxIcon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import type { AtomItem, RitualSlot } from "@/types/atom-engine";
 import type { User } from "@/types/auth";
@@ -199,8 +200,15 @@ export default function Inbox() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="p-4 md:p-8 max-w-3xl mx-auto">
+        <header className="mb-8">
+          <h1 className="text-2xl font-bold flex items-center gap-2">
+            <InboxIcon className="h-6 w-6 text-primary" />
+            Inbox
+          </h1>
+          <p className="text-muted-foreground">Carregando itens...</p>
+        </header>
+        <InboxItemCardSkeletonList count={5} />
       </div>
     );
   }
