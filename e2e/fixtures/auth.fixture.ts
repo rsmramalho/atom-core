@@ -1,77 +1,320 @@
-import { test as base, expect } from '@playwright/test';
+import { test as base, expect, Page } from '@playwright/test';
+import { createClient, SupabaseClient, User } from '@supabase/supabase-js';
 
-// Extend base test with authentication fixture
-export const test = base.extend<{
-  authenticatedPage: ReturnType<typeof base.page>;
-}>({
-  authenticatedPage: async ({ page }, use) => {
-    // This fixture would handle authentication setup
-    // In a real implementation, you would:
-    // 1. Use Supabase service role to create test user
-    // 2. Programmatically login
-    // 3. Set session tokens
-    
-    // For now, we just provide the page
-    // Real implementation would look like:
-    /*
-    const testEmail = `e2e-test-${Date.now()}@example.com`;
-    const testPassword = 'E2ETestPassword123!';
-    
-    // Create test user via API
-    await supabaseAdmin.auth.admin.createUser({
-      email: testEmail,
-      password: testPassword,
-      email_confirm: true
+// Environment variables for test configuration
+const SUPABASE_URL = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || '';
+const SUPABASE_ANON_KEY = process.env.VITE_SUPABASE_PUBLISHABLE_KEY || process.env.SUPABASE_ANON_KEY || '';
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+
+// Test user configuration
+interface TestUserConfig {
+  email?: string;
+  password?: string;
+  metadata?: Record<string, unknown>;
+}
+
+interface TestUser {
+  id: string;
+  email: string;
+  password: string;
+}
+
+interface AuthFixtures {
+  testUser: TestUser;
+  authenticatedPage: Page;
+  supabaseAdmin: SupabaseClient;
+  supabaseClient: SupabaseClient;
+}
+
+/**
+ * Creates a Supabase Admin client with service role key
+ * Used for creating/deleting test users
+ */
+function createAdminClient(): SupabaseClient | null {
+  if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
+    console.warn('Supabase credentials not configured. Skipping admin client creation.');
+    return null;
+  }
+  
+  return createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+    },
+  });
+}
+
+/**
+ * Creates a Supabase client with anon key
+ * Used for regular authentication
+ */
+function createAnonClient(): SupabaseClient | null {
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+    console.warn('Supabase credentials not configured. Skipping anon client creation.');
+    return null;
+  }
+  
+  return createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+}
+
+/**
+ * Generates a unique test user email
+ */
+function generateTestEmail(): string {
+  const timestamp = Date.now();
+  const random = Math.random().toString(36).substring(2, 8);
+  return `e2e-test-${timestamp}-${random}@test.mindmate.app`;
+}
+
+/**
+ * Creates a test user via Supabase Admin API
+ */
+async function createTestUser(
+  adminClient: SupabaseClient,
+  config: TestUserConfig = {}
+): Promise<TestUser | null> {
+  const email = config.email || generateTestEmail();
+  const password = config.password || 'E2ETestPassword123!';
+
+  try {
+    const { data, error } = await adminClient.auth.admin.createUser({
+      email,
+      password,
+      email_confirm: true, // Auto-confirm email
+      user_metadata: config.metadata || { isTestUser: true },
     });
+
+    if (error) {
+      console.error('Failed to create test user:', error.message);
+      return null;
+    }
+
+    if (!data.user) {
+      console.error('No user data returned');
+      return null;
+    }
+
+    return {
+      id: data.user.id,
+      email,
+      password,
+    };
+  } catch (err) {
+    console.error('Error creating test user:', err);
+    return null;
+  }
+}
+
+/**
+ * Deletes a test user via Supabase Admin API
+ */
+async function deleteTestUser(
+  adminClient: SupabaseClient,
+  userId: string
+): Promise<boolean> {
+  try {
+    const { error } = await adminClient.auth.admin.deleteUser(userId);
     
-    // Login via UI or API
-    await page.goto('/');
-    await page.getByRole('textbox', { name: /email/i }).fill(testEmail);
-    await page.getByRole('textbox', { name: /password/i }).fill(testPassword);
-    await page.getByRole('button', { name: /login/i }).click();
+    if (error) {
+      console.error('Failed to delete test user:', error.message);
+      return false;
+    }
     
-    // Wait for successful login
+    return true;
+  } catch (err) {
+    console.error('Error deleting test user:', err);
+    return false;
+  }
+}
+
+/**
+ * Logs in a user via the UI
+ */
+async function loginViaUI(
+  page: Page,
+  email: string,
+  password: string
+): Promise<boolean> {
+  await page.goto('/');
+  
+  // Wait for auth form to be visible
+  const emailInput = page.getByRole('textbox', { name: /email/i });
+  const passwordInput = page.locator('input[type="password"]');
+  
+  if (!(await emailInput.isVisible({ timeout: 5000 }))) {
+    // Already logged in or no auth form
+    return true;
+  }
+  
+  await emailInput.fill(email);
+  await passwordInput.fill(password);
+  
+  // Click login button
+  const loginButton = page.getByRole('button', { name: /entrar|login|sign in/i });
+  await loginButton.click();
+  
+  // Wait for navigation or dashboard content
+  try {
     await page.waitForURL('/', { timeout: 10000 });
-    */
     
-    await use(page);
+    // Verify we're logged in by checking auth form is gone
+    await expect(emailInput).not.toBeVisible({ timeout: 5000 });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Logs in a user programmatically by setting session
+ */
+async function loginProgrammatically(
+  page: Page,
+  anonClient: SupabaseClient,
+  email: string,
+  password: string
+): Promise<boolean> {
+  try {
+    // Sign in to get session
+    const { data, error } = await anonClient.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error || !data.session) {
+      console.error('Failed to sign in:', error?.message);
+      return false;
+    }
+
+    // Navigate to app first
+    await page.goto('/');
+
+    // Inject session into localStorage
+    await page.evaluate(
+      ({ accessToken, refreshToken, expiresAt, user }) => {
+        const storageKey = 'sb-jsmebwwhlxdhvztgovpq-auth-token';
+        const session = {
+          access_token: accessToken,
+          refresh_token: refreshToken,
+          expires_at: expiresAt,
+          expires_in: 3600,
+          token_type: 'bearer',
+          user,
+        };
+        localStorage.setItem(storageKey, JSON.stringify(session));
+      },
+      {
+        accessToken: data.session.access_token,
+        refreshToken: data.session.refresh_token,
+        expiresAt: data.session.expires_at,
+        user: data.session.user,
+      }
+    );
+
+    // Reload to pick up session
+    await page.reload();
+    await page.waitForLoadState('networkidle');
+
+    return true;
+  } catch (err) {
+    console.error('Error in programmatic login:', err);
+    return false;
+  }
+}
+
+/**
+ * Logs out a user
+ */
+async function logout(page: Page): Promise<void> {
+  await page.evaluate(() => {
+    // Clear Supabase auth storage
+    const keys = Object.keys(localStorage);
+    keys.forEach(key => {
+      if (key.includes('supabase') || key.includes('sb-')) {
+        localStorage.removeItem(key);
+      }
+    });
+  });
+  
+  await page.reload();
+}
+
+/**
+ * Extended test with authentication fixtures
+ */
+export const test = base.extend<AuthFixtures>({
+  // Supabase Admin client fixture
+  supabaseAdmin: async ({}, use) => {
+    const client = createAdminClient();
+    if (!client) {
+      throw new Error('Supabase Admin client not configured. Set SUPABASE_SERVICE_ROLE_KEY.');
+    }
+    await use(client);
+  },
+
+  // Supabase Anon client fixture
+  supabaseClient: async ({}, use) => {
+    const client = createAnonClient();
+    if (!client) {
+      throw new Error('Supabase Anon client not configured.');
+    }
+    await use(client);
+  },
+
+  // Test user fixture - creates user before test, deletes after
+  testUser: async ({ supabaseAdmin }, use) => {
+    // Create test user
+    const user = await createTestUser(supabaseAdmin);
     
+    if (!user) {
+      throw new Error('Failed to create test user');
+    }
+
+    // Provide user to test
+    await use(user);
+
     // Cleanup: delete test user after test
-    /*
-    await supabaseAdmin.auth.admin.deleteUser(userId);
-    */
+    await deleteTestUser(supabaseAdmin, user.id);
+  },
+
+  // Authenticated page fixture - logs in before providing page
+  authenticatedPage: async ({ page, testUser, supabaseClient }, use) => {
+    // Login programmatically
+    const success = await loginProgrammatically(
+      page,
+      supabaseClient,
+      testUser.email,
+      testUser.password
+    );
+
+    if (!success) {
+      // Fallback to UI login
+      const uiSuccess = await loginViaUI(page, testUser.email, testUser.password);
+      if (!uiSuccess) {
+        throw new Error('Failed to authenticate test user');
+      }
+    }
+
+    // Provide authenticated page to test
+    await use(page);
+
+    // Cleanup: logout after test
+    await logout(page);
   },
 });
 
 export { expect };
 
-// Helper to check if user is authenticated
-export async function isAuthenticated(page: ReturnType<typeof base.page>): Promise<boolean> {
-  const authForm = page.getByRole('textbox', { name: /email/i });
-  return !(await authForm.isVisible());
-}
+// Export helpers for use in other test files
+export {
+  createAdminClient,
+  createAnonClient,
+  createTestUser,
+  deleteTestUser,
+  loginViaUI,
+  loginProgrammatically,
+  logout,
+  generateTestEmail,
+};
 
-// Helper to perform login
-export async function login(
-  page: ReturnType<typeof base.page>,
-  email: string,
-  password: string
-): Promise<void> {
-  await page.goto('/');
-  await page.getByRole('textbox', { name: /email/i }).fill(email);
-  await page.getByRole('textbox', { name: /password/i }).fill(password);
-  await page.getByRole('button', { name: /entrar|login/i }).click();
-  
-  // Wait for redirect or error
-  await page.waitForTimeout(2000);
-}
-
-// Helper to perform logout
-export async function logout(page: ReturnType<typeof base.page>): Promise<void> {
-  // Open user menu or settings
-  const userMenu = page.locator('[data-testid="user-menu"]');
-  if (await userMenu.isVisible()) {
-    await userMenu.click();
-    await page.getByRole('button', { name: /sair|logout/i }).click();
-  }
-}
+export type { TestUser, TestUserConfig };
