@@ -263,6 +263,7 @@ src/
 │   ├── ui/                         # Componentes Shadcn (base)
 │   ├── inbox/
 │   │   ├── InboxItemCard.tsx       # Card de item no inbox
+│   │   ├── InboxItemCardSkeleton.tsx # Skeleton loading
 │   │   └── MacroPickerModal.tsx    # Modal de promoção (B.8)
 │   ├── dashboard/
 │   │   ├── FocusBlock.tsx          # Bloco de itens #focus
@@ -270,68 +271,104 @@ src/
 │   │   └── TodayList.tsx           # Lista do dia
 │   ├── calendar/
 │   │   ├── CalendarGrid.tsx        # Grid mensal
+│   │   ├── CalendarGridSkeleton.tsx # Skeleton loading
 │   │   ├── WeekGrid.tsx            # Grid semanal
-│   │   ├── CalendarFilters.tsx     # Filtros de tipo/módulo
-│   │   ├── CalendarViewToggle.tsx  # Toggle mês/semana
-│   │   └── DayDetailSheet.tsx      # Detalhe do dia
+│   │   ├── DayCell.tsx             # Célula do dia
+│   │   ├── CalendarItem.tsx        # Item no calendário
+│   │   ├── CalendarFilters.tsx     # Filtros tipo/módulo
+│   │   └── OverdueSection.tsx      # Itens atrasados
 │   ├── projects/
-│   │   └── ProjectCard.tsx         # Card de projeto na lista
+│   │   ├── ProjectCard.tsx         # Card de projeto na lista
+│   │   └── ProjectCardSkeleton.tsx # Skeleton loading
 │   ├── project-sheet/
 │   │   ├── MilestonesPane.tsx      # Timeline de milestones
 │   │   ├── WorkAreaPane.tsx        # Tasks & Hábitos
 │   │   ├── NotesPane.tsx           # Notas & Recursos
 │   │   ├── JournalPane.tsx         # Reflexões do projeto
 │   │   ├── ProjectFab.tsx          # FAB flutuante
+│   │   ├── ProjectSettingsModal.tsx # Config de progresso
+│   │   ├── ProjectStatusDropdown.tsx # State machine UI
 │   │   ├── QuickAddTaskModal.tsx   # Modal criação task
 │   │   └── QuickAddMilestoneModal.tsx
 │   ├── journal/
 │   │   ├── JournalComposer.tsx     # Input de reflexões
 │   │   ├── JournalFeed.tsx         # Timeline de reflexões
 │   │   ├── JournalFilters.tsx      # Filtros por tag/período
-│   │   └── index.ts                # Exports
+│   │   └── index.ts
+│   ├── lists/
+│   │   ├── ListCard.tsx            # Card de lista
+│   │   ├── ListDetailModal.tsx     # Modal de edição
+│   │   ├── QuickAddListModal.tsx   # Criação rápida
+│   │   └── index.ts
+│   ├── notifications/
+│   │   ├── NotificationManager.tsx # Gerenciador de notificações
+│   │   ├── NotificationSettings.tsx # Config de preferências
+│   │   └── index.ts
+│   ├── pwa/
+│   │   ├── InstallPrompt.tsx       # Prompt de instalação
+│   │   ├── NetworkStatusIndicator.tsx # Badge online/offline
+│   │   ├── OfflineSyncContext.tsx  # Context de sync
+│   │   ├── PendingIndicator.tsx    # Indicador de pendências
+│   │   ├── PendingOperationsModal.tsx # Lista de operações
+│   │   └── index.ts
+│   ├── onboarding/
+│   │   ├── WelcomeModal.tsx        # Modal de boas-vindas
+│   │   ├── TourOverlay.tsx         # Tour guiado
+│   │   ├── FirstStepsChecklist.tsx # Checklist gamificado
+│   │   ├── OnboardingContext.tsx   # State management
+│   │   └── index.ts
 │   ├── layout/
 │   │   ├── AppLayout.tsx           # Layout principal com auth
 │   │   ├── AppNavigation.tsx       # Nav sidebar/bottom
 │   │   ├── CommandPalette.tsx      # Busca global (⌘K)
-│   │   └── KeyboardShortcutsHelp.tsx
+│   │   ├── KeyboardShortcutsHelp.tsx # Modal de atalhos
+│   │   └── PageTransition.tsx      # AnimatePresence wrapper
 │   ├── empty-states/               # Estados vazios com ilustrações
-│   ├── shared/                     # Componentes compartilhados
-│   ├── pwa/                        # PWA e Offline Sync ⭐ NOVO
-│   │   ├── OfflineSyncContext.tsx  # Context provider global
-│   │   ├── PendingIndicator.tsx    # Indicador flutuante de pendências
-│   │   ├── PendingOperationsModal.tsx # Modal de gestão de operações
-│   │   ├── NetworkStatusIndicator.tsx # Badge de status de rede
-│   │   └── InstallPrompt.tsx       # Prompt de instalação PWA
+│   ├── shared/
+│   │   ├── ErrorBoundary.tsx       # Error handling global
+│   │   ├── PageLoader.tsx          # Loading states
+│   │   ├── Confetti.tsx            # Celebração
+│   │   ├── DeleteConfirmDialog.tsx # Confirmação de exclusão
+│   │   ├── EditItemModal.tsx       # Edição de itens
+│   │   ├── HabitHeatmap.tsx        # Visualização de streaks
+│   │   ├── ItemContextMenu.tsx     # Menu de contexto
+│   │   ├── RecurrencePickerModal.tsx # Config de recorrência
+│   │   ├── StreakBadge.tsx         # Badge de streak
+│   │   └── TagGlossary.tsx         # Referência de tags
 │   ├── AuthForm.tsx
 │   ├── EngineDebugConsole.tsx
 │   └── NavLink.tsx
 │
 ├── hooks/
 │   ├── useAtomItems.ts             # CRUD de itens via Supabase
-│   ├── useCalendarItems.ts         # Itens do calendário
 │   ├── useDashboardData.ts         # Filtros do dashboard (B.10)
+│   ├── useCalendarItems.ts         # Items para calendário
 │   ├── useMilestones.ts            # CRUD de milestones
 │   ├── useProjectProgress.ts       # Cálculo de progresso híbrido
 │   ├── useRitual.ts                # Lógica do ritual (B.19)
-│   ├── useSwipe.ts                 # Gestos de swipe
+│   ├── useRecurrence.ts            # Virtual projection
+│   ├── useNetworkStatus.ts         # Detecção online/offline
+│   ├── useOfflineSync.ts           # Sync queue management
+│   ├── useNotifications.ts         # Web Notifications API
+│   ├── useSwipe.ts                 # Touch/swipe gestures
 │   ├── useDebugConsole.ts          # Controle do console
 │   ├── useEngineLogger.ts          # Sistema de logs (Zustand)
-│   ├── useNetworkStatus.ts         # Detecção de conectividade ⭐ NOVO
-│   ├── useOfflineSync.ts           # Sincronização offline ⭐ NOVO
 │   └── use-toast.ts                # Toasts do sistema
 │
 ├── lib/
 │   ├── parsing-engine.ts           # Motor de parsing (B.7)
 │   ├── dashboard-filters.ts        # Filtros do dashboard
+│   ├── recurrence-engine.ts        # RRULE projection
 │   ├── reflection-prompts.ts       # Prompts de reflexão
-│   ├── offline-queue.ts            # Fila IndexedDB ⭐ NOVO
-│   ├── local-cache.ts              # Cache localStorage ⭐ NOVO
+│   ├── journal-export.ts           # Export MD/JSON/PDF
+│   ├── offline-queue.ts            # IndexedDB queue
+│   ├── local-cache.ts              # localStorage cache
 │   └── utils.ts                    # Utilitários (cn, etc)
 │
 ├── types/
-│   ├── atom-engine.ts              # Tipos TypeScript do domínio
-│   ├── auth.ts                     # Tipos de autenticação ⭐ NOVO
-│   └── database.ts                 # Tipos de mapeamento DB ⭐ NOVO
+│   ├── atom-engine.ts              # Tipos do domínio
+│   ├── auth.ts                     # Tipos de autenticação
+│   └── database.ts                 # Tipos de mapeamento DB
 │
 ├── pages/
 │   ├── Index.tsx                   # Dashboard principal
@@ -341,6 +378,10 @@ src/
 │   ├── Calendar.tsx                # Calendário (B.4)
 │   ├── RitualView.tsx              # Ritual imersivo (B.19)
 │   ├── Journal.tsx                 # Página de reflexões
+│   ├── Lists.tsx                   # List Engine
+│   ├── Analytics.tsx               # Dashboard de métricas
+│   ├── Install.tsx                 # Guia de instalação PWA
+│   ├── Privacy.tsx                 # Política de privacidade
 │   └── NotFound.tsx                # 404
 │
 └── integrations/
@@ -994,6 +1035,10 @@ const { handlers, swipeState } = useSwipe({
 | `/calendar` | Calendar.tsx | ✅ | ✅ | Calendário |
 | `/ritual` | RitualView.tsx | ✅ | ❌ | Ritual imersivo |
 | `/journal` | Journal.tsx | ✅ | ✅ | Reflexões |
+| `/lists` | Lists.tsx | ✅ | ✅ | Listas rápidas |
+| `/analytics` | Analytics.tsx | ✅ | ✅ | Métricas e estatísticas |
+| `/install` | Install.tsx | ❌ | ❌ | Guia de instalação PWA |
+| `/privacy` | Privacy.tsx | ❌ | ❌ | Política de privacidade |
 
 ---
 
