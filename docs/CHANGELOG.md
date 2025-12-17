@@ -7,6 +7,73 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [4.0.0-alpha.18] - 2025-12-17 🎯 ZERO ANY POLICY
+
+> **Fase 5: Refinamento Final & Type Safety** - Score de Auditoria: 50/50
+
+### Adicionado
+
+#### Type Safety Infrastructure
+- **`src/types/auth.ts`:** Tipos centralizados para autenticação
+  - `UserProfile` - Interface completa baseada no schema Supabase Auth
+  - `User` - Re-export do tipo Supabase para consistência
+  - `AuthError` - Tipagem de erros de autenticação
+
+- **`src/types/database.ts`:** Tipos para mapeamento de banco de dados
+  - `ItemsRow` - Tipo bruto da tabela items
+  - `TypedItemsRow` - Versão tipada com conversões seguras
+  - `asTypedRow()` - Helper para casting seguro de rows
+  - `OnboardingProgressRow`, `OnboardingAnalyticsRow` - Tipos de onboarding
+  - `UpdatePayload` - Tipo para payloads de update
+  - `EngineLogEntry` - Tipo para logs do debug console
+
+### Modificado
+
+#### Eliminação de `any` Types (15 → 0)
+
+**Hooks Refatorados:**
+- `useAtomItems.ts` - Mapeamento tipado com `ItemsRow`
+- `useMilestones.ts` - Mapeamento tipado para milestones
+- `useCalendarItems.ts` - Mapeamento tipado para items de calendário
+
+**Componentes de Auth:**
+- `Index.tsx` - useState tipado com `User | null`
+- `Inbox.tsx` - useState tipado com `User | null`
+- `AppLayout.tsx` - useState tipado com `User | null`
+- `AuthForm.tsx` - useState tipado com `User | null`
+
+**Componentes UI:**
+- `FocusBlock.tsx` - Casting explícito para `order_index`
+- `OnboardingContext.tsx` - Tipagem de `checklistProgress` object
+- `EngineDebugConsole.tsx` - Tipagem de `EngineLogEntry[]`
+- `RecurrencePickerModal.tsx` - Tipagem de completion_log
+
+**Engine:**
+- `recurrence-engine.ts` - Tipagem de completion_log entries
+
+### Validação
+
+- ✅ Build TypeScript: Zero erros
+- ✅ Busca por `: any`: 0 ocorrências
+- ✅ Busca por `as any`: 1 ocorrência (intencional em teste)
+- ✅ Console logs: Sem erros de runtime
+
+---
+
+## [4.0.0-alpha.17] - 2025-12-17
+
+### Corrigido
+- **Mobile Black Screen Bug:** Corrigido erro React #310 causado por uso incorreto de AnimatePresence em `InstallPrompt.tsx`
+  - Condição movida para dentro do AnimatePresence com key estável no motion.div
+  - Padrão correto: renderizar condicionalmente o motion.div, não o AnimatePresence
+
+### Modificado
+- **PWA Icons:** Regenerados todos os 8 ícones (72x72 até 512x512) com design de átomo em verde (#26D96E) em fundo escuro (#111318)
+- **Favicon:** Atualizado com design de átomo com glow
+- **iOS Splash Screens:** Adicionadas 7 splash screens cobrindo iPhone SE até iPad Pro 12.9"
+
+---
+
 ## [4.0.0-rc.1] - 2025-12-16 🚀 MILESTONE RELEASE
 
 > **🎯 FORK POINT:** Esta versão marca um marco importante no desenvolvimento do Atom Engine 4.0.
