@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Inbox as InboxIcon, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import type { AtomItem, RitualSlot } from "@/types/atom-engine";
+import type { User } from "@/types/auth";
 
 export default function Inbox() {
   const { toast } = useToast();
@@ -21,7 +22,7 @@ export default function Inbox() {
   const [isCreating, setIsCreating] = useState(false);
   const [selectedItem, setSelectedItem] = useState<AtomItem | null>(null);
   const [isPickerOpen, setIsPickerOpen] = useState(false);
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
 
   // Get inbox items (items with #inbox tag)
   // INTEGRITY: Exclude milestones from inbox - they only appear in project context

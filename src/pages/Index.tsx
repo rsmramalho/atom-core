@@ -12,6 +12,7 @@ import { Confetti } from "@/components/shared";
 import { Button } from "@/components/ui/button";
 import { Loader2, Sunrise, Sun, Sunset } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import type { User } from "@/types/auth";
 
 const periodIcons = {
   aurora: Sunrise,
@@ -22,7 +23,7 @@ const periodIcons = {
 export default function Index() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [showConfetti, setShowConfetti] = useState(false);
   

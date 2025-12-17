@@ -164,7 +164,14 @@ export function RecurrencePickerModal({
     }
 
     // Custom rule
-    const options: any = {
+    const options: {
+      freq: Frequency;
+      interval: number;
+      dtstart: Date;
+      byweekday?: Weekday[];
+      until?: Date;
+      count?: number;
+    } = {
       freq: frequency,
       interval,
       dtstart: startDate,

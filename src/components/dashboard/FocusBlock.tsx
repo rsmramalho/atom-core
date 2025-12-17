@@ -200,8 +200,8 @@ export function FocusBlock({ items, onToggle, onReorder }: FocusBlockProps) {
   
   // Sort by order_index (items without order_index go to end)
   const sortedItems = [...items].sort((a, b) => {
-    const orderA = (a as any).order_index ?? Infinity;
-    const orderB = (b as any).order_index ?? Infinity;
+    const orderA = a.order_index ?? Infinity;
+    const orderB = b.order_index ?? Infinity;
     return orderA - orderB;
   });
 
@@ -244,7 +244,7 @@ export function FocusBlock({ items, onToggle, onReorder }: FocusBlockProps) {
       try {
         await Promise.all(
           newOrder.map((item, index) =>
-            updateItem({ id: item.id, order_index: index } as any)
+            updateItem({ id: item.id, order_index: index })
           )
         );
         

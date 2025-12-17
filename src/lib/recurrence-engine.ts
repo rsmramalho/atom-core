@@ -75,7 +75,7 @@ export function presetToRRule(preset: RecurrencePreset, options?: {
     ...(options?.interval && { interval: options.interval }),
   };
 
-  const rule = new RRule(ruleOptions as any);
+  const rule = new RRule(ruleOptions);
   return rule.toString();
 }
 

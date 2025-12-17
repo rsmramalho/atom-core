@@ -7,6 +7,8 @@ import { useAtomItems } from "@/hooks/useAtomItems";
 import { useEngineLogger } from "@/hooks/useEngineLogger";
 import { parseInput } from "@/lib/parsing-engine";
 import { cn } from "@/lib/utils";
+import type { AtomItem, ParsedInput } from "@/types/atom-engine";
+import type { EngineLogEntry } from "@/types/database";
 
 interface EngineDebugConsoleProps {
   isOpen: boolean;
@@ -108,7 +110,7 @@ export function EngineDebugConsole({ isOpen, onClose }: EngineDebugConsoleProps)
 
 // State Tab Component
 function StateTab({ items, isLoading, refetch }: { 
-  items: any[]; 
+  items: AtomItem[]; 
   isLoading: boolean;
   refetch: () => void;
 }) {
@@ -146,7 +148,7 @@ function StateTab({ items, isLoading, refetch }: {
 
 // Logs Tab Component
 function LogsTab({ logs, onClear }: { 
-  logs: any[]; 
+  logs: EngineLogEntry[]; 
   onClear: () => void;
 }) {
   return (
@@ -200,7 +202,7 @@ function InputTestTab({
 }: {
   testInput: string;
   setTestInput: (value: string) => void;
-  parsedResult: any;
+  parsedResult: ParsedInput | null;
 }) {
   return (
     <div className="h-full grid grid-cols-2 divide-x divide-console-border">

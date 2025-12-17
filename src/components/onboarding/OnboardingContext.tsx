@@ -163,14 +163,13 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
   const trackEvent = async (eventType: string, eventData: Record<string, unknown> = {}) => {
     if (!userId) return;
 
-    // Type assertion needed until types are regenerated
-    const { error } = await (supabase
-      .from('onboarding_analytics' as any)
-      .insert({
+    const { error } = await supabase
+      .from('onboarding_analytics')
+      .insert([{
         user_id: userId,
         event_type: eventType,
-        event_data: eventData
-      } as any));
+        event_data: eventData as import("@/integrations/supabase/types").Json
+      }]);
 
     if (error) {
       console.error('Error tracking analytics:', error);
