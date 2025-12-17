@@ -27,7 +27,7 @@ import { PendingIndicator } from "@/components/pwa/PendingIndicator";
 import { PendingOperationsModal } from "@/components/pwa/PendingOperationsModal";
 import { NotificationSettings } from "@/components/notifications";
 const navItems = [
-  { title: "Home", url: "/", icon: Home },
+  { title: "Home", url: "/app", icon: Home },
   { title: "Projetos", url: "/projects", icon: FolderKanban },
   { title: "Inbox", url: "/inbox", icon: Inbox },
   { title: "Listas", url: "/lists", icon: ListChecks },

@@ -289,7 +289,7 @@ export default function Install() {
           className="mt-8 text-center"
         >
           <Button asChild variant="outline" className="gap-2">
-            <Link to="/">
+            <Link to="/app">
               <Home className="h-4 w-4" />
               Voltar ao App
             </Link>

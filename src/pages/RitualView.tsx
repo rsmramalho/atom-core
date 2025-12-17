@@ -65,7 +65,7 @@ export default function RitualView() {
   const Icon = periodIcons[config.icon];
 
   const handleClose = () => {
-    navigate("/");
+    navigate("/app");
   };
 
   const handleContinueToCheckin = () => {

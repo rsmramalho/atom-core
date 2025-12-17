@@ -82,8 +82,13 @@ function AnimatedRoutes() {
             </ImmersiveRoute>
           }
         />
+        
+        {/* Main App routes WITH AppLayout */}
+        <Route path="/app" element={<LayoutRoute><Index /></LayoutRoute>} />
+        
+        {/* Landing page as root */}
         <Route
-          path="/landing"
+          path="/"
           element={
             <ImmersiveRoute>
               <Suspense fallback={<PageLoader />}>
@@ -92,9 +97,6 @@ function AnimatedRoutes() {
             </ImmersiveRoute>
           }
         />
-        
-        {/* Main App routes WITH AppLayout */}
-        <Route path="/" element={<LayoutRoute><Index /></LayoutRoute>} />
         <Route
           path="/inbox"
           element={

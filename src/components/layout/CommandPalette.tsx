@@ -65,7 +65,7 @@ export function CommandPalette({ onNewItem }: CommandPaletteProps) {
         switch (e.key.toLowerCase()) {
           case "h":
             e.preventDefault();
-            navigate("/");
+            navigate("/app");
             break;
           case "i":
             e.preventDefault();
@@ -136,7 +136,7 @@ export function CommandPalette({ onNewItem }: CommandPaletteProps) {
 
         {/* Navigation */}
         <CommandGroup heading="Navegação">
-          <CommandItem onSelect={() => runCommand(() => navigate("/"))}>
+          <CommandItem onSelect={() => runCommand(() => navigate("/app"))}>
             <Home className="mr-2 h-4 w-4" />
             Ir para Home
             <CommandShortcut>⌘H</CommandShortcut>
