@@ -317,7 +317,9 @@ export default function Landing() {
       </section>
 
       {/* Atom Sovereignty Section */}
-      <section className="py-16 sm:py-24 px-4 sm:px-6 bg-gradient-to-b from-background to-card/30">
+      <section className="py-16 sm:py-24 px-4 sm:px-6 bg-background relative">
+        {/* Divider top */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
         <div className="max-w-4xl mx-auto text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -399,7 +401,9 @@ export default function Landing() {
       </section>
 
       {/* Agnostic System Section */}
-      <section className="py-16 sm:py-24 px-4 sm:px-6 bg-card/50">
+      <section className="py-16 sm:py-24 px-4 sm:px-6 bg-card/30 relative">
+        {/* Divider top */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
         <div className="max-w-5xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -706,8 +710,10 @@ export default function Landing() {
       </section>
 
       {/* Para Desenvolvedores Section */}
-      <section className="py-16 sm:py-24 px-4 sm:px-6 bg-gradient-to-b from-card/30 to-background">
-        <div className="max-w-5xl mx-auto">
+      <section className="py-16 sm:py-24 px-4 sm:px-6 bg-card/30 relative">
+        {/* Divider top */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+        <div className="max-w-4xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -727,7 +733,7 @@ export default function Landing() {
             </p>
           </motion.div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
             {/* Single Table Design */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -800,7 +806,9 @@ export default function Landing() {
       </section>
 
       {/* FAQ Section */}
-      <section id="faq" className="py-12 sm:py-20 px-4 sm:px-6 scroll-mt-16">
+      <section id="faq" className="py-12 sm:py-20 px-4 sm:px-6 bg-background scroll-mt-16 relative">
+        {/* Divider top */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
         <div className="max-w-3xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
