@@ -15,6 +15,7 @@ export default {
     extend: {
       fontFamily: {
         mono: ["JetBrains Mono", "Fira Code", "SF Mono", "Monaco", "Inconsolata", "Roboto Mono", "monospace"],
+        display: ["Outfit", "system-ui", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",

@@ -102,10 +102,10 @@ export default function Landing() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="text-4xl md:text-6xl font-bold text-foreground mb-6 leading-tight"
+            className="text-5xl md:text-7xl lg:text-8xl font-display font-extrabold text-foreground mb-6 leading-[0.9] tracking-tight"
           >
             Mindful{" "}
-            <span className="text-primary">control</span>
+            <span className="text-primary bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">control</span>
           </motion.h1>
           
           <motion.p 
