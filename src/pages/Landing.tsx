@@ -122,12 +122,12 @@ const FeatureCard = ({
   <motion.div 
     variants={fadeInUp}
     className={`
-      p-4 sm:p-6 rounded-xl border transition-all duration-500 ease-out group relative overflow-hidden
+      p-4 sm:p-6 rounded-xl border transition-all duration-500 ease-out group relative overflow-hidden shadow-lg shadow-black/20
       ${isZen 
-        ? 'bg-card/50 border-border/50 hover:bg-slate-50 hover:border-slate-200 hover:shadow-xl hover:shadow-slate-200/20' 
+        ? 'bg-card border-border/50 hover:bg-slate-50 hover:border-slate-200 hover:shadow-xl hover:shadow-slate-200/20' 
         : isExperience
-          ? 'bg-card/50 border-border/50 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/10'
-          : 'bg-card/50 border-border/50 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5'
+          ? 'bg-card border-border/50 hover:border-primary/40 hover:shadow-xl hover:shadow-primary/10'
+          : 'bg-card border-border/50 hover:border-primary/30 hover:shadow-xl hover:shadow-primary/5'
       }
     `}
   >
@@ -317,7 +317,7 @@ export default function Landing() {
       </section>
 
       {/* Atom Sovereignty Section */}
-      <section className="py-16 sm:py-24 px-4 sm:px-6 bg-card/30 relative">
+      <section className="py-16 sm:py-24 px-4 sm:px-6 bg-primary/5 relative">
         {/* Divider top */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
         <div className="max-w-4xl mx-auto text-center">
@@ -343,7 +343,7 @@ export default function Landing() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.1, duration: 0.5 }}
-              className="p-6 rounded-xl bg-card/50 border border-border/50 text-left"
+              className="p-6 rounded-xl bg-card border border-border/50 text-left shadow-lg shadow-black/20 hover:shadow-xl hover:border-primary/20 transition-all"
             >
               <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
                 <Moon className="w-5 h-5 text-primary" />
@@ -363,7 +363,7 @@ export default function Landing() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.2, duration: 0.5 }}
-              className="p-6 rounded-xl bg-card/50 border border-border/50 text-left"
+              className="p-6 rounded-xl bg-card border border-border/50 text-left shadow-lg shadow-black/20 hover:shadow-xl hover:border-primary/20 transition-all"
             >
               <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
                 <Layers className="w-5 h-5 text-primary" />
@@ -383,7 +383,7 @@ export default function Landing() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.3, duration: 0.5 }}
-              className="p-6 rounded-xl bg-card/50 border border-border/50 text-left"
+              className="p-6 rounded-xl bg-card border border-border/50 text-left shadow-lg shadow-black/20 hover:shadow-xl hover:border-primary/20 transition-all"
             >
               <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
                 <Code className="w-5 h-5 text-primary" />
@@ -533,7 +533,7 @@ export default function Landing() {
       </section>
 
       {/* Features Grid - Terminal Style */}
-      <section id="features" className="py-12 sm:py-20 px-4 sm:px-6 bg-card/30 scroll-mt-16">
+      <section id="features" className="py-12 sm:py-20 px-4 sm:px-6 bg-primary/5 scroll-mt-16">
         <div className="max-w-6xl mx-auto">
           <motion.div 
             initial={{ opacity: 0 }}
@@ -740,7 +740,7 @@ export default function Landing() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.1, duration: 0.5 }}
-              className="p-6 rounded-xl bg-card/50 border border-border/50 hover:border-primary/30 transition-all group"
+              className="p-6 rounded-xl bg-card border border-border/50 hover:border-primary/30 transition-all group shadow-lg shadow-black/20 hover:shadow-xl"
             >
               <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
                 <Table2 className="w-6 h-6 text-primary" />
@@ -757,7 +757,7 @@ export default function Landing() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.2, duration: 0.5 }}
-              className="p-6 rounded-xl bg-card/50 border border-border/50 hover:border-primary/30 transition-all group"
+              className="p-6 rounded-xl bg-card border border-border/50 hover:border-primary/30 transition-all group shadow-lg shadow-black/20 hover:shadow-xl"
             >
               <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
                 <GitFork className="w-6 h-6 text-primary" />
@@ -774,7 +774,7 @@ export default function Landing() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.3, duration: 0.5 }}
-              className="p-6 rounded-xl bg-card/50 border border-border/50 hover:border-primary/30 transition-all group"
+              className="p-6 rounded-xl bg-card border border-border/50 hover:border-primary/30 transition-all group shadow-lg shadow-black/20 hover:shadow-xl"
             >
               <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
                 <Layers className="w-6 h-6 text-primary" />
@@ -791,7 +791,7 @@ export default function Landing() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.4, duration: 0.5 }}
-              className="p-6 rounded-xl bg-card/50 border border-border/50 hover:border-primary/30 transition-all group"
+              className="p-6 rounded-xl bg-card border border-border/50 hover:border-primary/30 transition-all group shadow-lg shadow-black/20 hover:shadow-xl"
             >
               <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
                 <Heart className="w-6 h-6 text-primary" />
@@ -806,7 +806,7 @@ export default function Landing() {
       </section>
 
       {/* FAQ Section */}
-      <section id="faq" className="py-12 sm:py-20 px-4 sm:px-6 bg-card/30 scroll-mt-16 relative">
+      <section id="faq" className="py-12 sm:py-20 px-4 sm:px-6 bg-primary/5 scroll-mt-16 relative">
         {/* Divider top */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
         <div className="max-w-3xl mx-auto">
