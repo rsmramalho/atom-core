@@ -85,21 +85,71 @@ const AnimatedTagline = () => {
 const FeatureCard = ({ 
   icon: Icon, 
   title, 
-  description 
+  description,
+  isZen = false
 }: { 
   icon: React.ElementType; 
   title: string; 
   description: string;
+  isZen?: boolean;
 }) => (
   <motion.div 
     variants={fadeInUp}
-    className="p-6 rounded-xl bg-card/50 border border-border/50 hover:border-primary/30 transition-all duration-300 hover:shadow-lg hover:shadow-primary/5"
+    className={`
+      p-6 rounded-xl border transition-all duration-500 ease-out group relative overflow-hidden
+      ${isZen 
+        ? 'bg-card/50 border-border/50 hover:bg-slate-50 hover:border-slate-200 hover:shadow-xl hover:shadow-slate-200/20' 
+        : 'bg-card/50 border-border/50 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5'
+      }
+    `}
   >
-    <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
-      <Icon className="w-6 h-6 text-primary" />
+    {/* Zen glow effect on hover */}
+    {isZen && (
+      <div className="absolute inset-0 bg-gradient-to-br from-amber-50/0 via-rose-50/0 to-violet-50/0 group-hover:from-amber-50/80 group-hover:via-rose-50/60 group-hover:to-violet-50/80 transition-all duration-500 -z-10" />
+    )}
+    
+    <div className={`
+      w-12 h-12 rounded-lg flex items-center justify-center mb-4 transition-all duration-500
+      ${isZen 
+        ? 'bg-primary/10 group-hover:bg-gradient-to-br group-hover:from-amber-100 group-hover:to-rose-100' 
+        : 'bg-primary/10'
+      }
+    `}>
+      <Icon className={`
+        w-6 h-6 transition-colors duration-500
+        ${isZen 
+          ? 'text-primary group-hover:text-amber-600' 
+          : 'text-primary'
+        }
+      `} />
     </div>
-    <h3 className="text-lg font-semibold text-foreground mb-2">{title}</h3>
-    <p className="text-muted-foreground text-sm leading-relaxed">{description}</p>
+    
+    <h3 className={`
+      text-lg font-semibold mb-2 transition-colors duration-500
+      ${isZen 
+        ? 'text-foreground group-hover:text-slate-800' 
+        : 'text-foreground'
+      }
+    `}>
+      {title}
+    </h3>
+    
+    <p className={`
+      text-sm leading-relaxed transition-colors duration-500
+      ${isZen 
+        ? 'text-muted-foreground group-hover:text-slate-600' 
+        : 'text-muted-foreground'
+      }
+    `}>
+      {description}
+    </p>
+    
+    {/* Zen symbol hint */}
+    {isZen && (
+      <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+        <span className="text-amber-400 text-lg">✧</span>
+      </div>
+    )}
   </motion.div>
 );
 
@@ -228,11 +278,13 @@ export default function Landing() {
               icon={Sunrise}
               title="Rituais Diários"
               description="Manhã, tarde e noite: organize hábitos em rituais. Experiência imersiva para foco total."
+              isZen
             />
             <FeatureCard 
               icon={Repeat}
               title="Recorrência Flexível"
               description="Padrões complexos de repetição. Streaks e heatmaps mostram consistência ao longo do tempo."
+              isZen
             />
             <FeatureCard 
               icon={Wifi}
