@@ -7,6 +7,17 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -156,14 +167,29 @@ export function PendingOperationsModal({ open, onOpenChange }: PendingOperations
 
         {operations.length > 0 && (
           <DialogFooter>
-            <Button
-              variant="destructive"
-              size="sm"
-              onClick={handleCancelAll}
-            >
-              <Trash2 className="h-4 w-4 mr-2" />
-              Cancelar Todas
-            </Button>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="destructive" size="sm">
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Cancelar Todas
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Cancelar todas as operações?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Esta ação irá remover {operations.length} operação{operations.length > 1 ? 's' : ''} pendente{operations.length > 1 ? 's' : ''}. 
+                    Esta ação não pode ser desfeita.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Voltar</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleCancelAll}>
+                    Confirmar
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </DialogFooter>
         )}
       </DialogContent>
