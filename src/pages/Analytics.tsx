@@ -8,11 +8,15 @@ import {
   Flame, 
   Calendar,
   TrendingUp,
+  TrendingDown,
   ListTodo,
   Repeat,
-  BookOpen
+  BookOpen,
+  ArrowUp,
+  ArrowDown,
+  Minus
 } from "lucide-react";
-import { format, subDays, parseISO, startOfDay, isBefore, isEqual } from "date-fns";
+import { format, subDays, parseISO, startOfDay, isBefore, isEqual, startOfWeek, endOfWeek, isWithinInterval } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { 
   ChartContainer, 
@@ -32,6 +36,33 @@ import {
   Cell
 } from "recharts";
 import { calculateStreak, getLongestStreak } from "@/lib/recurrence-engine";
+
+// Helper component for comparison badges
+function ComparisonBadge({ current, previous }: { current: number; previous: number }) {
+  const diff = current - previous;
+  const percentage = previous > 0 ? Math.round((diff / previous) * 100) : (current > 0 ? 100 : 0);
+  
+  if (diff > 0) {
+    return (
+      <span className="inline-flex items-center gap-0.5 text-xs font-medium text-green-500">
+        <ArrowUp className="h-3 w-3" />
+        {percentage}%
+      </span>
+    );
+  } else if (diff < 0) {
+    return (
+      <span className="inline-flex items-center gap-0.5 text-xs font-medium text-red-500">
+        <ArrowDown className="h-3 w-3" />
+        {Math.abs(percentage)}%
+      </span>
+    );
+  }
+  return (
+    <span className="inline-flex items-center gap-0.5 text-xs font-medium text-muted-foreground">
+      <Minus className="h-3 w-3" />
+    </span>
+  );
+}
 
 export default function Analytics() {
   const { items } = useAtomItems();
@@ -120,6 +151,46 @@ export default function Analytics() {
       return dataPoint;
     });
 
+    // Weekly comparison (this week vs last week)
+    const today = new Date();
+    const thisWeekStart = startOfWeek(today, { weekStartsOn: 1 });
+    const thisWeekEnd = endOfWeek(today, { weekStartsOn: 1 });
+    const lastWeekStart = subDays(thisWeekStart, 7);
+    const lastWeekEnd = subDays(thisWeekStart, 1);
+
+    const isInThisWeek = (dateStr: string | null) => {
+      if (!dateStr) return false;
+      const date = parseISO(dateStr);
+      return isWithinInterval(date, { start: thisWeekStart, end: thisWeekEnd });
+    };
+
+    const isInLastWeek = (dateStr: string | null) => {
+      if (!dateStr) return false;
+      const date = parseISO(dateStr);
+      return isWithinInterval(date, { start: lastWeekStart, end: lastWeekEnd });
+    };
+
+    const weeklyComparison = {
+      tasks: {
+        thisWeek: completedTasks.filter(t => isInThisWeek(t.completed_at)).length,
+        lastWeek: completedTasks.filter(t => isInLastWeek(t.completed_at)).length
+      },
+      habits: {
+        thisWeek: habits.reduce((sum, h) => {
+          const log = Array.isArray(h.completion_log) ? h.completion_log as string[] : [];
+          return sum + log.filter(d => isInThisWeek(d)).length;
+        }, 0),
+        lastWeek: habits.reduce((sum, h) => {
+          const log = Array.isArray(h.completion_log) ? h.completion_log as string[] : [];
+          return sum + log.filter(d => isInLastWeek(d)).length;
+        }, 0)
+      },
+      reflections: {
+        thisWeek: reflections.filter(r => isInThisWeek(r.created_at)).length,
+        lastWeek: reflections.filter(r => isInLastWeek(r.created_at)).length
+      }
+    };
+
     // Items by module
     const moduleStats = items.reduce((acc, item) => {
       const module = item.module || "geral";
@@ -158,6 +229,7 @@ export default function Analytics() {
       reflections: reflections.length,
       last7Days,
       streakEvolution,
+      weeklyComparison,
       moduleData,
       completionRate
     };
@@ -238,6 +310,64 @@ export default function Analytics() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Weekly Comparison */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base flex items-center gap-2">
+            <TrendingUp className="h-4 w-4" />
+            Comparativo Semanal
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-3 gap-4">
+            {/* Tasks */}
+            <div className="text-center p-4 rounded-lg bg-muted/50">
+              <p className="text-xs text-muted-foreground mb-1">Tarefas</p>
+              <div className="flex items-center justify-center gap-2">
+                <span className="text-2xl font-bold">{stats.weeklyComparison.tasks.thisWeek}</span>
+                <ComparisonBadge 
+                  current={stats.weeklyComparison.tasks.thisWeek} 
+                  previous={stats.weeklyComparison.tasks.lastWeek} 
+                />
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                vs {stats.weeklyComparison.tasks.lastWeek} semana passada
+              </p>
+            </div>
+
+            {/* Habits */}
+            <div className="text-center p-4 rounded-lg bg-muted/50">
+              <p className="text-xs text-muted-foreground mb-1">Hábitos</p>
+              <div className="flex items-center justify-center gap-2">
+                <span className="text-2xl font-bold">{stats.weeklyComparison.habits.thisWeek}</span>
+                <ComparisonBadge 
+                  current={stats.weeklyComparison.habits.thisWeek} 
+                  previous={stats.weeklyComparison.habits.lastWeek} 
+                />
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                vs {stats.weeklyComparison.habits.lastWeek} semana passada
+              </p>
+            </div>
+
+            {/* Reflections */}
+            <div className="text-center p-4 rounded-lg bg-muted/50">
+              <p className="text-xs text-muted-foreground mb-1">Reflexões</p>
+              <div className="flex items-center justify-center gap-2">
+                <span className="text-2xl font-bold">{stats.weeklyComparison.reflections.thisWeek}</span>
+                <ComparisonBadge 
+                  current={stats.weeklyComparison.reflections.thisWeek} 
+                  previous={stats.weeklyComparison.reflections.lastWeek} 
+                />
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                vs {stats.weeklyComparison.reflections.lastWeek} semana passada
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Charts Row */}
       <div className="grid md:grid-cols-2 gap-6">
