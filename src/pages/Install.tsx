@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { 
   Smartphone, 
@@ -18,6 +18,21 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Link } from "react-router-dom";
 
 type Platform = "ios" | "android" | "desktop";
+
+function detectPlatform(): Platform {
+  const ua = navigator.userAgent.toLowerCase();
+  
+  if (/iphone|ipad|ipod/.test(ua)) {
+    return "ios";
+  }
+  
+  if (/android/.test(ua)) {
+    return "android";
+  }
+  
+  return "desktop";
+}
+
 
 interface Step {
   icon: React.ReactNode;
@@ -118,7 +133,7 @@ function PlatformIcon({ platform }: { platform: Platform }) {
 }
 
 export default function Install() {
-  const [platform, setPlatform] = useState<Platform>("ios");
+  const [platform, setPlatform] = useState<Platform>(detectPlatform);
 
   const steps = {
     ios: iosSteps,
