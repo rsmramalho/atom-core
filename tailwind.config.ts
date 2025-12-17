@@ -140,6 +140,41 @@ export default {
             transform: "translateX(0)",
           },
         },
+        // Micro-animations
+        "btn-press": {
+          "0%, 100%": {
+            transform: "scale(1)",
+          },
+          "50%": {
+            transform: "scale(0.97)",
+          },
+        },
+        "card-lift": {
+          from: {
+            transform: "translateY(0) scale(1)",
+            boxShadow: "0 1px 3px 0 rgb(0 0 0 / 0.1)",
+          },
+          to: {
+            transform: "translateY(-2px) scale(1.01)",
+            boxShadow: "0 10px 25px -5px rgb(0 0 0 / 0.1)",
+          },
+        },
+        "pulse-soft": {
+          "0%, 100%": {
+            opacity: "1",
+          },
+          "50%": {
+            opacity: "0.8",
+          },
+        },
+        "shimmer": {
+          from: {
+            backgroundPosition: "-200% 0",
+          },
+          to: {
+            backgroundPosition: "200% 0",
+          },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -147,6 +182,11 @@ export default {
         "slide-out-left": "slide-out-left 0.2s ease-out forwards",
         "slide-out-right": "slide-out-right 0.2s ease-out forwards",
         "slide-in": "slide-in 0.2s ease-out",
+        // Micro-animations
+        "btn-press": "btn-press 0.15s ease-out",
+        "card-lift": "card-lift 0.2s ease-out forwards",
+        "pulse-soft": "pulse-soft 2s ease-in-out infinite",
+        "shimmer": "shimmer 2s linear infinite",
       },
     },
   },

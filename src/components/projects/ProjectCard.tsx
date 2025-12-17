@@ -139,7 +139,7 @@ export const ProjectCard = memo(function ProjectCard({ project }: ProjectCardPro
     <>
       <Card 
         className={cn(
-          "cursor-pointer hover:border-primary/50 transition-all group",
+          "cursor-pointer card-interactive group",
           isPaused && "opacity-60 border-amber-500/30 bg-amber-500/5",
           status === "archived" && "opacity-50 border-slate-500/30 bg-slate-500/5",
           status === "completed" && "border-blue-500/30 bg-blue-500/5"
