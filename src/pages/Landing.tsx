@@ -662,25 +662,66 @@ export default function Landing() {
               className="bg-card/50 rounded-2xl border border-border/50 p-4 sm:p-6"
             >
               <div className="font-mono text-xs sm:text-sm space-y-2">
-                <div className="text-muted-foreground">
+                <motion.div 
+                  initial={{ opacity: 0 }}
+                  whileInView={{ opacity: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: 0.3 }}
+                  className="text-muted-foreground"
+                >
                   <span className="text-primary">$</span> mindmate --status
-                </div>
-                <div className="text-muted-foreground/70 pl-4">
-                  ✓ Inbox: 0 items pendentes
-                </div>
-                <div className="text-muted-foreground/70 pl-4">
-                  ✓ Ritual: Aurora completo
-                </div>
-                <div className="text-muted-foreground/70 pl-4">
-                  ✓ Streak: 12 dias consecutivos
-                </div>
-                <div className="text-muted-foreground/70 pl-4">
-                  ✓ Foco: 3 tasks prioritárias
-                </div>
-                <div className="mt-4 text-primary">
+                </motion.div>
+                <motion.div 
+                  initial={{ opacity: 0, x: -10 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: 0.6 }}
+                  className="text-muted-foreground/70 pl-4"
+                >
+                  <span className="text-green-500">✓</span> Inbox: 0 items pendentes
+                </motion.div>
+                <motion.div 
+                  initial={{ opacity: 0, x: -10 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: 0.8 }}
+                  className="text-muted-foreground/70 pl-4"
+                >
+                  <span className="text-green-500">✓</span> Ritual: Aurora completo
+                </motion.div>
+                <motion.div 
+                  initial={{ opacity: 0, x: -10 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: 1.0 }}
+                  className="text-muted-foreground/70 pl-4"
+                >
+                  <span className="text-green-500">✓</span> Streak: 12 dias consecutivos
+                </motion.div>
+                <motion.div 
+                  initial={{ opacity: 0, x: -10 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: 1.2 }}
+                  className="text-muted-foreground/70 pl-4"
+                >
+                  <span className="text-green-500">✓</span> Foco: 3 tasks prioritárias
+                </motion.div>
+                <motion.div 
+                  initial={{ opacity: 0 }}
+                  whileInView={{ opacity: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: 1.5 }}
+                  className="mt-4 text-primary"
+                >
                   <span className="text-muted-foreground">$</span> _
-                  <span className="animate-pulse">▌</span>
-                </div>
+                  <motion.span 
+                    animate={{ opacity: [1, 0, 1] }}
+                    transition={{ duration: 1, repeat: Infinity }}
+                  >
+                    ▌
+                  </motion.span>
+                </motion.div>
               </div>
             </motion.div>
           </div>
