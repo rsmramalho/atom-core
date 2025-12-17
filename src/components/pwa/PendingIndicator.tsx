@@ -1,13 +1,38 @@
+import { useState, useEffect } from "react";
 import { CloudOff, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useOfflineSyncContext } from "./OfflineSyncContext";
+import { getQueuedOperations } from "@/lib/offline-queue";
 
 interface PendingIndicatorProps {
   onClick?: () => void;
 }
 
+const STALE_THRESHOLD_MS = 30000; // 30 seconds
+
 export function PendingIndicator({ onClick }: PendingIndicatorProps) {
   const { isOnline, pendingCount, isSyncing } = useOfflineSyncContext();
+  const [hasStaleOperations, setHasStaleOperations] = useState(false);
+
+  // Check for stale operations periodically
+  useEffect(() => {
+    if (pendingCount === 0) {
+      setHasStaleOperations(false);
+      return;
+    }
+
+    const checkStale = async () => {
+      const operations = await getQueuedOperations();
+      const now = Date.now();
+      const hasStale = operations.some(op => now - op.timestamp > STALE_THRESHOLD_MS);
+      setHasStaleOperations(hasStale);
+    };
+
+    checkStale();
+    const interval = setInterval(checkStale, 5000); // Check every 5s
+
+    return () => clearInterval(interval);
+  }, [pendingCount]);
 
   if (pendingCount === 0 && isOnline) return null;
 
@@ -23,7 +48,8 @@ export function PendingIndicator({ onClick }: PendingIndicatorProps) {
           ? "bg-destructive/90 text-destructive-foreground border-destructive"
           : isSyncing
           ? "bg-primary/90 text-primary-foreground border-primary"
-          : "bg-amber-500/90 text-white border-amber-600"
+          : "bg-amber-500/90 text-white border-amber-600",
+        hasStaleOperations && !isSyncing && "animate-pulse"
       )}
     >
       {isSyncing ? (
