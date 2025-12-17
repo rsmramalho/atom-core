@@ -14,6 +14,7 @@ export default function Journal() {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [timePeriod, setTimePeriod] = useState<TimePeriod>("all");
   const [reflections, setReflections] = useState<AtomItem[]>([]);
+  const [filteredReflections, setFilteredReflections] = useState<AtomItem[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const searchInputRef = useRef<HTMLInputElement>(null);
 
@@ -21,13 +22,21 @@ export default function Journal() {
     setReflections(items);
   }, []);
 
+  const handleFilteredReflectionsChange = useCallback((items: AtomItem[]) => {
+    setFilteredReflections(items);
+  }, []);
+
+  const hasFilters = selectedTags.length > 0 || timePeriod !== "all" || searchQuery.trim() !== "";
+
   const handleExport = () => {
-    if (reflections.length === 0) {
+    const toExport = hasFilters ? filteredReflections : reflections;
+    if (toExport.length === 0) {
       toast.error("Nenhuma reflexão para exportar");
       return;
     }
-    exportJournalAsMarkdown(reflections);
-    toast.success(`${reflections.length} reflexão(ões) exportada(s)`);
+    exportJournalAsMarkdown(toExport);
+    const suffix = hasFilters ? " (filtradas)" : "";
+    toast.success(`${toExport.length} reflexão(ões) exportada(s)${suffix}`);
   };
 
   // Keyboard shortcut: "/" to focus search
@@ -70,7 +79,10 @@ export default function Journal() {
             className="gap-2"
           >
             <Download className="h-4 w-4" />
-            Exportar Markdown
+            {hasFilters 
+              ? `Exportar ${filteredReflections.length} filtrada${filteredReflections.length !== 1 ? 's' : ''}`
+              : "Exportar Todas"
+            }
           </Button>
         )}
       </header>
@@ -137,6 +149,7 @@ export default function Journal() {
             timePeriod={timePeriod}
             searchQuery={searchQuery}
             onReflectionsChange={handleReflectionsChange}
+            onFilteredReflectionsChange={handleFilteredReflectionsChange}
           />
         </section>
       </main>
