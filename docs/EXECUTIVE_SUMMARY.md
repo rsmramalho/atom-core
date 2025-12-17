@@ -1,7 +1,7 @@
 # MindMate - Atom Engine 4.0
 ## Resumo Executivo
 
-**Versão:** 4.0.0-alpha.19 | **Status:** Production Ready | **Data:** 2025-12-17
+**Versão:** 4.0.0-alpha.20 | **Status:** Production Ready | **Data:** 2025-12-17
 
 ---
 
@@ -45,6 +45,7 @@ type ProjectStatus = 'draft' | 'active' | 'paused' | 'completed' | 'archived';
 
 ### Features Principais
 
+- **Landing Page:** Marketing com posicionamento "Mindful control"
 - **PWA Completo:** Instalável, offline-first, splash screens
 - **Offline Sync:** IndexedDB queue + auto-sync ao reconectar
 - **Notificações:** Web Notifications API para lembretes
@@ -64,7 +65,8 @@ type ProjectStatus = 'draft' | 'active' | 'paused' | 'completed' | 'archived';
 
 | Rota | Descrição |
 |------|-----------|
-| `/` | Dashboard (Focus/Today/Ritual) |
+| `/` | Landing Page (marketing) |
+| `/app` | Dashboard operacional (Focus/Today/Ritual) |
 | `/inbox` | Captura de itens |
 | `/projects` | Lista de projetos |
 | `/projects/:id` | Project Sheet (4 abas) |
@@ -73,6 +75,8 @@ type ProjectStatus = 'draft' | 'active' | 'paused' | 'completed' | 'archived';
 | `/journal` | Reflexões com prompts |
 | `/lists` | Listas rápidas |
 | `/analytics` | Métricas de produtividade |
+| `/install` | Guia de instalação PWA |
+| `/privacy` | Política de privacidade |
 
 ### Arquivos Essenciais
 

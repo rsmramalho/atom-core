@@ -8,7 +8,7 @@
 [![Pull Requests](https://img.shields.io/github/issues-pr/YOUR_USERNAME/YOUR_REPO?style=flat-square)](https://github.com/YOUR_USERNAME/YOUR_REPO/pulls)
 [![Contributors](https://img.shields.io/github/contributors/YOUR_USERNAME/YOUR_REPO?style=flat-square)](https://github.com/YOUR_USERNAME/YOUR_REPO/graphs/contributors)
 
-![Version](https://img.shields.io/badge/version-4.0.0--alpha.19-blue?style=for-the-badge)
+![Version](https://img.shields.io/badge/version-4.0.0--alpha.20-blue?style=for-the-badge)
 ![Status](https://img.shields.io/badge/status-production-green?style=for-the-badge)
 ![License](https://img.shields.io/badge/license-MIT-green?style=for-the-badge)
 ![React](https://img.shields.io/badge/React-18.3-61DAFB?style=for-the-badge&logo=react)
@@ -23,7 +23,7 @@
 
 ---
 
-## 🚀 v4.0.0-alpha.19 - Fase 6: Performance & UX
+## 🚀 v4.0.0-alpha.20 - Landing Page & Marketing
 
 > **✅ PRODUCTION READY:** Sistema completo com PWA, offline sync, notificações,  
 > analytics dashboard, e polimento de UX. Zero Any Policy enforced.
@@ -301,9 +301,9 @@ Contribuições são bem-vindas! Por favor, leia nosso [Guia de Contribuição](
 
 ## 📝 Versão Atual
 
-**v4.0.0-alpha.19** - 2025-12-17 🎨 **Fase 6: Performance & UX**
+**v4.0.0-alpha.20** - 2025-12-17 🚀 **Landing Page & Marketing**
 
-> ErrorBoundary, Suspense, Skeletons, React.memo, AnimatePresence, micro-animations. Veja [CHANGELOG.md](docs/CHANGELOG.md) para detalhes.
+> Landing page de marketing com posicionamento estratégico. Veja [CHANGELOG.md](docs/CHANGELOG.md) para detalhes.
 
 ---
 
