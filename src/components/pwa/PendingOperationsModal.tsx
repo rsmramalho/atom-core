@@ -30,9 +30,10 @@ import { toast } from "sonner";
 interface PendingOperationsModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onOperationsChanged?: () => void;
 }
 
-export function PendingOperationsModal({ open, onOpenChange }: PendingOperationsModalProps) {
+export function PendingOperationsModal({ open, onOpenChange, onOperationsChanged }: PendingOperationsModalProps) {
   const [operations, setOperations] = useState<QueuedOperation[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -56,6 +57,7 @@ export function PendingOperationsModal({ open, onOpenChange }: PendingOperations
     try {
       await removeFromQueue(id);
       setOperations(prev => prev.filter(op => op.id !== id));
+      onOperationsChanged?.();
       toast.success("Operação cancelada");
     } catch {
       toast.error("Erro ao cancelar operação");
@@ -66,6 +68,7 @@ export function PendingOperationsModal({ open, onOpenChange }: PendingOperations
     try {
       await clearQueue();
       setOperations([]);
+      onOperationsChanged?.();
       toast.success("Todas as operações canceladas");
     } catch {
       toast.error("Erro ao cancelar operações");
