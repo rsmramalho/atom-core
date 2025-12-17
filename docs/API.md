@@ -287,7 +287,63 @@ import { TodayList } from "@/components/dashboard/TodayList";
 | `/projects` | Projects.tsx | ✅ | ✅ | Lista de projetos |
 | `/projects/:id` | ProjectDetail.tsx | ✅ | ✅ | Project Sheet |
 | `/ritual` | RitualView.tsx | ✅ | ❌ | Ritual imersivo |
-| `/journal` | Journal.tsx | ✅ | ✅ | Reflexões ⭐ NOVO |
+| `/journal` | Journal.tsx | ✅ | ✅ | Reflexões |
+| `/calendar` | Calendar.tsx | ✅ | ✅ | Calendário mensal/semanal |
+| `/lists` | Lists.tsx | ✅ | ✅ | Listas rápidas |
+| `/analytics` | Analytics.tsx | ✅ | ✅ | Métricas de produtividade |
+| `/install` | Install.tsx | ❌ | ❌ | Guia de instalação PWA |
+| `/privacy` | Privacy.tsx | ❌ | ❌ | Política de privacidade |
+
+---
+
+## Hooks Adicionais
+
+### useNetworkStatus
+
+Detecta estado de conexão online/offline.
+
+```typescript
+const { isOnline, wasOffline } = useNetworkStatus();
+```
+
+### useOfflineSync
+
+Gerencia sincronização offline com fila de operações.
+
+```typescript
+const { 
+  pendingOperations, 
+  syncNow, 
+  clearPending,
+  isOnline 
+} = useOfflineSync();
+```
+
+### useNotifications
+
+Sistema de notificações via Web Notifications API.
+
+```typescript
+const {
+  permission,
+  requestPermission,
+  sendNotification,
+  settings,
+  updateSettings
+} = useNotifications();
+```
+
+### useSwipe
+
+Hook para gestos de swipe em mobile.
+
+```typescript
+const { handlers, swipeState } = useSwipe({
+  onSwipeLeft: () => nextMonth(),
+  onSwipeRight: () => prevMonth(),
+  enableHaptics: true
+});
+```
 
 ---
 
