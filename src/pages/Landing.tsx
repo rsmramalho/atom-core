@@ -104,10 +104,8 @@ export default function Landing() {
             transition={{ delay: 0.1 }}
             className="text-4xl md:text-6xl font-bold text-foreground mb-6 leading-tight"
           >
-            Sua mente,{" "}
-            <span className="text-primary">organizada</span>
-            <br />
-            e em paz.
+            Mindful{" "}
+            <span className="text-primary">control</span>
           </motion.h1>
           
           <motion.p 
