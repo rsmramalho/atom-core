@@ -257,7 +257,7 @@ export default function Landing() {
           >
             <span className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs sm:text-sm mb-6 sm:mb-8">
               <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-              Atom Engine v4.0
+              100% Gratuito & Open Source
             </span>
           </motion.div>
           
@@ -511,8 +511,10 @@ export default function Landing() {
                   O MindMate é gratuito?
                 </AccordionTrigger>
                 <AccordionContent className="text-muted-foreground text-sm">
-                  Sim! O MindMate é completamente gratuito para uso pessoal. Todas as funcionalidades 
-                  estão disponíveis sem limitações, incluindo projetos ilimitados, hábitos, rituais e journal.
+                  <strong className="text-foreground">Sim, 100% gratuito e sempre será!</strong> O MindMate é também 
+                  open source — você pode ver, modificar e contribuir com o código. Todas as funcionalidades 
+                  estão disponíveis sem limitações: projetos ilimitados, hábitos, rituais, journal, offline e mais.
+                  Acreditamos que ferramentas de produtividade e bem-estar devem ser acessíveis a todos.
                 </AccordionContent>
               </AccordionItem>
 
@@ -584,7 +586,7 @@ export default function Landing() {
             Pronto para organizar sua mente?
           </h2>
           <p className="text-sm sm:text-base text-muted-foreground mb-6 sm:mb-8 px-2">
-            Comece gratuitamente. Sem cartão de crédito.
+            Gratuito para sempre. Open source. Sem pegadinhas.
           </p>
           
           <Link to="/">
