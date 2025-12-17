@@ -1,7 +1,7 @@
 # MindMate - Atom Engine 4.0
 # Documentação Completa Consolidada
 
-**Versão:** 4.0.0-alpha.15  
+**Versão:** 4.0.0-alpha.16  
 **Data:** 2025-12-17  
 **Status:** 🚀 **MILESTONE RELEASE** - Fork Point para Desenvolvimento de Produção
 
@@ -85,11 +85,18 @@ Na tela de login, clique em **"Não tem conta? Cadastre-se"**
 ├── Filtros por tag e período
 └── Timeline visual de reflexões
 
-📋 Listas (/lists) ⭐ NOVO
+📋 Listas (/lists)
 ├── Grid de cards estilo Keep
 ├── Cores personalizadas (18 opções)
 ├── Drag & Drop para reordenar
 └── Ações: duplicar, limpar, excluir
+
+📊 Estatísticas (/analytics) ⭐ NOVO
+├── Cards de resumo (tarefas, streaks, projetos)
+├── Comparativo semanal (vs semana anterior)
+├── Gráfico de atividade semanal
+├── Evolução de streaks (30 dias)
+└── Distribuição por módulo
 ```
 
 ---
@@ -131,10 +138,21 @@ Sistema de journaling com design zen:
 - **Filtros** por tags e período de tempo
 - **Timeline Visual** conectando reflexões
 - **Atalho /** para focar na busca
-- **Exportação Multi-formato** ⭐ NOVO
+- **Exportação Multi-formato** 
   - Markdown (.md) - Texto formatado
   - JSON (.json) - Dados estruturados
   - PDF (via impressão) - Documento formatado
+
+## 📊 Analytics Dashboard ⭐ NOVO
+
+Estatísticas e métricas de produtividade:
+
+- **Cards de Resumo:** Tarefas concluídas, maior streak, projetos ativos, reflexões
+- **Comparativo Semanal:** Esta semana vs semana anterior com indicadores de variação
+- **Atividade Semanal:** Gráfico de barras com tarefas concluídas por dia
+- **Evolução de Streaks:** Gráfico de linha dos 3 hábitos mais ativos (30 dias)
+- **Distribuição por Módulo:** Gráfico pizza de itens por categoria
+- **Taxa de Conclusão:** Progresso geral de tarefas
 
 ## 📅 Calendar Engine
 
@@ -964,6 +982,22 @@ Use `Ctrl+Shift+E` para:
 
 # CHANGELOG
 
+## [4.0.0-alpha.16] - 2025-12-17
+
+### Adicionado
+
+#### Analytics Dashboard
+- **Página de Estatísticas:** Nova rota `/analytics` com visão geral de produtividade
+- **Cards de Resumo:** Tarefas concluídas, maior streak ativo, projetos ativos, reflexões
+- **Comparativo Semanal:** Esta semana vs semana anterior com indicadores de variação (↑ ↓)
+- **Gráfico de Atividade:** Barras com tarefas concluídas nos últimos 7 dias
+- **Evolução de Streaks:** Gráfico de linha mostrando progressão dos 3 hábitos mais ativos (30 dias)
+- **Distribuição por Módulo:** Gráfico pizza de itens por categoria (Work, Body, Mind, Family)
+- **Taxa de Conclusão:** Progress bar com percentual de tarefas concluídas
+- **Navegação:** Link "Estatísticas" adicionado ao menu lateral
+
+---
+
 ## [4.0.0-alpha.15] - 2025-12-17
 
 ### Adicionado
@@ -1144,10 +1178,12 @@ Use `Ctrl+Shift+E` para:
 - [x] **Habit Streaks + Heatmap**
 - [x] **PWA + Offline Sync**
 - [x] **Exportação Journal Multi-formato**
-- [x] **Notificações e Lembretes** ⭐ NOVO
+- [x] **Notificações e Lembretes**
+- [x] **Analytics Dashboard** ⭐ NOVO
 
 ## 🔲 Próximas Etapas
-- [ ] Estatísticas e analytics
+- [ ] Metas diárias de produtividade
+- [ ] Gamificação avançada
 
 ---
 
