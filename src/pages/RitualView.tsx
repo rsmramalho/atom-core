@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Sunrise, Sun, Sunset, Check, X, ArrowRight, Feather } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -187,130 +188,203 @@ export default function RitualView() {
       </div>
 
       {/* Step Content */}
-      <main className="flex-1 px-6 py-8 max-w-lg mx-auto w-full">
-        {step === "habits" && (
-          <>
-            {isLoading ? (
-              <div className="text-center opacity-60">Carregando hábitos...</div>
-            ) : habits.length === 0 ? (
-              <div className="text-center py-8 animate-in fade-in duration-500">
-                <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-white/30 flex items-center justify-center">
-                  <Feather className="h-10 w-10 opacity-70" />
-                </div>
-                <h3 className="text-xl font-medium mb-2">Seu ritual está vazio</h3>
-                <p className="opacity-70 mb-6 max-w-xs mx-auto">
-                  Adicione hábitos para construir uma rotina {config.label.toLowerCase()} que transforma seu dia.
-                </p>
-                <Button
-                  onClick={() => navigate("/inbox")}
-                  variant="outline"
-                  className="bg-white/20 hover:bg-white/30 border-current/30 text-current gap-2"
-                >
-                  <ArrowRight className="h-4 w-4" />
-                  Criar primeiro hábito
-                </Button>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {habits.map((habit) => (
-                  <Card
-                    key={habit.id}
-                    onClick={() => toggleHabit(habit.id)}
-                    className={cn(
-                      "p-6 cursor-pointer border-2 transition-all duration-300",
-                      styles.card,
-                      habit.completed && "opacity-50"
-                    )}
+      <main className="flex-1 px-6 py-8 max-w-lg mx-auto w-full overflow-hidden">
+        <AnimatePresence mode="wait">
+          {step === "habits" && (
+            <motion.div
+              key="habits"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -40 }}
+              transition={{ duration: 0.3, ease: "easeOut" }}
+            >
+              {isLoading ? (
+                <div className="text-center opacity-60">Carregando hábitos...</div>
+              ) : habits.length === 0 ? (
+                <div className="text-center py-8">
+                  <motion.div 
+                    initial={{ scale: 0.8, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ delay: 0.1, duration: 0.4 }}
+                    className="w-20 h-20 mx-auto mb-6 rounded-full bg-white/30 flex items-center justify-center"
                   >
-                    <div className="flex items-center gap-4">
-                      <div
+                    <Feather className="h-10 w-10 opacity-70" />
+                  </motion.div>
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2, duration: 0.3 }}
+                  >
+                    <h3 className="text-xl font-medium mb-2">Seu ritual está vazio</h3>
+                    <p className="opacity-70 mb-6 max-w-xs mx-auto">
+                      Adicione hábitos para construir uma rotina {config.label.toLowerCase()} que transforma seu dia.
+                    </p>
+                    <Button
+                      onClick={() => navigate("/inbox")}
+                      variant="outline"
+                      className="bg-white/20 hover:bg-white/30 border-current/30 text-current gap-2"
+                    >
+                      <ArrowRight className="h-4 w-4" />
+                      Criar primeiro hábito
+                    </Button>
+                  </motion.div>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {habits.map((habit, index) => (
+                    <motion.div
+                      key={habit.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.1, duration: 0.3 }}
+                    >
+                      <Card
+                        onClick={() => toggleHabit(habit.id)}
                         className={cn(
-                          "w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all",
-                          habit.completed
-                            ? "bg-green-500 border-green-500"
-                            : "border-current"
+                          "p-6 cursor-pointer border-2 transition-all duration-300",
+                          styles.card,
+                          habit.completed && "opacity-50"
                         )}
                       >
-                        {habit.completed && <Check className="h-5 w-5 text-white" />}
-                      </div>
-                      <div className="flex-1">
-                        <h3
-                          className={cn(
-                            "text-xl font-medium transition-all",
-                            habit.completed && "line-through"
-                          )}
-                        >
-                          {habit.title}
-                        </h3>
-                        {habit.notes && (
-                          <p className="text-sm opacity-70 mt-1">{habit.notes}</p>
-                        )}
-                      </div>
-                    </div>
-                  </Card>
-                ))}
-              </div>
-            )}
-          </>
-        )}
+                        <div className="flex items-center gap-4">
+                          <motion.div
+                            animate={habit.completed ? { scale: [1, 1.2, 1] } : {}}
+                            transition={{ duration: 0.3 }}
+                            className={cn(
+                              "w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all",
+                              habit.completed
+                                ? "bg-green-500 border-green-500"
+                                : "border-current"
+                            )}
+                          >
+                            {habit.completed && <Check className="h-5 w-5 text-white" />}
+                          </motion.div>
+                          <div className="flex-1">
+                            <h3
+                              className={cn(
+                                "text-xl font-medium transition-all",
+                                habit.completed && "line-through"
+                              )}
+                            >
+                              {habit.title}
+                            </h3>
+                            {habit.notes && (
+                              <p className="text-sm opacity-70 mt-1">{habit.notes}</p>
+                            )}
+                          </div>
+                        </div>
+                      </Card>
+                    </motion.div>
+                  ))}
+                </div>
+              )}
+            </motion.div>
+          )}
 
-        {step === "checkin" && (
-          <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
-            <div className="text-center">
-              <Feather className="h-10 w-10 mx-auto mb-4 opacity-70" />
-              <h2 className="text-2xl font-medium mb-2">Check-in</h2>
-              <p className="opacity-80">{checkinQuestions[activePeriod]}</p>
-            </div>
-            
-            <Card className={cn("p-6 border-2", styles.card)}>
-              <textarea
-                value={checkinText}
-                onChange={(e) => setCheckinText(e.target.value)}
-                placeholder="Escreva livremente..."
-                className="w-full min-h-[120px] resize-none bg-transparent border-none outline-none text-lg leading-relaxed placeholder:opacity-50 focus:ring-0"
-                disabled={isSaving}
-                autoFocus
-              />
-            </Card>
-          </div>
-        )}
+          {step === "checkin" && (
+            <motion.div
+              key="checkin"
+              initial={{ opacity: 0, x: 40 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 40 }}
+              transition={{ duration: 0.3, ease: "easeOut" }}
+              className="space-y-6"
+            >
+              <motion.div 
+                className="text-center"
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1, duration: 0.3 }}
+              >
+                <motion.div
+                  initial={{ scale: 0.5, rotate: -10 }}
+                  animate={{ scale: 1, rotate: 0 }}
+                  transition={{ delay: 0.15, duration: 0.4, type: "spring" }}
+                >
+                  <Feather className="h-10 w-10 mx-auto mb-4 opacity-70" />
+                </motion.div>
+                <h2 className="text-2xl font-medium mb-2">Check-in</h2>
+                <p className="opacity-80">{checkinQuestions[activePeriod]}</p>
+              </motion.div>
+              
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.25, duration: 0.3 }}
+              >
+                <Card className={cn("p-6 border-2", styles.card)}>
+                  <textarea
+                    value={checkinText}
+                    onChange={(e) => setCheckinText(e.target.value)}
+                    placeholder="Escreva livremente..."
+                    className="w-full min-h-[120px] resize-none bg-transparent border-none outline-none text-lg leading-relaxed placeholder:opacity-50 focus:ring-0"
+                    disabled={isSaving}
+                    autoFocus
+                  />
+                </Card>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </main>
 
       {/* Footer */}
       <footer className="p-6 md:p-8 flex justify-center gap-4 sticky bottom-0 bg-gradient-to-t from-current/5 to-transparent backdrop-blur-sm">
-        {step === "habits" && (
-          <Button
-            onClick={handleContinueToCheckin}
-            size="lg"
-            className="bg-black/20 hover:bg-black/30 text-current border-2 border-current/30 min-w-[200px] h-14 text-lg shadow-lg gap-2"
-          >
-            Continuar
-            <ArrowRight className="h-5 w-5" />
-          </Button>
-        )}
+        <AnimatePresence mode="wait">
+          {step === "habits" && (
+            <motion.div
+              key="habits-footer"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
+            >
+              <Button
+                onClick={handleContinueToCheckin}
+                size="lg"
+                className="bg-black/20 hover:bg-black/30 text-current border-2 border-current/30 min-w-[200px] h-14 text-lg shadow-lg gap-2 active:scale-[0.98] transition-transform"
+              >
+                Continuar
+                <motion.span
+                  animate={{ x: [0, 4, 0] }}
+                  transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
+                >
+                  <ArrowRight className="h-5 w-5" />
+                </motion.span>
+              </Button>
+            </motion.div>
+          )}
 
-        {step === "checkin" && (
-          <>
-            <Button
-              onClick={handleSkipCheckin}
-              variant="ghost"
-              size="lg"
-              className="text-current hover:bg-black/10 h-14"
-              disabled={isSaving}
+          {step === "checkin" && (
+            <motion.div
+              key="checkin-footer"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
+              className="flex gap-4"
             >
-              Pular
-            </Button>
-            <Button
-              onClick={handleSaveCheckin}
-              size="lg"
-              className="bg-black/20 hover:bg-black/30 text-current border-2 border-current/30 min-w-[160px] h-14 text-lg shadow-lg gap-2"
-              disabled={isSaving}
-            >
-              <Feather className="h-5 w-5" />
-              {isSaving ? "Salvando..." : "Registrar"}
-            </Button>
-          </>
-        )}
+              <Button
+                onClick={handleSkipCheckin}
+                variant="ghost"
+                size="lg"
+                className="text-current hover:bg-black/10 h-14"
+                disabled={isSaving}
+              >
+                Pular
+              </Button>
+              <Button
+                onClick={handleSaveCheckin}
+                size="lg"
+                className="bg-black/20 hover:bg-black/30 text-current border-2 border-current/30 min-w-[160px] h-14 text-lg shadow-lg gap-2 active:scale-[0.98] transition-transform"
+                disabled={isSaving}
+              >
+                <Feather className="h-5 w-5" />
+                {isSaving ? "Salvando..." : "Registrar"}
+              </Button>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </footer>
     </div>
   );
