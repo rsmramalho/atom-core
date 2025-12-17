@@ -150,6 +150,7 @@ interface JournalFeedProps {
   timePeriod?: TimePeriod;
   searchQuery?: string;
   onReflectionsChange?: (reflections: AtomItem[]) => void;
+  onFilteredReflectionsChange?: (reflections: AtomItem[]) => void;
 }
 
 export function JournalFeed({ 
@@ -157,6 +158,7 @@ export function JournalFeed({
   timePeriod = "all",
   searchQuery = "",
   onReflectionsChange,
+  onFilteredReflectionsChange,
 }: JournalFeedProps) {
   const { items, isLoading } = useAtomItems();
 
@@ -225,6 +227,11 @@ export function JournalFeed({
 
     return result;
   }, [allReflections, selectedTags, timePeriod, searchQuery]);
+
+  // Notify parent of filtered reflections
+  useMemo(() => {
+    onFilteredReflectionsChange?.(filteredReflections);
+  }, [filteredReflections, onFilteredReflectionsChange]);
 
   if (isLoading) {
     return <JournalFeedSkeleton />;
