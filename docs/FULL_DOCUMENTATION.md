@@ -1,9 +1,9 @@
 # MindMate - Atom Engine 4.0
 # Documentação Completa Consolidada
 
-**Versão:** 4.0.0-alpha.16  
+**Versão:** 4.0.0-alpha.16 (RC Final)  
 **Data:** 2025-12-17  
-**Status:** 🚀 **MILESTONE RELEASE** - Fork Point para Desenvolvimento de Produção
+**Status:** ✅ **RELEASE CANDIDATE** - Validado para Produção
 
 > Esta versão representa o marco estável do Atom Engine 4.0, com todas as funcionalidades core
 > implementadas e testadas. O branch principal continua evoluindo com inovações experimentais.
@@ -982,7 +982,7 @@ Use `Ctrl+Shift+E` para:
 
 # CHANGELOG
 
-## [4.0.0-alpha.16] - 2025-12-17
+## [4.0.0-alpha.16] - 2025-12-17 (RC Final)
 
 ### Adicionado
 
@@ -995,6 +995,28 @@ Use `Ctrl+Shift+E` para:
 - **Distribuição por Módulo:** Gráfico pizza de itens por categoria (Work, Body, Mind, Family)
 - **Taxa de Conclusão:** Progress bar com percentual de tarefas concluídas
 - **Navegação:** Link "Estatísticas" adicionado ao menu lateral
+
+#### Testes de Arquitetura e Integridade
+- **architecture-audit.test.ts:** Suite completa de testes para validar regras de isolamento
+- **50+ testes** cobrindo: List Isolation, Reflection Lock, Milestone Isolation, Type Isolation
+- **Edge cases:** Tags case-insensitive, combinações complexas, null-safety
+- **Cobertura de filtros:** Focus, Today, Ritual, Projects, Split Today/Overdue
+
+#### Testes de Offline Queue (IndexedDB)
+- **offline-queue.test.ts:** 20+ testes de integração com IndexedDB mockado
+- **fake-indexeddb:** Dependência adicionada para testes de IndexedDB
+- **Cobertura:** FIFO ordering, retry count, data integrity, sync simulation
+- **Edge cases:** Queue vazia, operações paralelas, dados complexos
+
+### Corrigido
+
+#### Blind Spot: List Isolation
+- **isOperationalItem:** Corrigido para excluir itens com `parent_id` (pertencentes a listas)
+- **Impacto:** Itens de lista não vazam mais para Dashboard Today/Focus
+
+#### Tipagem para Build de Produção
+- **useNotifications:** Guard SSR corrigido em `isSupported`
+- **test/setup.ts:** Mocks adicionados para IndexedDB, Notification API, matchMedia, vibrate
 
 ---
 
@@ -1179,11 +1201,14 @@ Use `Ctrl+Shift+E` para:
 - [x] **PWA + Offline Sync**
 - [x] **Exportação Journal Multi-formato**
 - [x] **Notificações e Lembretes**
-- [x] **Analytics Dashboard** ⭐ NOVO
+- [x] **Analytics Dashboard**
+- [x] **Testes de Arquitetura (50+ tests)** ⭐ NOVO
+- [x] **Testes Offline Queue (IndexedDB)** ⭐ NOVO
 
 ## 🔲 Próximas Etapas
 - [ ] Metas diárias de produtividade
 - [ ] Gamificação avançada
+- [ ] Push Notifications (VAPID)
 
 ---
 
