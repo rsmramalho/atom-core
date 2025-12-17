@@ -1,4 +1,5 @@
 export { CalendarGrid } from "./CalendarGrid";
+export { CalendarGridSkeleton } from "./CalendarGridSkeleton";
 export { WeekGrid } from "./WeekGrid";
 export { CalendarItem } from "./CalendarItem";
 export { CalendarFilters } from "./CalendarFilters";

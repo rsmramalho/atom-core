@@ -1,11 +1,11 @@
 import { useState, useMemo } from "react";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import { ProjectCard } from "@/components/projects/ProjectCard";
+import { ProjectCardSkeletonGrid } from "@/components/projects/ProjectCardSkeleton";
 import { MODULE_OPTIONS, getModuleConfig } from "@/components/shared/ModuleBadge";
 import { 
   FolderKanban, 
   Plus, 
-  Loader2, 
   Briefcase, 
   Dumbbell, 
   Brain, 
@@ -108,8 +108,17 @@ export default function Projects() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="p-4 md:p-8 max-w-4xl mx-auto">
+        <header className="mb-6 flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold flex items-center gap-2">
+              <FolderKanban className="h-6 w-6 text-primary" />
+              Projetos
+            </h1>
+            <p className="text-muted-foreground">Carregando projetos...</p>
+          </div>
+        </header>
+        <ProjectCardSkeletonGrid count={6} />
       </div>
     );
   }

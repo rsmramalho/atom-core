@@ -12,12 +12,12 @@ import {
   DragStartEvent,
   DragEndEvent,
 } from "@dnd-kit/core";
-import { Loader2, Calendar as CalendarIcon, ChevronLeft, ChevronRight } from "lucide-react";
+import { Calendar as CalendarIcon, ChevronLeft, ChevronRight } from "lucide-react";
 import { useCalendarItems, isMilestone, type CalendarItemWithInstance } from "@/hooks/useCalendarItems";
 import { useSwipe } from "@/hooks/useSwipe";
 import { useAtomItems } from "@/hooks/useAtomItems";
 import { useRecurrence } from "@/hooks/useRecurrence";
-import { CalendarGrid } from "@/components/calendar/CalendarGrid";
+import { CalendarGrid, CalendarGridSkeleton } from "@/components/calendar";
 import { WeekGrid } from "@/components/calendar/WeekGrid";
 import { CalendarFilters, ItemTypeFilter, ModuleFilter, FilterCounts } from "@/components/calendar/CalendarFilters";
 import { CalendarViewToggle, CalendarViewMode } from "@/components/calendar/CalendarViewToggle";
@@ -330,8 +330,19 @@ export default function Calendar() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="p-4 md:p-8 max-w-7xl mx-auto">
+        <header className="mb-4">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-primary/10 rounded-lg">
+              <CalendarIcon className="h-6 w-6 text-primary" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold">Calendário</h1>
+              <p className="text-sm text-muted-foreground">Carregando...</p>
+            </div>
+          </div>
+        </header>
+        <CalendarGridSkeleton />
       </div>
     );
   }
