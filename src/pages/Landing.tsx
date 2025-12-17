@@ -447,9 +447,11 @@ export default function Landing() {
                   <span className="animate-pulse">▌</span>
                 </div>
               </div>
+            </motion.div>
+          </div>
 
           {/* Experiência Section */}
-          <div className="mt-8 sm:mt-12">
+          <div className="mt-12 sm:mt-16">
             <div className="flex items-center gap-2 mb-4 sm:mb-6 justify-center">
               <Sparkles className="w-4 h-4 text-primary" />
               <span className="text-xs font-medium tracking-widest uppercase text-muted-foreground">Experiência</span>
@@ -468,8 +470,6 @@ export default function Landing() {
                 isExperience
               />
             </div>
-          </div>
-        </motion.div>
           </div>
         </div>
       </section>
