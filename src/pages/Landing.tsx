@@ -29,6 +29,59 @@ const staggerContainer = {
   }
 };
 
+// Letter animation for tagline
+const letterAnimation = {
+  initial: { opacity: 0, y: 50 },
+  animate: { opacity: 1, y: 0 }
+};
+
+const AnimatedTagline = () => {
+  const word1 = "Mindful";
+  const word2 = "control";
+  
+  return (
+    <motion.h1 
+      className="text-5xl md:text-7xl lg:text-8xl font-display font-extrabold text-foreground mb-6 leading-[0.9] tracking-tight"
+      initial="initial"
+      animate="animate"
+    >
+      <span className="inline-block overflow-hidden">
+        {word1.split("").map((letter, index) => (
+          <motion.span
+            key={index}
+            variants={letterAnimation}
+            transition={{ 
+              duration: 0.4,
+              delay: 0.1 + index * 0.05,
+              ease: [0.215, 0.61, 0.355, 1]
+            }}
+            className="inline-block"
+          >
+            {letter}
+          </motion.span>
+        ))}
+      </span>
+      <span className="inline-block mx-3" />
+      <span className="inline-block overflow-hidden">
+        {word2.split("").map((letter, index) => (
+          <motion.span
+            key={index}
+            variants={letterAnimation}
+            transition={{ 
+              duration: 0.4,
+              delay: 0.1 + (word1.length + 1) * 0.05 + index * 0.05,
+              ease: [0.215, 0.61, 0.355, 1]
+            }}
+            className="inline-block bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent"
+          >
+            {letter}
+          </motion.span>
+        ))}
+      </span>
+    </motion.h1>
+  );
+};
+
 const FeatureCard = ({ 
   icon: Icon, 
   title, 
@@ -98,20 +151,12 @@ export default function Landing() {
             </span>
           </motion.div>
           
-          <motion.h1 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="text-5xl md:text-7xl lg:text-8xl font-display font-extrabold text-foreground mb-6 leading-[0.9] tracking-tight"
-          >
-            Mindful{" "}
-            <span className="text-primary bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">control</span>
-          </motion.h1>
+          <AnimatedTagline />
           
           <motion.p 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
+            transition={{ delay: 0.9, duration: 0.5 }}
             className="text-xl text-muted-foreground mb-10 max-w-2xl mx-auto"
           >
             MindMate combina produtividade e introspecção em um único app. 
@@ -121,7 +166,7 @@ export default function Landing() {
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
+            transition={{ delay: 1.1, duration: 0.5 }}
             className="flex flex-col sm:flex-row gap-4 justify-center"
           >
             <Link to="/">
