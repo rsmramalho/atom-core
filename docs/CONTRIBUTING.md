@@ -95,10 +95,11 @@ type RitualSlot = 'manha' | 'meio_dia' | 'noite' | null;
 type ProjectStatus = 'draft' | 'active' | 'paused' | 'completed' | 'archived';
 ```
 
-### Banco de Dados
+### Banco de Dados (Single Table Design)
 
-- Tabela `items`: Todos os tipos de itens
-- Tabela `project_milestones`: Milestones de projetos
+- Tabela `items`: Todos os tipos de itens (incluindo milestones como tasks com tag #milestone)
+- Tabela `onboarding_progress`: Progresso de onboarding do usuário
+- Tabela `onboarding_analytics`: Eventos de analytics do onboarding
 - RLS habilitado em todas as tabelas
 
 ---
