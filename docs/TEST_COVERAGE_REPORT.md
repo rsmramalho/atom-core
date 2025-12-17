@@ -10,11 +10,12 @@
 
 | Métrica | Valor |
 |---------|-------|
-| **Total de Testes** | ~285 |
-| **Arquivos de Teste** | 8 |
+| **Total de Testes** | ~320 |
+| **Arquivos de Teste (Unit)** | 8 |
+| **Arquivos de Teste (E2E)** | 5 |
 | **Engines Testados** | 7 |
-| **Linhas de Teste** | ~3,500 |
-| **Framework** | Vitest + Testing Library |
+| **Linhas de Teste** | ~4,200 |
+| **Frameworks** | Vitest + Playwright |
 
 ---
 
@@ -239,20 +240,63 @@
 
 ---
 
-## 🎯 Recomendações
+## 🎭 Testes E2E (Playwright)
+
+### Configuração
+- **Framework:** Playwright Test
+- **Browsers:** Chromium, Mobile Chrome (Pixel 5)
+- **Server:** Preview (localhost:8080)
+
+### Arquivos de Teste
+
+| Arquivo | Testes | Cobertura |
+|---------|--------|-----------|
+| `e2e/auth.spec.ts` | 5 | Login, signup toggle, validação, erros |
+| `e2e/task-management.spec.ts` | 6 | Inbox capture, completion, context menu, projects |
+| `e2e/ritual.spec.ts` | 7 | Entry, habits, check-in, closing |
+| `e2e/offline-sync.spec.ts` | 9 | Network detection, SW caching, queue ops, persistence |
+| `e2e/keyboard-navigation.spec.ts` | 10 | Shortcuts globais, calendar keys, help modal |
+
+### Executar Testes E2E
+```bash
+# Instalar browsers
+npx playwright install
+
+# Executar todos
+npx playwright test
+
+# Executar arquivo específico
+npx playwright test e2e/auth.spec.ts
+
+# Modo UI interativo
+npx playwright test --ui
+
+# Gerar relatório
+npx playwright show-report
+```
+
+### Fixtures
+- `e2e/fixtures/auth.fixture.ts` - Helpers de autenticação e gerenciamento de usuários de teste
+
+---
+
+## 🎯 Status Final
 
 ### Para Produção ✅
 O RC está **aprovado para produção** com:
 - Cobertura abrangente de engines críticos
 - Integrity Guards validados
 - Blind spots corrigidos e testados
+- **E2E tests estruturados para fluxos críticos**
 
 ### Próximas Iterações
-1. Adicionar testes E2E com Playwright
-2. Testes de performance para listas grandes
-3. Testes de integração com Supabase real
+1. ~~Adicionar testes E2E com Playwright~~ ✅
+2. Implementar fixtures autenticados com usuários Supabase reais
+3. Testes de performance para listas grandes
+4. Visual regression tests
 
 ---
 
 **Gerado em:** 2025-12-17  
+**Atualizado:** 2025-12-17 (E2E)  
 **Aprovado por:** DevOps Validation Pipeline
