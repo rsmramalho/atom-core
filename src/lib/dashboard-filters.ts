@@ -14,13 +14,15 @@ export function isMilestone(item: AtomItem): boolean {
 
 /**
  * INTEGRITY HELPER: Check if item should be excluded from operational lists
- * Excludes: reflections, milestones (per Engine B.3 spec)
+ * Excludes: reflections, milestones, list children (per Engine B.3 spec)
  */
 export function isOperationalItem(item: AtomItem): boolean {
   // Reflections are non-actionable
   if (item.type === "reflection") return false;
   // Milestones only appear in project-specific views
   if (isMilestone(item)) return false;
+  // List children (items with parent_id) belong to their parent list, not dashboard
+  if (item.parent_id) return false;
   return true;
 }
 
