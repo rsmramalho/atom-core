@@ -193,11 +193,27 @@ export default function Landing() {
       <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border/50">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 sm:h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-primary/20 flex items-center justify-center">
-              <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary" />
-            </div>
-            <span className="font-bold text-base sm:text-lg text-foreground">MindMate</span>
+            <a href="#hero" className="flex items-center gap-2">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-primary/20 flex items-center justify-center">
+                <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary" />
+              </div>
+              <span className="font-bold text-base sm:text-lg text-foreground">MindMate</span>
+            </a>
           </div>
+          
+          {/* Anchor Links - Hidden on mobile */}
+          <div className="hidden md:flex items-center gap-6">
+            <a href="#features" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              Features
+            </a>
+            <a href="#benefits" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              Benefits
+            </a>
+            <a href="#cta" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              Começar
+            </a>
+          </div>
+          
           <div className="flex items-center gap-2 sm:gap-4">
             <Link to="/">
               <Button variant="ghost" size="sm" className="text-xs sm:text-sm px-2 sm:px-3">Entrar</Button>
@@ -218,7 +234,7 @@ export default function Landing() {
       </nav>
 
       {/* Hero Section - Terminal Style */}
-      <section className="pt-24 sm:pt-32 pb-12 sm:pb-20 px-4 sm:px-6 relative">
+      <section id="hero" className="pt-24 sm:pt-32 pb-12 sm:pb-20 px-4 sm:px-6 relative">
         <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-transparent" />
         <div className="max-w-4xl mx-auto text-center relative">
           <motion.div
@@ -267,7 +283,7 @@ export default function Landing() {
       </section>
 
       {/* Features Grid - Terminal Style */}
-      <section className="py-12 sm:py-20 px-4 sm:px-6 bg-card/30">
+      <section id="features" className="py-12 sm:py-20 px-4 sm:px-6 bg-card/30 scroll-mt-16">
         <div className="max-w-6xl mx-auto">
           <motion.div 
             initial={{ opacity: 0 }}
@@ -357,7 +373,7 @@ export default function Landing() {
 
 
       {/* Benefits Section */}
-      <section className="py-12 sm:py-20 px-4 sm:px-6">
+      <section id="benefits" className="py-12 sm:py-20 px-4 sm:px-6 scroll-mt-16">
         <div className="max-w-4xl mx-auto">
           <div className="grid md:grid-cols-2 gap-8 sm:gap-12 items-center">
             <motion.div
@@ -444,7 +460,7 @@ export default function Landing() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-12 sm:py-20 px-4 sm:px-6 bg-gradient-to-t from-primary/5 to-transparent">
+      <section id="cta" className="py-12 sm:py-20 px-4 sm:px-6 bg-gradient-to-t from-primary/5 to-transparent scroll-mt-16">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
