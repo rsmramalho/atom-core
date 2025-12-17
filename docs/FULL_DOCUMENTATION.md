@@ -1,7 +1,7 @@
 # MindMate - Atom Engine 4.0
 # Documentação Completa Consolidada
 
-**Versão:** 4.0.0-alpha.16 (RC Final)  
+**Versão:** 4.0.0-alpha.17  
 **Data:** 2025-12-17  
 **Status:** ✅ **RELEASE CANDIDATE** - Validado para Produção
 
@@ -982,6 +982,32 @@ Use `Ctrl+Shift+E` para:
 
 # CHANGELOG
 
+## [4.0.0-alpha.17] - 2025-12-17
+
+### Adicionado
+
+#### PWA Branding Completo
+- **Ícones PWA:** 8 tamanhos regenerados (72x72 até 512x512) com design do átomo verde
+- **Favicon SVG:** Atualizado com design consistente do átomo com glow
+- **iOS Splash Screens:** 7 tamanhos para iPhone e iPad
+  - iPhone SE (640x1136)
+  - iPhone 8/7/6 (750x1334)
+  - iPhone XR/11 (828x1792)
+  - iPhone 12/13/14 (1170x2532)
+  - iPad Mini/Air (1536x2048)
+  - iPad Pro 11" (1668x2388)
+  - iPad Pro 12.9" (2048x2732)
+- **Meta Tags:** Links apple-touch-startup-image no index.html
+
+### Corrigido
+
+#### Bug Crítico: Tela Preta no Mobile
+- **AnimatePresence:** Corrigido uso incorreto no InstallPrompt.tsx
+- **Causa:** Condição de renderização fora do AnimatePresence causava React Error #310
+- **Solução:** Condição movida para dentro do AnimatePresence com key no motion.div
+
+---
+
 ## [4.0.0-alpha.16] - 2025-12-17 (RC Final)
 
 ### Adicionado
@@ -1202,8 +1228,9 @@ Use `Ctrl+Shift+E` para:
 - [x] **Exportação Journal Multi-formato**
 - [x] **Notificações e Lembretes**
 - [x] **Analytics Dashboard**
-- [x] **Testes de Arquitetura (50+ tests)** ⭐ NOVO
-- [x] **Testes Offline Queue (IndexedDB)** ⭐ NOVO
+- [x] **Testes de Arquitetura (50+ tests)**
+- [x] **Testes Offline Queue (IndexedDB)**
+- [x] **PWA Branding Completo (ícones + splash screens)** ⭐ NOVO
 
 ## 🔲 Próximas Etapas
 - [ ] Metas diárias de produtividade
