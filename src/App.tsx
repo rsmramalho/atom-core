@@ -26,6 +26,7 @@ const Lists = lazy(() => import("./pages/Lists"));
 const Analytics = lazy(() => import("./pages/Analytics"));
 const Install = lazy(() => import("./pages/Install"));
 const Privacy = lazy(() => import("./pages/Privacy"));
+const Landing = lazy(() => import("./pages/Landing"));
 
 const queryClient = new QueryClient();
 
@@ -77,6 +78,16 @@ function AnimatedRoutes() {
             <ImmersiveRoute>
               <Suspense fallback={<PageLoader />}>
                 <Privacy />
+              </Suspense>
+            </ImmersiveRoute>
+          }
+        />
+        <Route
+          path="/landing"
+          element={
+            <ImmersiveRoute>
+              <Suspense fallback={<PageLoader />}>
+                <Landing />
               </Suspense>
             </ImmersiveRoute>
           }
