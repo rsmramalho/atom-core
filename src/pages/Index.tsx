@@ -1,27 +1,20 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { AuthForm } from "@/components/AuthForm";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import { useRitual } from "@/hooks/useRitual";
+import { DashboardStats } from "@/components/dashboard/DashboardStats";
 import { RitualBanner } from "@/components/dashboard/RitualBanner";
 import { FocusBlock } from "@/components/dashboard/FocusBlock";
 import { TodayList } from "@/components/dashboard/TodayList";
 import { EmptyDashboard } from "@/components/empty-states";
 import { Confetti } from "@/components/shared";
-import { Button } from "@/components/ui/button";
-import { Loader2, Sunrise, Sun, Sunset } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { motion } from "framer-motion";
 import type { User } from "@/types/auth";
 
-const periodIcons = {
-  aurora: Sunrise,
-  zenite: Sun,
-  crepusculo: Sunset,
-};
-
 export default function Index() {
-  const navigate = useNavigate();
   const { toast } = useToast();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
@@ -40,8 +33,7 @@ export default function Index() {
     toggleComplete,
   } = useDashboardData();
 
-  const { activePeriod, config, pendingHabits } = useRitual();
-  const PeriodIcon = periodIcons[activePeriod];
+  const { pendingHabits } = useRitual();
 
   // Calculate total pending items (excluding ritual items as they have their own flow)
   const totalPendingItems = focusItems.length + overdueItems.length + dueTodayItems.length;
@@ -116,63 +108,92 @@ export default function Index() {
   // Greeting based on time
   const hour = new Date().getHours();
   const greeting = hour < 12 ? "Bom dia" : hour < 18 ? "Boa tarde" : "Boa noite";
+  const hasContent = focusItems.length > 0 || overdueItems.length > 0 || dueTodayItems.length > 0 || ritualItems.length > 0;
 
   return (
-    <div className="p-4 md:p-8 max-w-3xl mx-auto">
+    <div className="p-4 md:p-6 max-w-3xl mx-auto">
       {/* Confetti celebration */}
       <Confetti trigger={showConfetti} onComplete={handleConfettiComplete} />
 
       {/* Header */}
-      <header className="mb-8">
+      <motion.header 
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="mb-6"
+      >
         <h1 className="text-2xl font-bold">{greeting}! 👋</h1>
-        <p className="text-muted-foreground">
+        <p className="text-muted-foreground text-sm">
           {new Date().toLocaleDateString("pt-BR", { 
             weekday: "long", 
             day: "numeric", 
             month: "long" 
           })}
         </p>
-      </header>
+      </motion.header>
 
-      {/* Ritual Entry Button */}
-      <Button
-        onClick={() => navigate("/ritual")}
-        variant={pendingHabits.length > 0 ? "default" : "outline"}
-        className="w-full mb-6 py-6 text-lg gap-3"
+      {/* Stats Overview */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+        className="mb-6"
       >
-        <PeriodIcon className="h-6 w-6" />
-        {pendingHabits.length > 0 
-          ? `Ritual ${config.label} Pendente (${pendingHabits.length})`
-          : `Entrar no Ritual ${config.label}`
-        }
-      </Button>
+        <DashboardStats
+          focusCount={focusItems.length}
+          todayCount={dueTodayItems.length}
+          overdueCount={overdueItems.length}
+          habitsCount={pendingHabits.length}
+        />
+      </motion.div>
 
       {/* Dashboard Sections */}
-      <div className="space-y-6">
-        {/* Ritual Banner */}
-        <RitualBanner 
-          items={ritualItems} 
-          currentSlot={currentSlot} 
-          onToggle={toggleComplete} 
-        />
+      {!hasContent ? (
+        <EmptyDashboard />
+      ) : (
+        <div className="space-y-4">
+          {/* Focus Block - Hero prominence */}
+          {focusItems.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.15 }}
+            >
+              <FocusBlock 
+                items={focusItems} 
+                onToggle={toggleComplete} 
+              />
+            </motion.div>
+          )}
 
-        {/* Focus Block */}
-        <FocusBlock 
-          items={focusItems} 
-          onToggle={toggleComplete} 
-        />
+          {/* Ritual Banner - Compact */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+          >
+            <RitualBanner 
+              items={ritualItems} 
+              currentSlot={currentSlot} 
+              onToggle={toggleComplete} 
+            />
+          </motion.div>
 
-        {/* Today List or Empty Dashboard */}
-        {overdueItems.length === 0 && dueTodayItems.length === 0 && focusItems.length === 0 && ritualItems.length === 0 ? (
-          <EmptyDashboard />
-        ) : (
-          <TodayList 
-            overdueItems={overdueItems}
-            dueTodayItems={dueTodayItems}
-            onToggle={toggleComplete}
-          />
-        )}
-      </div>
+          {/* Today List */}
+          {(overdueItems.length > 0 || dueTodayItems.length > 0) && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.25 }}
+            >
+              <TodayList 
+                overdueItems={overdueItems}
+                dueTodayItems={dueTodayItems}
+                onToggle={toggleComplete}
+              />
+            </motion.div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
