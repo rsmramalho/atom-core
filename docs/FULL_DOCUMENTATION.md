@@ -131,7 +131,10 @@ Sistema de journaling com design zen:
 - **Filtros** por tags e período de tempo
 - **Timeline Visual** conectando reflexões
 - **Atalho /** para focar na busca
-- **Exportação Markdown** ⭐ NOVO - Baixa todas as reflexões em arquivo .md
+- **Exportação Multi-formato** ⭐ NOVO
+  - Markdown (.md) - Texto formatado
+  - JSON (.json) - Dados estruturados
+  - PDF (via impressão) - Documento formatado
 
 ## 📅 Calendar Engine
 
@@ -979,10 +982,12 @@ Use `Ctrl+Shift+E` para:
 - **OfflineSyncProvider:** Context provider para estado global de sync
 - **updatePendingCount:** Função exposta para atualização manual do contador
 
-#### Exportação do Journal
-- **Exportar Markdown:** Botão para baixar todas as reflexões em arquivo .md
-- **Formatação:** Agrupamento por data, título, conteúdo e tags
-- **journal-export.ts:** Utilitário para conversão e download
+#### Exportação do Journal (Multi-formato)
+- **Markdown (.md):** Texto formatado com agrupamento por data
+- **JSON (.json):** Dados estruturados para backup/importação
+- **PDF (Imprimir):** Documento formatado via diálogo de impressão
+- **Filtros aplicados:** Exporta apenas reflexões filtradas quando filtros ativos
+- **journal-export.ts:** Utilitário com funções de conversão e download
 
 ---
 

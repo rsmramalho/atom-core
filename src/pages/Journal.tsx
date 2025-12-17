@@ -3,11 +3,17 @@
 
 import { useState, useCallback, useRef, useEffect } from "react";
 import { JournalComposer, JournalFeed, JournalFilters, TimePeriod } from "@/components/journal";
-import { BookOpen, Search, X, Download } from "lucide-react";
+import { BookOpen, Search, X, Download, FileText, FileJson, Printer, ChevronDown } from "lucide-react";
 import { AtomItem } from "@/types/atom-engine";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { exportJournalAsMarkdown } from "@/lib/journal-export";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { exportJournalAsMarkdown, exportJournalAsJson, exportJournalAsPdf } from "@/lib/journal-export";
 import { toast } from "sonner";
 
 export default function Journal() {
@@ -27,16 +33,33 @@ export default function Journal() {
   }, []);
 
   const hasFilters = selectedTags.length > 0 || timePeriod !== "all" || searchQuery.trim() !== "";
+  const toExport = hasFilters ? filteredReflections : reflections;
 
-  const handleExport = () => {
-    const toExport = hasFilters ? filteredReflections : reflections;
+  const handleExportMarkdown = () => {
     if (toExport.length === 0) {
       toast.error("Nenhuma reflexão para exportar");
       return;
     }
     exportJournalAsMarkdown(toExport);
-    const suffix = hasFilters ? " (filtradas)" : "";
-    toast.success(`${toExport.length} reflexão(ões) exportada(s)${suffix}`);
+    toast.success(`${toExport.length} reflexão(ões) exportada(s) em Markdown`);
+  };
+
+  const handleExportJson = () => {
+    if (toExport.length === 0) {
+      toast.error("Nenhuma reflexão para exportar");
+      return;
+    }
+    exportJournalAsJson(toExport);
+    toast.success(`${toExport.length} reflexão(ões) exportada(s) em JSON`);
+  };
+
+  const handleExportPdf = () => {
+    if (toExport.length === 0) {
+      toast.error("Nenhuma reflexão para exportar");
+      return;
+    }
+    exportJournalAsPdf(toExport);
+    toast.info("Janela de impressão aberta - selecione 'Salvar como PDF'");
   };
 
   // Keyboard shortcut: "/" to focus search
@@ -72,18 +95,29 @@ export default function Journal() {
           Um espaço para reflexões, pensamentos e momentos de clareza.
         </p>
         {reflections.length > 0 && (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleExport}
-            className="gap-2"
-          >
-            <Download className="h-4 w-4" />
-            {hasFilters 
-              ? `Exportar ${filteredReflections.length} filtrada${filteredReflections.length !== 1 ? 's' : ''}`
-              : "Exportar Todas"
-            }
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="gap-2">
+                <Download className="h-4 w-4" />
+                Exportar {hasFilters ? `(${toExport.length})` : ""}
+                <ChevronDown className="h-3 w-3" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="center">
+              <DropdownMenuItem onClick={handleExportMarkdown} className="gap-2">
+                <FileText className="h-4 w-4" />
+                Markdown (.md)
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleExportJson} className="gap-2">
+                <FileJson className="h-4 w-4" />
+                JSON (.json)
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleExportPdf} className="gap-2">
+                <Printer className="h-4 w-4" />
+                PDF (Imprimir)
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         )}
       </header>
 
