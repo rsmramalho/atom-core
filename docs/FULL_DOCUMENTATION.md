@@ -1,12 +1,12 @@
 # MindMate - Atom Engine 4.0
 # Documentação Completa Consolidada
 
-**Versão:** 4.0.0-alpha.18  
+**Versão:** 4.0.0-alpha.19  
 **Data:** 2025-12-17  
-**Status:** ✅ **RELEASE CANDIDATE** - Validado para Produção | 🎯 **Zero Any Policy**
+**Status:** ✅ **RELEASE CANDIDATE** - Validado para Produção | 🚀 **Performance & UX**
 
 > Esta versão representa o marco estável do Atom Engine 4.0, com todas as funcionalidades core
-> implementadas e testadas. **Fase 5 concluída** com Type Safety completa (Score: 50/50).
+> implementadas e testadas. **Fase 6 concluída** com melhorias de Performance & UX.
 
 ---
 
@@ -1036,6 +1036,62 @@ const createItem = async (item: any) => {};
 <div className="bg-slate-900 text-white">
 ```
 
+## Micro-Animações (Fase 6) ⭐ NOVO
+
+### Classes Utilitárias
+
+```css
+/* Cards interativos */
+.card-interactive {
+  @apply transition-all duration-200 ease-out cursor-pointer
+         hover:-translate-y-0.5 hover:shadow-md hover:border-primary/20
+         active:scale-[0.99] active:shadow-sm;
+}
+
+/* Hover com elevação */
+.hover-lift {
+  @apply transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow-md;
+}
+
+/* Hover com escala */
+.hover-scale {
+  @apply transition-transform duration-150 ease-out hover:scale-[1.02] active:scale-[0.98];
+}
+
+/* Hover com glow */
+.hover-glow {
+  @apply transition-shadow duration-200 hover:shadow-[0_0_15px_hsl(var(--primary)/0.3)];
+}
+
+/* Efeito de press */
+.press-effect {
+  @apply transition-transform duration-100 active:scale-[0.97];
+}
+```
+
+### Componentes Animados
+
+| Componente | Animação |
+|------------|----------|
+| **Button** | `active:scale-[0.98]` + `hover:shadow-md` |
+| **Card** | Variant `CardInteractive` com lift + shadow |
+| **Checkbox** | Hover glow + zoom no check icon |
+| **Switch** | Hover glow + thumb shadow on checked |
+| **Badge** | Variant `interactive` com scale |
+| **Progress** | Transição suave de 500ms |
+
+### Keyframes Customizados
+
+```typescript
+// tailwind.config.ts
+keyframes: {
+  "btn-press": { "50%": { transform: "scale(0.97)" } },
+  "card-lift": { to: { transform: "translateY(-2px) scale(1.01)" } },
+  "pulse-soft": { "50%": { opacity: "0.8" } },
+  "shimmer": { to: { backgroundPosition: "200% 0" } },
+}
+```
+
 ---
 
 # GUIA DE CONTRIBUIÇÃO
@@ -1164,11 +1220,85 @@ npx playwright show-report
 
 # CHANGELOG
 
+## [4.0.0-alpha.19] - 2025-12-17
+
+### Adicionado
+
+#### Fase 6: Performance & UX ⭐ NOVO
+
+##### Error Handling
+- **ErrorBoundary Global:** Componente class-based com fallback UI elegante
+- **Botões de Recuperação:** "Tentar novamente", "Voltar ao início", "Recarregar"
+- **Detalhes Técnicos:** Collapsible em modo dev com stack trace
+
+##### Loading States
+- **Suspense Boundaries:** Todas as rotas com React.Suspense
+- **PageLoader:** Componente de loading com animação Framer Motion
+- **Skeleton Components:**
+  - `ProjectCardSkeleton` / `ProjectCardSkeletonGrid`
+  - `InboxItemCardSkeleton` / `InboxItemCardSkeletonList`
+  - `CalendarGridSkeleton`
+
+##### Performance Optimizations
+- **React.lazy:** Pages secundárias lazy-loaded (Inbox, Projects, Calendar, etc.)
+- **React.memo:** Aplicado em `ProjectCard`, `InboxItemCard`, `CalendarItem`
+- **Lazy SVG Illustrations:** Empty-states com ilustrações lazy-loaded
+
+##### Page Transitions
+- **AnimatePresence:** Wrapper de rotas com animações de entrada/saída
+- **PageTransition:** Fade + slide (200ms) em todas as navegações
+- **Smooth UX:** Transições consistentes entre todas as páginas
+
+##### Micro-Animações
+- **Buttons:** `active:scale-[0.98]` + `hover:shadow-md` em todos os variants
+- **Cards:** Nova classe `.card-interactive` com lift + shadow
+- **CardInteractive:** Novo componente exportado de card.tsx
+- **Checkbox:** Hover glow + zoom animation no check icon
+- **Switch:** Hover glow + thumb shadow quando checked
+- **Badge:** Novo variant `interactive` com scale
+- **Progress:** Transição suave de 500ms com gradient no 100%
+
+##### CSS Utilities (index.css)
+- `.hover-lift` - Elevação suave no hover
+- `.hover-scale` - Escala sutil no hover
+- `.hover-glow` - Glow com cor primária
+- `.press-effect` - Feedback de press
+- `.card-interactive` - Combinação completa para cards
+- `.badge-interactive` - Para badges clicáveis
+- `.icon-btn-hover` - Para botões de ícone
+- `.attention-pulse` - Pulse suave para chamar atenção
+
+##### Tailwind Keyframes (tailwind.config.ts)
+- `btn-press` - Animação de botão pressionado
+- `card-lift` - Elevação de card
+- `pulse-soft` - Pulse suave
+- `shimmer` - Efeito shimmer para loading
+
+### Técnico
+
+- **Build:** Zero erros TypeScript
+- **Testes:** 150+ testes unitários não afetados (mudanças são UI-only)
+- **Bundle:** Lazy loading reduz tamanho inicial
+
+---
+
+## [4.0.0-alpha.18] - 2025-12-17
+
+### Adicionado
+
+#### Fase 5: Type Safety Completa
+- **Zero Any Policy:** Eliminados todos os 15 usos de `any` em produção
+- **Auth Types:** `src/types/auth.ts` com tipagem completa de usuário
+- **Database Types:** `src/types/database.ts` com mapeamento seguro de rows
+- **Score:** 50/50 - Type Safety completa
+
+---
+
 ## [4.0.0-alpha.17] - 2025-12-17
 
 ### Adicionado
 
-#### CI/CD Completo ⭐ NOVO
+#### CI/CD Completo
 - **GitHub Actions:** Workflow com 3 jobs (unit, E2E, visual)
 - **E2E sem service_role_key:** Testes usam signup/login normal
 - **Auto-confirm habilitado:** Emails de teste confirmados automaticamente
@@ -1427,7 +1557,12 @@ npx playwright show-report
 - [x] **Testes Offline Queue (IndexedDB)**
 - [x] **PWA Branding Completo (ícones + splash screens)**
 - [x] **CI/CD com GitHub Actions (unit + E2E + visual)**
-- [x] **Zero Any Policy - Type Safety Completa** ⭐ NOVO
+- [x] **Zero Any Policy - Type Safety Completa**
+- [x] **ErrorBoundary + Suspense Boundaries** ⭐ NOVO
+- [x] **Skeleton Loading Components** ⭐ NOVO
+- [x] **React.lazy + React.memo Optimizations** ⭐ NOVO
+- [x] **Page Transitions com AnimatePresence** ⭐ NOVO
+- [x] **Micro-animações em UI Components** ⭐ NOVO
 
 ## 🔲 Próximas Etapas
 - [ ] Metas diárias de produtividade
