@@ -170,6 +170,36 @@ export type Database = {
         }
         Relationships: []
       }
+      project_activities: {
+        Row: {
+          action: string
+          created_at: string
+          id: string
+          metadata: Json | null
+          project_id: string
+          target_title: string | null
+          user_id: string
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          project_id: string
+          target_title?: string | null
+          user_id: string
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          project_id?: string
+          target_title?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       project_invites: {
         Row: {
           created_at: string
@@ -298,6 +328,15 @@ export type Database = {
       is_project_owner: {
         Args: { _project_id: string; _user_id: string }
         Returns: boolean
+      }
+      log_project_activity: {
+        Args: {
+          _action: string
+          _metadata?: Json
+          _project_id: string
+          _target_title?: string
+        }
+        Returns: undefined
       }
     }
     Enums: {
