@@ -71,7 +71,8 @@ export function useAtomItems() {
       const { data, error } = await supabase
         .from("items")
         .select("*")
-        .order("created_at", { ascending: false });
+        .order("created_at", { ascending: false })
+        .limit(2000);
 
       if (error) {
         addLog("QueryEngine", "Error fetching items", { error: error.message });

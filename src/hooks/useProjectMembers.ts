@@ -38,10 +38,20 @@ export function useProjectMembers(projectId: string | undefined) {
         .eq("project_id", projectId)
         .order("created_at", { ascending: true });
       if (error) throw error;
-      return (data || []).map((row: any) => ({
-        ...row,
-        email: row.profiles?.email ?? null,
-      })) as ProjectMember[];
+
+      type MemberWithProfile = typeof data extends (infer R)[] ? R & { profiles: { email: string | null } | null } : never;
+
+      return (data || []).map((row) => {
+        const typed = row as MemberWithProfile;
+        return {
+          id: typed.id,
+          project_id: typed.project_id,
+          user_id: typed.user_id,
+          role: typed.role as ProjectMember["role"],
+          created_at: typed.created_at,
+          email: typed.profiles?.email ?? undefined,
+        };
+      });
     },
     enabled: !!projectId,
   });
@@ -85,7 +95,7 @@ export function useProjectMembers(projectId: string | undefined) {
         .insert({
           project_id: projectId,
           created_by: userId,
-          role: (params?.role || "editor") as any,
+          role: params?.role || "editor",
           max_uses: params?.maxUses ?? null,
         })
         .select()
@@ -131,7 +141,7 @@ export function useProjectMembers(projectId: string | undefined) {
     mutationFn: async ({ memberId, role }: { memberId: string; role: "editor" | "viewer" }) => {
       const { error } = await supabase
         .from("project_members")
-        .update({ role: role as any })
+        .update({ role })
         .eq("id", memberId);
       if (error) throw error;
     },
