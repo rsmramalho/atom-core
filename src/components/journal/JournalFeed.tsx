@@ -1,7 +1,7 @@
 // Journal Feed - Timeline of reflections
 // Displays reflections in a vertical timeline style
 
-import { useMemo } from "react";
+import { useMemo, useEffect } from "react";
 import { useAtomItems } from "@/hooks/useAtomItems";
 import { AtomItem } from "@/types/atom-engine";
 import { format, isToday, isYesterday, parseISO, startOfDay, startOfWeek, startOfMonth, startOfYear } from "date-fns";
@@ -173,7 +173,7 @@ export function JournalFeed({
   }, [items]);
 
   // Notify parent of all reflections (for tag extraction)
-  useMemo(() => {
+  useEffect(() => {
     onReflectionsChange?.(allReflections);
   }, [allReflections, onReflectionsChange]);
 
@@ -229,7 +229,7 @@ export function JournalFeed({
   }, [allReflections, selectedTags, timePeriod, searchQuery]);
 
   // Notify parent of filtered reflections
-  useMemo(() => {
+  useEffect(() => {
     onFilteredReflectionsChange?.(filteredReflections);
   }, [filteredReflections, onFilteredReflectionsChange]);
 

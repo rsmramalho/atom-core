@@ -7,6 +7,30 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [4.0.0-alpha.24] - 2026-03-04 🔍 CODE AUDIT
+
+> **Auditoria de código** - Fix de anti-patterns React, tradução de UI
+
+### Corrigido
+
+#### useMemo Side-Effect Anti-Pattern (`JournalFeed.tsx`)
+- Duas chamadas `useMemo` usadas para disparar side effects (callbacks do parent) substituídas por `useEffect`
+- `useMemo` é para memoização de valores; side effects devem usar `useEffect`
+
+### Alterado
+
+#### AuthForm Traduzido para Português
+- Labels: Email → E-mail, Password → Senha
+- Botões: Login → Entrar, Sign Up → Cadastrar
+- Toasts: "Welcome back!" → "Bem-vindo de volta!"
+- Links: "Need an account?" → "Não tem conta?"
+
+### Documentado
+- `OnboardingContext.tsx` mantém `getUser()` próprio (renderiza fora do AppLayout)
+- 3º listener `onAuthStateChange` documentado como dívida técnica conhecida
+
+---
+
 ## [4.0.0-alpha.23] - 2026-03-04 ⚡ AUTH OPTIMIZATION
 
 > **Otimização de autenticação** - Hook useCurrentUser elimina chamadas redundantes de getUser()

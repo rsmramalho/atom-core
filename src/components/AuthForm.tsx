@@ -29,14 +29,14 @@ export function AuthForm({ onSuccess }: AuthFormProps) {
           password,
         });
         if (error) throw error;
-        toast({ title: "Login successful", description: "Welcome back!" });
+        toast({ title: "Login realizado", description: "Bem-vindo de volta!" });
       } else {
         const { error } = await supabase.auth.signUp({
           email,
           password,
         });
         if (error) throw error;
-        toast({ title: "Account created", description: "You can now use the debug console." });
+        toast({ title: "Conta criada", description: "Você já pode usar o sistema." });
       }
       onSuccess?.();
     } catch (error) {
@@ -55,13 +55,13 @@ export function AuthForm({ onSuccess }: AuthFormProps) {
     <div className="w-full max-w-md mx-auto">
       <div className="bg-console rounded-lg border border-console-border p-6">
         <h2 className="text-console-text font-mono text-lg font-semibold mb-4">
-          {isLogin ? "Login" : "Create Account"}
+          {isLogin ? "Entrar" : "Criar Conta"}
         </h2>
         
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-console-muted font-mono text-xs mb-1">
-              Email
+              <label className="block text-console-muted font-mono text-xs mb-1">
+              E-mail
             </label>
             <input
               type="email"
@@ -75,7 +75,7 @@ export function AuthForm({ onSuccess }: AuthFormProps) {
           
           <div>
             <label className="block text-console-muted font-mono text-xs mb-1">
-              Password
+              Senha
             </label>
             <input
               type="password"
@@ -100,7 +100,7 @@ export function AuthForm({ onSuccess }: AuthFormProps) {
             ) : (
               <UserPlus className="w-4 h-4" />
             )}
-            {isLogin ? "Login" : "Sign Up"}
+            {isLogin ? "Entrar" : "Cadastrar"}
           </button>
         </form>
 
@@ -109,7 +109,7 @@ export function AuthForm({ onSuccess }: AuthFormProps) {
             onClick={() => setIsLogin(!isLogin)}
             className="text-console-accent font-mono text-xs hover:underline"
           >
-            {isLogin ? "Need an account? Sign up" : "Already have an account? Login"}
+            {isLogin ? "Não tem conta? Cadastre-se" : "Já tem conta? Entrar"}
           </button>
         </div>
       </div>
