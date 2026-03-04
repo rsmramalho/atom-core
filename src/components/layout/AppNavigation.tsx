@@ -29,12 +29,11 @@ import { NavItemList } from "./NavItemList";
 import { SyncStatus } from "./SyncStatus";
 import { SidebarActions } from "./SidebarActions";
 
-const VERSION = "v4.0.0-alpha.23";
+const VERSION = "v4.0.0-alpha.24";
 const VERSION_NOTES = [
-  "useCurrentUser hook (auth sync)",
-  "7 chamadas getUser() eliminadas",
-  "Auth removida do Inbox.tsx",
-  "Hooks otimizados (session cache)",
+  "Fix useMemo anti-pattern (JournalFeed)",
+  "AuthForm traduzido para português",
+  "Auditoria de código contínua",
 ];
 
 function VersionTooltip({ children }: { children: React.ReactNode }) {
