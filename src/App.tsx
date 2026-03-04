@@ -7,7 +7,7 @@ import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { PageTransition } from "@/components/layout/PageTransition";
-import { OnboardingProvider, WelcomeModal, TourOverlay, FirstStepsChecklist } from "@/components/onboarding";
+import { OnboardingProvider } from "@/components/onboarding";
 import { InstallPrompt, NetworkStatusIndicator, OfflineSyncProvider } from "@/components/pwa";
 import { ErrorBoundary, PageLoader } from "@/components/shared";
 
@@ -28,7 +28,15 @@ const Install = lazy(() => import("./pages/Install"));
 const Privacy = lazy(() => import("./pages/Privacy"));
 const Landing = lazy(() => import("./pages/Landing"));
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      retry: 2,
+      refetchOnWindowFocus: false, // PWA environment
+    },
+  },
+});
 
 // Wrapper for routes that need AppLayout with page transition
 function LayoutRoute({ children }: { children: React.ReactNode }) {
@@ -186,9 +194,6 @@ const App = () => (
             <InstallPrompt />
             <NetworkStatusIndicator />
             <BrowserRouter>
-              <WelcomeModal />
-              <TourOverlay />
-              <FirstStepsChecklist />
               <AnimatedRoutes />
             </BrowserRouter>
           </OnboardingProvider>
