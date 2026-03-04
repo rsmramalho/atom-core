@@ -62,14 +62,10 @@ export function useProjectMembers(projectId: string | undefined) {
   const ensureOwner = useMutation({
     mutationFn: async () => {
       if (!projectId) return;
-      const userId = await getCurrentUserId();
-      const { error } = await supabase
-        .from("project_members")
-        .insert({ project_id: projectId, user_id: userId, role: "owner" as any })
-        .select()
-        .single();
-      // Ignore unique violation
-      if (error && !error.message.includes("duplicate")) throw error;
+      const { error } = await supabase.rpc("ensure_project_owner", {
+        _project_id: projectId,
+      });
+      if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["project-members", projectId] });
