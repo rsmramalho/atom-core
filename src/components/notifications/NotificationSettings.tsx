@@ -1,4 +1,5 @@
-import { Bell, BellOff, BellRing, Smartphone } from "lucide-react";
+import { useState } from "react";
+import { Bell, BellOff, BellRing, Smartphone, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -9,6 +10,8 @@ import {
 } from "@/components/ui/popover";
 import { useNotifications } from "@/hooks/useNotifications";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 export function NotificationSettings() {
@@ -21,6 +24,34 @@ export function NotificationSettings() {
   } = useNotifications();
 
   const push = usePushNotifications();
+  const user = useCurrentUser();
+  const [isSendingTest, setIsSendingTest] = useState(false);
+
+  const handleSendTest = async () => {
+    if (!user) return;
+    setIsSendingTest(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("send-push-notification", {
+        body: {
+          user_id: user.id,
+          title: "🧪 Teste - MindMate",
+          body: "Push notification funcionando! 🎉",
+          url: "/app",
+        },
+      });
+      if (error) throw error;
+      if (data?.sent > 0) {
+        toast.success("Notificação de teste enviada!");
+      } else {
+        toast.info("Nenhum endpoint registrado. Tente desativar e reativar o push.");
+      }
+    } catch (err) {
+      console.error("Test push failed:", err);
+      toast.error("Erro ao enviar notificação de teste.");
+    } finally {
+      setIsSendingTest(false);
+    }
+  };
 
   const handleRequestPermission = async () => {
     const result = await requestPermission();
@@ -186,6 +217,19 @@ export function NotificationSettings() {
                           <p className="text-xs text-destructive">
                             Push bloqueado pelo navegador.
                           </p>
+                        )}
+
+                        {push.status === "subscribed" && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="w-full"
+                            onClick={handleSendTest}
+                            disabled={isSendingTest}
+                          >
+                            <Send className="h-3.5 w-3.5 mr-2" />
+                            {isSendingTest ? "Enviando..." : "Enviar teste"}
+                          </Button>
                         )}
                       </div>
                     </>
