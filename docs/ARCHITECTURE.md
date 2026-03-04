@@ -2,9 +2,9 @@
 
 ## Arquitetura do Sistema
 
-**Versão:** 4.0.0-alpha.22  
+**Versão:** 4.0.0-alpha.23  
 **Data:** 2026-03-04  
-**Status:** Production Ready - Refactor Arquitetural Completo
+**Status:** Production Ready - Auth Optimizado
 
 ---
 
@@ -109,6 +109,7 @@ src/
 │   └── NavLink.tsx
 │
 ├── hooks/
+│   ├── useCurrentUser.ts            # ⭐ Cache de sessão (alpha.23)
 │   ├── useAtomItems.ts             # CRUD de itens via Supabase
 │   ├── useDashboardData.ts         # Filtros do dashboard (B.10)
 │   ├── useCalendarItems.ts         # Items para calendário
@@ -423,7 +424,49 @@ Suporte a uso offline com sync automático.
 
 ---
 
-## 🖥️ Rotas
+## 🔐 Arquitetura de Autenticação (alpha.23)
+
+### Fluxo Otimizado
+
+```
+AppLayout.tsx
+  └── supabase.auth.onAuthStateChange()  ← Única fonte de verdade
+        │
+        ▼
+useCurrentUser.ts (cache global)
+  ├── cachedUser (variável módulo)       ← Sync, sem rede
+  ├── useCurrentUser() hook              ← Para componentes React
+  └── getCurrentUserId() async           ← Para queries/mutations
+        │
+        ▼
+  Hooks de dados (sem getUser() redundante)
+  ├── useAtomItems.ts     → getCurrentUserId()
+  ├── useCalendarItems.ts → getCurrentUserId()
+  ├── useMilestones.ts    → getCurrentUserId()
+  └── useRitual.ts        → getCurrentUserId()
+```
+
+### Antes vs Depois
+
+| Métrica | alpha.22 | alpha.23 |
+|---------|----------|----------|
+| Chamadas `getUser()` por página | 3-7 (async, rede) | 0 (cache síncrono) |
+| Listeners `onAuthStateChange` | Duplicados em páginas | 1 central + 1 cache |
+| Auth em `Inbox.tsx` | Estado local + useEffect | Nenhum (hook resolve) |
+
+### API
+
+```typescript
+// Em componentes React
+const user = useCurrentUser(); // User | null (reativo)
+
+// Em funções de query/mutation
+const userId = await getCurrentUserId(); // string (throws se não autenticado)
+```
+
+---
+
+
 
 | Rota | Componente | Descrição |
 |------|------------|-----------|
@@ -520,7 +563,7 @@ export function asTypedRow(row: ItemsRow): TypedItemsRow;
 
 ## 📋 Roadmap
 
-### ✅ Implementado (v4.0.0-alpha.22)
+### ✅ Implementado (v4.0.0-alpha.23)
 
 - [x] Modelo de dados (Single Table Design)
 - [x] Tipos TypeScript completos (Zero Any Policy)
@@ -545,6 +588,7 @@ export function asTypedRow(row: ItemsRow): TypedItemsRow;
 - [x] Sistema de navegação + Command Palette
 - [x] Debug Console (God Mode)
 - [x] Autenticação + RLS
+- [x] Auth Otimizado - useCurrentUser com cache síncrono (alpha.23)
 
 ### 🔲 Próximas Etapas
 
