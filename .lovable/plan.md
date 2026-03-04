@@ -1,145 +1,74 @@
 
 
-# Auditoria Completa do MindMate v4.0.0-alpha.21
+# MindMate v4.0.0-alpha.23 -- Plan
 
-## Resumo Executivo
+## Status
 
-O projeto esta em bom estado geral. A limpeza anterior removeu componentes nao utilizados. A auditoria identificou **problemas arquiteturais, duplicacao de logica, oportunidades de performance, e melhorias de UX** que vao elevar a qualidade do codigo significativamente.
+The alpha.22 refactor is complete. All 8 items from the previous plan were implemented. This plan addresses remaining technical debt and new improvements.
 
----
+## Problems Identified
 
-## Problemas Identificados
+### 1. Auth Still Duplicated in Inbox.tsx (Priority: High)
 
-### 1. Autenticacao Duplicada (Prioridade Alta)
+`Inbox.tsx` still calls `supabase.auth.getUser()` independently (line 39) and stores its own `user` state. Since `AppLayout` already guarantees authentication, this is redundant -- same pattern that was fixed in `Index.tsx`.
 
-`Index.tsx` e `AppLayout.tsx` ambos fazem `supabase.auth.getSession()` + `onAuthStateChange` independentemente. O `Index.tsx` renderiza seu proprio `AuthForm` quando nao ha usuario, mas ja esta dentro do `AppLayout` que tambem verifica auth. Isso causa:
+The `user` object is only used to pass `user.id` when creating items. However, `useAtomItems.createItem` already calls `supabase.auth.getUser()` internally (line 104 of useAtomItems.ts). So the `user` state in Inbox is completely unnecessary.
 
-- Duas subscriptions de auth simultaneas
-- Loading state duplo
-- `AuthForm` renderizado dentro do layout quando `AppLayout` ja deveria tratar isso
+**Fix:** Remove `user` state, the `useEffect` with `getUser()`, and the `!user` guard in `handleCapture`. The hook already handles auth.
 
-**Plano:** Centralizar auth no `AppLayout`. Remover logica de auth duplicada do `Index.tsx` -- ele deve assumir que o usuario ja esta autenticado quando renderizado dentro de `LayoutRoute`.
+### 2. Scattered `supabase.auth.getUser()` in Hooks (Priority: Medium)
 
-### 2. Landing Page Monolitica (1054 linhas)
+Multiple hooks call `supabase.auth.getUser()` on every query/mutation:
+- `useAtomItems.ts` (createItem mutation)
+- `useCalendarItems.ts` (3 queries)
+- `useMilestones.ts` (query + mutation)
+- `useRitual.ts` (query)
 
-`Landing.tsx` tem mais de 1000 linhas em um unico arquivo. Dificil manter e testar.
+Each call is an async network request. Since `AppLayout` guarantees auth, a shared auth context or utility could reduce these redundant calls. However, this is a larger refactor with risk -- these calls also serve as auth guards in the data layer.
 
-**Plano:** Extrair em componentes:
-- `HeroSection.tsx`
-- `PillarSection.tsx` (3 Pilares)
-- `AgnosticSection.tsx`
-- `FeaturesSection.tsx`
-- `BenefitsSection.tsx` (inclui terminal animado)
-- `DeveloperSection.tsx`
-- `FAQSection.tsx`
-- `CTASection.tsx`
-- `LandingFooter.tsx`
+**Fix:** Create a lightweight `useCurrentUser()` hook that caches the user from the session (already available synchronously after `AppLayout` sets it). Use it in hooks instead of repeated `getUser()` calls. This is optional and lower priority.
 
-Manter `Landing.tsx` como compositor que importa e renderiza as secoes.
+### 3. Unused Import in Inbox.tsx
 
-### 3. AppNavigation.tsx Duplicacao Mobile/Desktop (483 linhas)
+`User` type imported (line 15) but after removing the auth code, it won't be needed.
 
-O componente tem basicamente o mesmo conteudo renderizado duas vezes: uma vez para mobile (Sheet) e outra para desktop (sidebar). Os nav items, botoes de acao, sync status sao identicos.
+### 4. Plan File Outdated
 
-**Plano:** Extrair componentes reutilizaveis:
-- `NavItemList` (lista de links de navegacao)
-- `SyncStatus` (indicador de sincronizacao)
-- `SidebarActions` (debug, cache, backup, logout)
-
-Reduzir duplicacao de ~480 linhas para ~250.
-
-### 4. QueryClient Sem Configuracao (Performance)
-
-```typescript
-const queryClient = new QueryClient();
-```
-
-Sem configuracao de defaults. Pode causar refetches desnecessarios.
-
-**Plano:** Adicionar defaults sensatos:
-- `staleTime: 5 * 60 * 1000` (5 min)
-- `retry: 2`
-- `refetchOnWindowFocus: false` para ambiente PWA
-
-### 5. Onboarding Components Fora do Layout
-
-`WelcomeModal`, `TourOverlay`, `FirstStepsChecklist` estao no `App.tsx` fora do `AppLayout`, ou seja, renderizam mesmo na Landing page e rotas publicas. Desperdicio de recursos.
-
-**Plano:** Mover para dentro do `AppLayout` onde so renderizam para usuarios autenticados.
-
-### 6. console.log em Producao
-
-`useNotifications.ts` tem `console.log` que deveria ser removido ou convertido para o `useEngineLogger`.
-
-**Plano:** Substituir por `addLog()` do engine logger.
-
-### 7. Imports Nao Utilizados de Radix
-
-Dependencias instaladas mas possivelmente nao usadas apos cleanup:
-- `@radix-ui/react-hover-card` (componente deletado, dep mantida)
-- `@radix-ui/react-menubar` (componente deletado, dep mantida)
-- `@radix-ui/react-navigation-menu` (componente deletado, dep mantida)
-- `@radix-ui/react-toggle-group` (componente deletado, dep mantida)
-- `@radix-ui/react-aspect-ratio` (componente deletado, dep mantida)
-- `@radix-ui/react-avatar` (componente deletado, dep mantida)
-
-**Plano:** Remover 6 dependencias Radix orfas do `package.json`.
-
-### 8. forwardRef Warning no FirstStepsChecklist
-
-Warning pre-existente no console. Provavelmente um componente passando ref incorretamente.
-
-**Plano:** Investigar e corrigir o warning.
+`.lovable/plan.md` still references the alpha.21 plan. Should be updated with the new plan.
 
 ---
 
-## Plano de Implementacao
+## Implementation Plan
 
-### Fase 1 -- Limpeza Imediata (baixo risco)
-1. Remover 6 dependencias Radix orfas
-2. Substituir `console.log` por engine logger
-3. Mover onboarding para dentro do `AppLayout`
+### Step 1 -- Remove redundant auth from Inbox.tsx
+- Remove `user` state, `useEffect` with `getUser()`, and `User` import
+- Remove `!user` guard from `handleCapture` (the `createItem` hook handles auth internally)
+- Remove `supabase` import if no longer used
 
-### Fase 2 -- Refactor Arquitetural
-4. Centralizar auth (remover duplicacao `Index.tsx` / `AppLayout.tsx`)
-5. Configurar `QueryClient` com defaults
+### Step 2 -- Create `useCurrentUser` hook (optional optimization)
+- Lightweight hook that reads the cached session user
+- Replace `supabase.auth.getUser()` calls in data hooks
+- Reduces redundant async auth checks across 4 hooks (7 calls total)
 
-### Fase 3 -- Componentizacao
-6. Extrair `Landing.tsx` em ~9 componentes de secao
-7. Extrair componentes reutilizaveis do `AppNavigation.tsx`
+### Step 3 -- Update `.lovable/plan.md`
+- Replace with alpha.23 plan
 
-### Fase 4 -- Polish
-8. Corrigir warning de forwardRef
-9. Atualizar versao para `alpha.22` e docs
-
----
-
-## Detalhes Tecnicos
+### Step 4 -- Update version and CHANGELOG
+- Bump to alpha.23 in AppNavigation
+- Add CHANGELOG entry
 
 ```text
-Arquitetura de Auth (Antes):
-  App.tsx
-    ├── WelcomeModal (renderiza sempre)
-    ├── TourOverlay (renderiza sempre)
-    ├── FirstStepsChecklist (renderiza sempre)
-    └── Routes
-         ├── Landing (publica)
-         └── AppLayout
-              ├── auth check #1
-              └── Index.tsx
-                   └── auth check #2 + AuthForm
+Auth Calls (Before):
+  AppLayout → getSession + onAuthStateChange (central)
+  Inbox.tsx → getUser (redundant)
+  useAtomItems → getUser (per mutation)
+  useCalendarItems → getUser x3 (per query)
+  useMilestones → getUser x2
+  useRitual → getUser x1
 
-Arquitetura de Auth (Depois):
-  App.tsx
-    └── Routes
-         ├── Landing (publica, leve)
-         └── AppLayout
-              ├── auth check (unico)
-              ├── WelcomeModal
-              ├── TourOverlay
-              ├── FirstStepsChecklist
-              └── Index.tsx (assume autenticado)
+Auth Calls (After):
+  AppLayout → getSession + onAuthStateChange (central)
+  useCurrentUser → reads cached session (sync, no network)
+  All hooks → useCurrentUser() instead of getUser()
 ```
-
-**Estimativa:** 7-8 etapas de implementacao, resultado em codigo ~30% mais limpo e melhor performance de carregamento inicial.
 
