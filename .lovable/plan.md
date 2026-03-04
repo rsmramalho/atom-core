@@ -1,101 +1,80 @@
 
 
-# MindMate v4.0.0-alpha.25 -- Push Notifications com VAPID Keys
+# Activity Feed para Projetos Compartilhados
 
-## Overview
+## Objetivo
+Adicionar um feed de atividades no projeto compartilhado mostrando ações dos membros (criação de tasks, conclusão de itens, entrada de membros, etc).
 
-Upgrade the current Web Notifications API (client-only, requires app open) to true Web Push Notifications via the Push API + Service Worker. This enables notifications even when the app is closed.
-
-## Architecture
+## Arquitetura
 
 ```text
-┌─────────────┐     subscribe      ┌──────────────────┐
-│  Browser SW  │◄──────────────────│  Frontend (React) │
-│  (push event)│                    │  usePushNotifs()  │
-└──────┬───────┘                    └────────┬──────────┘
-       │ push received                       │ save subscription
-       ▼                                     ▼
-  Show notification              ┌───────────────────────┐
-                                 │  push_subscriptions   │
-                                 │  (Supabase table)     │
-                                 └───────────┬───────────┘
-                                             │
-                                 ┌───────────▼───────────┐
-                                 │  send-push-notification│
-                                 │  (Edge Function)       │
-                                 │  Uses web-push + VAPID │
-                                 └───────────────────────┘
+┌──────────────────────┐       ┌─────────────────────┐
+│  project_activities  │◄──────│  Triggers / App Code│
+│  (nova tabela)       │       │  (inserts on action) │
+└──────────┬───────────┘       └─────────────────────┘
+           │
+           ▼
+┌──────────────────────┐
+│  ActivityPane (UI)   │
+│  Nova aba no projeto │
+└──────────────────────┘
 ```
 
-## Implementation Steps
+## Passos de Implementação
 
-### 1. Generate VAPID Keys & Store as Secrets
-- Generate a VAPID key pair (can be done via `web-push generate-vapid-keys`)
-- Store `VAPID_PUBLIC_KEY` and `VAPID_PRIVATE_KEY` as backend secrets
-- Expose the public key to the frontend via an edge function or hardcode it (public keys are safe to embed)
+### 1. Criar tabela `project_activities`
 
-### 2. Create `push_subscriptions` Database Table
+Nova tabela para armazenar eventos do projeto:
+
 ```sql
-CREATE TABLE public.push_subscriptions (
+CREATE TABLE public.project_activities (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  project_id uuid NOT NULL,
   user_id uuid NOT NULL,
-  endpoint text NOT NULL,
-  p256dh text NOT NULL,
-  auth text NOT NULL,
-  created_at timestamptz NOT NULL DEFAULT now(),
-  UNIQUE(user_id, endpoint)
+  action text NOT NULL,        -- 'task_created', 'task_completed', 'member_joined', etc.
+  target_title text,           -- título do item afetado
+  metadata jsonb DEFAULT '{}'::jsonb,
+  created_at timestamptz NOT NULL DEFAULT now()
 );
-ALTER TABLE public.push_subscriptions ENABLE ROW LEVEL SECURITY;
--- RLS: users can only CRUD their own subscriptions
+
+ALTER TABLE public.project_activities ENABLE ROW LEVEL SECURITY;
 ```
 
-### 3. Create Edge Function `send-push-notification`
-- `supabase/functions/send-push-notification/index.ts`
-- Uses `web-push` npm package to send push messages
-- Accepts `{ user_id, title, body }` payload
-- Reads VAPID keys from secrets, queries user subscriptions, sends push to each
-- Authenticated via service role key (called from cron or other edge functions)
+**RLS**: Membros do projeto podem ler; inserção via `SECURITY DEFINER` function ou direto pelo app (com policy usando `is_project_member`).
 
-### 4. Create Edge Function `check-due-tasks`
-- `supabase/functions/check-due-tasks/index.ts`
-- Scheduled cron job (hourly) that queries items with due dates
-- Groups by user, builds notification summary (overdue/today/tomorrow)
-- Calls `send-push-notification` for each user with pending reminders
-- Tracks last notification sent per user to avoid spam
+### 2. Criar function para registrar atividades
 
-### 5. Add Service Worker Push Handler
-- Add `push` and `notificationclick` event listeners to the SW
-- vite-plugin-pwa supports custom SW code via `injectManifest` or by adding to the generated SW
-- On push: show notification with icon/badge
-- On click: focus/open the app
+Uma function `log_project_activity` (SECURITY DEFINER) que insere no feed, validando que o user é membro do projeto.
 
-### 6. Update Frontend: `usePushNotifications` Hook
-- New hook that handles:
-  - Requesting push permission (reuses existing notification permission)
-  - Subscribing to push via `registration.pushManager.subscribe()` with VAPID public key
-  - Saving the `PushSubscription` (endpoint, keys) to `push_subscriptions` table
-  - Unsubscribing (delete from table)
-- Integrated into `NotificationSettings` UI with a new "Push Notifications" toggle
+### 3. Registrar atividades no código existente
 
-### 7. Update `NotificationSettings` UI
-- Add a section for push notifications (separate from in-app browser notifications)
-- Show subscription status
-- Keep existing in-app notification settings as fallback
+Adicionar chamadas ao `log_project_activity` nos pontos-chave:
+- **`ProjectDetail.tsx`**: Ao criar task, milestone, ou lista → log `task_created`, `milestone_created`, `list_created`
+- **`WorkAreaPane.tsx`**: Ao completar item → log `item_completed`
+- **`InviteAccept.tsx`**: Ao aceitar convite → log `member_joined`
+- **Status change**: Ao mudar status do projeto → log `status_changed`
 
-### 8. Update Version & Docs
-- Bump to `alpha.25` in `AppNavigation.tsx`
-- Update CHANGELOG, ARCHITECTURE.md, FULL_DOCUMENTATION.md
+### 4. Criar hook `useProjectActivities`
 
-## Technical Details
+Hook com `useQuery` para buscar atividades do projeto, ordenadas por `created_at DESC`, com paginação simples (últimas 50).
 
-- **VAPID**: Voluntary Application Server Identification -- standard for push without proprietary services
-- **web-push**: npm package used in edge function (`npm:web-push`) for sending push messages
-- **PushSubscription** contains: `endpoint` (browser push service URL), `keys.p256dh` and `keys.auth` (encryption keys)
-- The existing `NotificationManager` + `useNotifications` remain as the in-app fallback for when push isn't available
-- Service worker push events work even when the tab is closed
+### 5. Criar componente `ActivityPane`
 
-## Secret Requirements
-Two secrets will need to be added:
-- `VAPID_PUBLIC_KEY` -- embedded in frontend for subscription
-- `VAPID_PRIVATE_KEY` -- used only in edge function for signing
+Nova aba "Atividade" no `ProjectDetail.tsx` (5ª tab) com:
+- Timeline vertical com ícones por tipo de ação
+- Nome/email do membro que fez a ação
+- Timestamp relativo (ex: "há 2 horas")
+- Scroll infinito ou "carregar mais"
+
+### 6. Atualizar `ProjectDetail.tsx`
+
+- Adicionar 5ª aba "Atividade" com ícone `Activity` do lucide
+- Grid do TabsList passa de 4 para 5 colunas
+
+## Detalhes Técnicos
+
+- **Tipos de ação**: `task_created`, `task_completed`, `milestone_created`, `milestone_completed`, `list_created`, `member_joined`, `member_removed`, `status_changed`, `note_created`
+- **RLS policies**: SELECT para `is_project_member`, INSERT para `is_project_member` (membros logam suas próprias ações)
+- **Sem realtime** inicialmente — refresh ao abrir a aba
+- A tabela não tem foreign keys para `items` (usa `target_title` como snapshot para simplicidade)
 
