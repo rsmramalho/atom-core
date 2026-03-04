@@ -1,7 +1,7 @@
 # MindMate - Atom Engine 4.0
 ## Resumo Executivo
 
-**Versão:** 4.0.0-alpha.20 | **Status:** Production Ready | **Data:** 2025-12-17
+**Versão:** 4.0.0-alpha.22 | **Status:** Production Ready | **Data:** 2026-03-04
 
 ---
 
@@ -43,15 +43,26 @@ type ProjectStatus = 'draft' | 'active' | 'paused' | 'completed' | 'archived';
 
 **Tabela única `items`** com campos opcionais por tipo. Milestones são tasks com tag `#milestone`.
 
+### Arquitetura (alpha.22)
+
+```
+App.tsx (QueryClient: staleTime 5min, retry 2)
+├── Landing (pública) → 9 componentes modulares
+└── AppLayout (auth centralizada - ÚNICO ponto)
+    ├── AppNavigation → NavItemList + SyncStatus + SidebarActions
+    ├── Onboarding (só autenticado)
+    └── {pages} (assumem autenticado)
+```
+
 ### Features Principais
 
-- **Landing Page:** Marketing com posicionamento "Mindful control"
+- **Landing Componentizada:** 9 seções modulares (Hero, Pillars, Features, FAQ, etc.)
+- **Auth Centralizada:** Único ponto de verificação no AppLayout
 - **PWA Completo:** Instalável, offline-first, splash screens
 - **Offline Sync:** IndexedDB queue + auto-sync ao reconectar
 - **Notificações:** Web Notifications API para lembretes
 - **Analytics:** Dashboard de métricas de produtividade
 - **Keyboard-First:** Atalhos globais (⌘K, ⌘H, ⌘I, ⌘P, ⌘J, etc.)
-- **Haptic Feedback:** Vibração em interações mobile
 - **Onboarding:** Welcome modal + tour guiado + checklist gamificado
 
 ### Qualidade de Código
