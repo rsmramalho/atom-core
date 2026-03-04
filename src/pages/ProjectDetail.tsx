@@ -322,7 +322,12 @@ export default function ProjectDetail() {
               onClick={async () => {
                 // Ensure owner membership before opening share modal
                 if (currentUser && project?.user_id === currentUser.id && members.length === 0) {
-                  await ensureOwner();
+                  try {
+                    await ensureOwner();
+                  } catch (e) {
+                    // Continue to open modal even if bootstrap fails
+                    console.warn("ensureOwner failed:", e);
+                  }
                 }
                 setShareModalOpen(true);
               }}
