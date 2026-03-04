@@ -65,11 +65,40 @@ export function FirstStepsChecklist() {
   const [showConfetti, setShowConfetti] = useState(false);
   const [hasTriggeredConfetti, setHasTriggeredConfetti] = useState(false);
 
-  if (!showChecklist) return null;
-
   const completedCount = Object.values(checklistProgress).filter(Boolean).length;
   const progressPercent = (completedCount / checklistItems.length) * 100;
   const allCompleted = completedCount === checklistItems.length;
+
+  return (
+    <FirstStepsChecklistInner
+      checklistProgress={checklistProgress}
+      allCompleted={allCompleted}
+      progressPercent={progressPercent}
+      completedCount={completedCount}
+      markChecklistItem={markChecklistItem}
+      dismissChecklist={dismissChecklist}
+    />
+  );
+}
+
+function FirstStepsChecklistInner({
+  checklistProgress,
+  allCompleted,
+  progressPercent,
+  completedCount,
+  markChecklistItem,
+  dismissChecklist,
+}: {
+  checklistProgress: Record<string, boolean>;
+  allCompleted: boolean;
+  progressPercent: number;
+  completedCount: number;
+  markChecklistItem: (id: string) => void;
+  dismissChecklist: () => void;
+}) {
+  const navigate = useNavigate();
+  const [showConfetti, setShowConfetti] = useState(false);
+  const [hasTriggeredConfetti, setHasTriggeredConfetti] = useState(false);
 
   // Trigger confetti when all items are completed (only once)
   useEffect(() => {

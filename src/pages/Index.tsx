@@ -1,7 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
-import { AuthForm } from "@/components/AuthForm";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import { useRitual } from "@/hooks/useRitual";
 import { RitualBanner } from "@/components/dashboard/RitualBanner";
@@ -12,7 +10,6 @@ import { Confetti } from "@/components/shared";
 import { Button } from "@/components/ui/button";
 import { Loader2, Sunrise, Sun, Sunset } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import type { User } from "@/types/auth";
 
 const periodIcons = {
   aurora: Sunrise,
@@ -23,8 +20,6 @@ const periodIcons = {
 export default function Index() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
   const [showConfetti, setShowConfetti] = useState(false);
   
   // Track previous pending count to detect completion
@@ -69,41 +64,6 @@ export default function Index() {
   const handleConfettiComplete = useCallback(() => {
     setShowConfetti(false);
   }, []);
-
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
-  }
-
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-4">
-        <div className="w-full max-w-md">
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-primary mb-2">MindMate</h1>
-            <p className="text-muted-foreground">Atom Engine 4.0</p>
-          </div>
-          <AuthForm />
-        </div>
-      </div>
-    );
-  }
 
   if (isLoading) {
     return (

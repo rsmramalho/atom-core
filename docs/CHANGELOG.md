@@ -7,6 +7,50 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [4.0.0-alpha.22] - 2026-03-04 🏗️ ARCHITECTURE REFACTOR
+
+> **Refatoração arquitetural completa** - Auth centralizado, Landing componentizada, AppNavigation DRY, QueryClient otimizado
+
+### Alterado
+
+#### Auth Centralizado
+- Removida duplicação de auth entre `Index.tsx` e `AppLayout.tsx`
+- `AppLayout` agora é o único ponto de verificação de autenticação
+- `Index.tsx` assume que o usuário já está autenticado (renderiza apenas dashboard)
+- `onAuthStateChange` configurado antes de `getSession` (best practice)
+
+#### Landing Page Componentizada (1054 → 32 linhas)
+- Extraídas 9 seções em componentes independentes:
+  - `HeroSection`, `PillarSection`, `AgnosticSection`, `FeaturesSection`
+  - `BenefitsSection`, `DeveloperSection`, `FAQSection`, `CTASection`
+  - `LandingNav`, `LandingFooter`
+- Componentes compartilhados: `FeatureCard`, `BenefitItem` em `shared.tsx`
+- `Landing.tsx` agora é apenas um compositor
+
+#### AppNavigation Refatorada (483 → 240 linhas)
+- Extraídos 3 componentes reutilizáveis:
+  - `NavItemList` - lista de links de navegação
+  - `SyncStatus` - indicador de sincronização
+  - `SidebarActions` - botões de ação (debug, cache, backup, logout)
+- Eliminada duplicação mobile/desktop via componente wrapper pattern
+- Versão centralizada em constante `VERSION`
+
+#### Performance
+- `QueryClient` configurado com defaults: `staleTime: 5min`, `retry: 2`, `refetchOnWindowFocus: false`
+- Onboarding (`WelcomeModal`, `TourOverlay`, `FirstStepsChecklist`) movido para dentro de `AppLayout`
+  - Antes: renderizava em rotas públicas (Landing, Install, Privacy)
+  - Depois: renderiza apenas para usuários autenticados
+
+### Corrigido
+- Warning de forwardRef no `FirstStepsChecklist` (hooks após early return)
+- `console.log` em produção no `useNotifications.ts` removido
+
+### Removido
+- 6 dependências Radix órfãs: `hover-card`, `menubar`, `navigation-menu`, `toggle-group`, `aspect-ratio`, `avatar`
+- Lógica duplicada de auth no `Index.tsx` (import supabase, AuthForm, loading state)
+
+---
+
 ## [4.0.0-alpha.21] - 2026-03-04 🧹 CODE AUDIT & CLEANUP
 
 > **Auditoria completa do codebase** - Remoção de código morto, componentes e dependências não utilizados

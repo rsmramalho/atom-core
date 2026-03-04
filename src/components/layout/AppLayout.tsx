@@ -6,7 +6,9 @@ import { CommandPalette } from "./CommandPalette";
 import { EngineDebugConsole } from "@/components/EngineDebugConsole";
 import { KeyboardShortcutsHelp } from "./KeyboardShortcutsHelp";
 import { NotificationManager } from "@/components/notifications";
+import { WelcomeModal, TourOverlay, FirstStepsChecklist } from "@/components/onboarding";
 import { useDebugConsole } from "@/hooks/useDebugConsole";
+import { AuthForm } from "@/components/AuthForm";
 import { Loader2 } from "lucide-react";
 import type { User } from "@/types/auth";
 
@@ -21,15 +23,16 @@ export function AppLayout({ children }: AppLayoutProps) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check current session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    // Listen for auth changes - set up BEFORE getSession
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
       setLoading(false);
     });
 
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    // Check current session
+    supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
+      setLoading(false);
     });
 
     return () => subscription.unsubscribe();
@@ -45,8 +48,14 @@ export function AppLayout({ children }: AppLayoutProps) {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-background">
-        {children}
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <div className="w-full max-w-md">
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-bold text-primary mb-2">MindMate</h1>
+            <p className="text-muted-foreground">Atom Engine 4.0</p>
+          </div>
+          <AuthForm />
+        </div>
       </div>
     );
   }
@@ -68,6 +77,11 @@ export function AppLayout({ children }: AppLayoutProps) {
 
       {/* Notification Manager (background checks) */}
       <NotificationManager />
+
+      {/* Onboarding (only for authenticated users) */}
+      <WelcomeModal />
+      <TourOverlay />
+      <FirstStepsChecklist />
 
       {/* Debug Console */}
       {isOpen && <EngineDebugConsole isOpen={isOpen} onClose={() => {}} />}
