@@ -1,9 +1,9 @@
 # MindMate - Atom Engine 4.0
 # Documentação Completa Consolidada
 
-**Versão:** 4.0.0-alpha.22  
+**Versão:** 4.0.0-alpha.24  
 **Data:** 2026-03-04  
-**Status:** ✅ **RELEASE CANDIDATE** - Validado para Produção | 🏗️ **Refactor Arquitetural**
+**Status:** ✅ **Production Ready** - Auth Optimizado & Auditado
 
 > Esta versão representa o marco estável do Atom Engine 4.0, com todas as funcionalidades core
 > implementadas e testadas. Refatoração arquitetural completa: auth centralizada, Landing componentizada (9 seções),
@@ -358,6 +358,7 @@ src/
 │   └── NavLink.tsx
 │
 ├── hooks/
+│   ├── useCurrentUser.ts            # ⭐ Cache de sessão (alpha.23)
 │   ├── useAtomItems.ts             # CRUD de itens via Supabase
 │   ├── useDashboardData.ts         # Filtros do dashboard (B.10)
 │   ├── useCalendarItems.ts         # Items para calendário
@@ -407,25 +408,44 @@ src/
     └── supabase/                   # Cliente Supabase (auto-gerado)
 ```
 
-## Arquitetura de Autenticação (alpha.22)
+## Arquitetura de Autenticação (alpha.23)
+
+### Fluxo Otimizado
 
 ```
-App.tsx (QueryClient otimizado: staleTime 5min, retry 2, refetchOnWindowFocus false)
-  └── Routes
-       ├── Landing (pública, sem auth check)
-       │   └── Compositor → 9 componentes de seção
-       └── AppLayout (auth centralizada - ÚNICO ponto)
-            ├── loading? → Spinner
-            ├── !user? → AuthForm
-            └── user ✓
-                 ├── AppNavigation (compositor)
-                 │   ├── NavItemList (links reutilizáveis)
-                 │   ├── SyncStatus (indicador de sync)
-                 │   └── SidebarActions (debug, cache, backup, logout)
-                 ├── WelcomeModal (só autenticado)
-                 ├── TourOverlay (só autenticado)
-                 ├── FirstStepsChecklist (só autenticado)
-                 └── {children} (páginas assumem autenticado)
+AppLayout.tsx
+  └── supabase.auth.onAuthStateChange()  ← Única fonte de verdade
+        │
+        ▼
+useCurrentUser.ts (cache global)
+  ├── cachedUser (variável módulo)       ← Sync, sem rede
+  ├── useCurrentUser() hook              ← Para componentes React
+  └── getCurrentUserId() async           ← Para queries/mutations
+        │
+        ▼
+  Hooks de dados (sem getUser() redundante)
+  ├── useAtomItems.ts     → getCurrentUserId()
+  ├── useCalendarItems.ts → getCurrentUserId()
+  ├── useMilestones.ts    → getCurrentUserId()
+  └── useRitual.ts        → getCurrentUserId()
+```
+
+### Antes vs Depois
+
+| Métrica | alpha.22 | alpha.23 |
+|---------|----------|----------|
+| Chamadas `getUser()` por página | 3-7 (async, rede) | 0 (cache síncrono) |
+| Listeners `onAuthStateChange` | Duplicados em páginas | 1 central + 1 cache |
+| Auth em `Inbox.tsx` | Estado local + useEffect | Nenhum (hook resolve) |
+
+### API
+
+```typescript
+// Em componentes React
+const user = useCurrentUser(); // User | null (reativo)
+
+// Em funções de query/mutation
+const userId = await getCurrentUserId(); // string (throws se não autenticado)
 ```
 
 ## Arquitetura Visual
@@ -1400,6 +1420,63 @@ npx playwright show-report
 
 ---
 
+## [4.0.0-alpha.24] - 2026-03-04 🔍 CODE AUDIT
+
+> **Auditoria de código** - Fix de anti-patterns React, tradução de UI
+
+### Corrigido
+
+#### useMemo Side-Effect Anti-Pattern (`JournalFeed.tsx`)
+- Duas chamadas `useMemo` usadas para disparar side effects (callbacks do parent) substituídas por `useEffect`
+- `useMemo` é para memoização de valores; side effects devem usar `useEffect`
+
+### Alterado
+
+#### AuthForm Traduzido para Português
+- Labels: Email → E-mail, Password → Senha
+- Botões: Login → Entrar, Sign Up → Cadastrar
+- Toasts: "Welcome back!" → "Bem-vindo de volta!"
+- Links: "Need an account?" → "Não tem conta?"
+
+### Documentado
+- `OnboardingContext.tsx` mantém `getUser()` próprio (renderiza fora do AppLayout)
+- 3º listener `onAuthStateChange` documentado como dívida técnica conhecida
+
+---
+
+## [4.0.0-alpha.23] - 2026-03-04 ⚡ AUTH OPTIMIZATION
+
+> **Otimização de autenticação** - Hook useCurrentUser elimina chamadas redundantes de getUser()
+
+### Adicionado
+
+#### useCurrentUser Hook (`src/hooks/useCurrentUser.ts`)
+- Hook leve que cacheia o usuário da sessão auth
+- `getCurrentUserId()` - função async para uso em queries/mutations
+- Listener global de `onAuthStateChange` inicializado uma única vez
+- Fallback para `getSession()` caso o cache não esteja populado
+
+### Alterado
+
+#### Auth Removida do Inbox.tsx
+- Removido `user` state, `useEffect` com `getUser()`, import de `supabase`
+- Removido guard `!user` do `handleCapture` (o hook `createItem` já gerencia auth)
+- Removido import de `User` type (não mais necessário)
+
+#### Hooks Otimizados (7 chamadas getUser() eliminadas)
+- `useAtomItems.ts` — `createItem` usa `getCurrentUserId()` em vez de `getUser()`
+- `useCalendarItems.ts` — 3 queries usam `getCurrentUserId()`
+- `useMilestones.ts` — query + mutation usam `getCurrentUserId()`
+- `useRitual.ts` — query usa `getCurrentUserId()`
+
+### Performance
+```
+Antes: 7x supabase.auth.getUser() (chamadas de rede async)
+Depois: getCurrentUserId() (leitura de cache sync, fallback getSession)
+```
+
+---
+
 ## [4.0.0-alpha.18] - 2025-12-17
 
 ### Adicionado
@@ -1688,6 +1765,8 @@ npx playwright show-report
 - [x] **QueryClient Otimizado (staleTime 5min, retry 2)** ⭐ NOVO
 - [x] **Onboarding Scoped (só renderiza autenticado)** ⭐ NOVO
 - [x] **6 Deps Radix Adicionais Removidas** ⭐ NOVO
+- [x] **useCurrentUser Hook - Auth Cache Síncrono** ⭐ alpha.23
+- [x] **Code Audit - useMemo fix + AuthForm i18n** ⭐ alpha.24
 
 ## 🔲 Próximas Etapas
 - [ ] Metas diárias de produtividade
