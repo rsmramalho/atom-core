@@ -13,6 +13,7 @@ import { useProjectMembers } from "@/hooks/useProjectMembers";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { Copy, Link2, Trash2, UserPlus, Users, Crown, Pencil, Eye, Check } from "lucide-react";
 import { toast } from "sonner";
+import { MemberAvatar } from "@/components/shared/MemberAvatar";
 
 interface ShareProjectModalProps {
   open: boolean;
@@ -96,15 +97,12 @@ export function ShareProjectModal({ open, onOpenChange, projectId, projectTitle 
             ) : (
               <div className="space-y-2">
                 {members.map((member) => (
-                  <div key={member.id} className="flex items-center justify-between p-2 rounded-lg bg-muted/50">
+                    <div key={member.id} className="flex items-center justify-between p-2 rounded-lg bg-muted/50">
                     <div className="flex items-center gap-2">
+                      <MemberAvatar email={member.email} fallback={member.user_id} />
                       {member.role === "owner" ? (
-                        <Crown className="h-4 w-4 text-amber-500" />
-                      ) : member.role === "viewer" ? (
-                        <Eye className="h-4 w-4 text-muted-foreground" />
-                      ) : (
-                        <Pencil className="h-4 w-4 text-muted-foreground" />
-                      )}
+                        <Crown className="h-3.5 w-3.5 text-amber-500 -ml-1" />
+                      ) : null}
                       <span className="text-sm truncate max-w-[180px]">
                         {member.user_id === user?.id ? "Você" : (member.email || member.user_id.slice(0, 8) + "...")}
                       </span>
