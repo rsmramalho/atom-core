@@ -34,11 +34,14 @@ export function useProjectMembers(projectId: string | undefined) {
       if (!projectId) return [];
       const { data, error } = await supabase
         .from("project_members")
-        .select("*")
+        .select("*, profiles:user_id(email)")
         .eq("project_id", projectId)
         .order("created_at", { ascending: true });
       if (error) throw error;
-      return (data || []) as unknown as ProjectMember[];
+      return (data || []).map((row: any) => ({
+        ...row,
+        email: row.profiles?.email ?? null,
+      })) as ProjectMember[];
     },
     enabled: !!projectId,
   });
