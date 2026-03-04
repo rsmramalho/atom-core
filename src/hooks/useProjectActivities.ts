@@ -1,4 +1,5 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 export interface ProjectActivity {
@@ -12,6 +13,42 @@ export interface ProjectActivity {
 }
 
 export function useProjectActivities(projectId: string | undefined) {
+  const queryClient = useQueryClient();
+
+  // Realtime subscription
+  useEffect(() => {
+    if (!projectId) return;
+
+    const channel = supabase
+      .channel(`project-activities-${projectId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "project_activities",
+          filter: `project_id=eq.${projectId}`,
+        },
+        (payload) => {
+          queryClient.setQueryData<ProjectActivity[]>(
+            ["project-activities", projectId],
+            (old) => {
+              const newActivity = payload.new as ProjectActivity;
+              if (!old) return [newActivity];
+              // Avoid duplicates
+              if (old.some((a) => a.id === newActivity.id)) return old;
+              return [newActivity, ...old];
+            }
+          );
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [projectId, queryClient]);
+
   return useQuery({
     queryKey: ["project-activities", projectId],
     enabled: !!projectId,
