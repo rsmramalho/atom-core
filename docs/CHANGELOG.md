@@ -7,6 +7,39 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [4.0.0-alpha.23] - 2026-03-04 ⚡ AUTH OPTIMIZATION
+
+> **Otimização de autenticação** - Hook useCurrentUser elimina chamadas redundantes de getUser()
+
+### Adicionado
+
+#### useCurrentUser Hook (`src/hooks/useCurrentUser.ts`)
+- Hook leve que cacheia o usuário da sessão auth
+- `getCurrentUserId()` - função async para uso em queries/mutations
+- Listener global de `onAuthStateChange` inicializado uma única vez
+- Fallback para `getSession()` caso o cache não esteja populado
+
+### Alterado
+
+#### Auth Removida do Inbox.tsx
+- Removido `user` state, `useEffect` com `getUser()`, import de `supabase`
+- Removido guard `!user` do `handleCapture` (o hook `createItem` já gerencia auth)
+- Removido import de `User` type (não mais necessário)
+
+#### Hooks Otimizados (7 chamadas getUser() eliminadas)
+- `useAtomItems.ts` — `createItem` usa `getCurrentUserId()` em vez de `getUser()`
+- `useCalendarItems.ts` — 3 queries usam `getCurrentUserId()`
+- `useMilestones.ts` — query + mutation usam `getCurrentUserId()`
+- `useRitual.ts` — query usa `getCurrentUserId()`
+
+### Performance
+```
+Antes: 7x supabase.auth.getUser() (chamadas de rede async)
+Depois: getCurrentUserId() (leitura de cache sync, fallback getSession)
+```
+
+---
+
 ## [4.0.0-alpha.22] - 2026-03-04 🏗️ ARCHITECTURE REFACTOR
 
 > **Refatoração arquitetural completa** - Auth centralizado, Landing componentizada, AppNavigation DRY, QueryClient otimizado

@@ -29,13 +29,12 @@ import { NavItemList } from "./NavItemList";
 import { SyncStatus } from "./SyncStatus";
 import { SidebarActions } from "./SidebarActions";
 
-const VERSION = "v4.0.0-alpha.22";
+const VERSION = "v4.0.0-alpha.23";
 const VERSION_NOTES = [
-  "Arquitetura de auth centralizada",
-  "Landing componentizada (9 seções)",
-  "AppNavigation refatorada",
-  "QueryClient otimizado",
-  "6 deps Radix removidas",
+  "useCurrentUser hook (auth sync)",
+  "7 chamadas getUser() eliminadas",
+  "Auth removida do Inbox.tsx",
+  "Hooks otimizados (session cache)",
 ];
 
 function VersionTooltip({ children }: { children: React.ReactNode }) {

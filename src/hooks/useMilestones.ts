@@ -3,6 +3,7 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { getCurrentUserId } from "./useCurrentUser";
 import type { AtomItem } from "@/types/atom-engine";
 import type { ItemsRow } from "@/types/database";
 
@@ -66,8 +67,7 @@ export function useMilestones(projectId?: string) {
     queryFn: async () => {
       if (!projectId) return [];
       
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Not authenticated");
+      const userId = await getCurrentUserId();
 
       const { data, error } = await supabase
         .from("items")
@@ -85,8 +85,7 @@ export function useMilestones(projectId?: string) {
   // Create milestone (creates an item with #milestone tag)
   const createMutation = useMutation({
     mutationFn: async (payload: CreateMilestonePayload) => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Not authenticated");
+      const userId = await getCurrentUserId();
 
       const { data, error } = await supabase
         .from("items")
@@ -94,7 +93,7 @@ export function useMilestones(projectId?: string) {
           title: payload.title,
           type: "task",
           project_id: payload.project_id,
-          user_id: user.id,
+          user_id: userId,
           tags: ["#milestone"],
           weight: payload.weight ?? 3, // Default weight for milestones = 3x
           due_date: payload.due_date || null,

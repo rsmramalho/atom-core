@@ -5,6 +5,7 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { getCurrentUserId } from "./useCurrentUser";
 import type { AtomItem, CreateItemPayload, UpdateItemPayload, ItemType, RitualSlot, ProjectStatus, ProgressMode, ChecklistItem } from "@/types/atom-engine";
 import { useEngineLogger } from "./useEngineLogger";
 import { useNetworkStatus } from "./useNetworkStatus";
@@ -101,11 +102,10 @@ export function useAtomItems() {
     mutationFn: async (payload: CreateItemPayload): Promise<AtomItem> => {
       addLog("MutationEngine", "Creating new item", { title: payload.title, type: payload.type });
 
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("User not authenticated");
+      const userId = await getCurrentUserId();
 
       const insertData: TablesInsert<"items"> = {
-        user_id: user.id,
+        user_id: userId,
         title: payload.title,
         type: payload.type,
         module: payload.module,
