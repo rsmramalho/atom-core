@@ -520,7 +520,7 @@ export function asTypedRow(row: ItemsRow): TypedItemsRow;
 
 ## 📋 Roadmap
 
-### ✅ Implementado (v4.0.0-alpha.20)
+### ✅ Implementado (v4.0.0-alpha.22)
 
 - [x] Modelo de dados (Single Table Design)
 - [x] Tipos TypeScript completos (Zero Any Policy)
