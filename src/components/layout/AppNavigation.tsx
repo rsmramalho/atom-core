@@ -29,11 +29,11 @@ import { NavItemList } from "./NavItemList";
 import { SyncStatus } from "./SyncStatus";
 import { SidebarActions } from "./SidebarActions";
 
-const VERSION = "v4.0.0-alpha.24";
+const VERSION = "v4.0.0-alpha.25";
 const VERSION_NOTES = [
-  "Fix useMemo anti-pattern (JournalFeed)",
-  "AuthForm traduzido para português",
-  "Auditoria de código contínua",
+  "Web Push Notifications com VAPID keys",
+  "Lembretes mesmo com app fechado",
+  "Edge function para check de tarefas",
 ];
 
 function VersionTooltip({ children }: { children: React.ReactNode }) {
