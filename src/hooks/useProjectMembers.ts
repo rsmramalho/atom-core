@@ -9,7 +9,7 @@ export interface ProjectMember {
   id: string;
   project_id: string;
   user_id: string;
-  role: "owner" | "editor";
+  role: "owner" | "editor" | "viewer";
   created_at: string;
   email?: string;
 }
@@ -18,7 +18,7 @@ export interface ProjectInvite {
   id: string;
   project_id: string;
   invite_code: string;
-  role: "owner" | "editor";
+  role: "owner" | "editor" | "viewer";
   expires_at: string;
   max_uses: number | null;
   use_count: number;
@@ -74,7 +74,7 @@ export function useProjectMembers(projectId: string | undefined) {
 
   // Create an invite link
   const createInvite = useMutation({
-    mutationFn: async (params: { maxUses?: number } = {}): Promise<ProjectInvite> => {
+    mutationFn: async (params: { maxUses?: number; role?: "editor" | "viewer" } = {}): Promise<ProjectInvite> => {
       if (!projectId) throw new Error("No project ID");
       const userId = await getCurrentUserId();
       const { data, error } = await supabase
@@ -82,7 +82,7 @@ export function useProjectMembers(projectId: string | undefined) {
         .insert({
           project_id: projectId,
           created_by: userId,
-          role: "editor" as any,
+          role: (params?.role || "editor") as any,
           max_uses: params?.maxUses ?? null,
         })
         .select()
