@@ -1,4 +1,6 @@
 import { useState, useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import { ProjectCard } from "@/components/projects/ProjectCard";
 import { ProjectCardSkeletonGrid } from "@/components/projects/ProjectCardSkeleton";
@@ -54,6 +56,28 @@ export default function Projects() {
   const [activeFilter, setActiveFilter] = useState<ModuleFilter>("all");
   const [sortField, setSortField] = useState<SortField>("created_at");
   const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
+
+  // Query shared project IDs (projects with >1 member)
+  const { data: sharedProjectIds } = useQuery({
+    queryKey: ["shared-project-ids"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("project_members")
+        .select("project_id");
+      if (error) return new Set<string>();
+      // Projects that appear in project_members are shared (owner registered = has collaboration enabled)
+      const ids = new Set<string>();
+      // Count members per project - shared means >1 member
+      const counts: Record<string, number> = {};
+      for (const row of data || []) {
+        counts[row.project_id] = (counts[row.project_id] || 0) + 1;
+      }
+      for (const [pid, count] of Object.entries(counts)) {
+        if (count > 1) ids.add(pid);
+      }
+      return ids;
+    },
+  });
 
   // Filter projects by module
   const filteredProjects = useMemo(() => {
@@ -247,7 +271,7 @@ export default function Projects() {
       ) : (
         <div className="grid gap-4 md:grid-cols-2">
           {sortedProjects.map((project) => (
-            <ProjectCard key={project.id} project={project} />
+            <ProjectCard key={project.id} project={project} isShared={sharedProjectIds?.has(project.id)} />
           ))}
         </div>
       )}
