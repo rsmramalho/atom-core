@@ -7,7 +7,38 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
-## [4.0.0-alpha.24] - 2026-03-04 🔍 CODE AUDIT
+## [4.0.0-alpha.25] - 2026-03-04 🔔 PUSH NOTIFICATIONS
+
+> **Web Push Notifications com VAPID Keys** - Lembretes mesmo com o app fechado
+
+### Adicionado
+
+#### Push Notifications Architecture
+- **`push_subscriptions` table** — Armazena endpoints e chaves de encriptação por usuário
+- **`usePushNotifications` hook** — Subscribe/unsubscribe via PushManager API
+- **`send-push-notification` Edge Function** — Envia push via VAPID/WebCrypto (sem dependência npm:web-push)
+- **`check-due-tasks` Edge Function** — Cron job (3h) que verifica tarefas vencidas e envia lembretes
+- **`sw-push.js`** — Handler de `push` e `notificationclick` no Service Worker
+- **VAPID keys** — Configuradas como secrets no backend
+
+### Alterado
+
+#### NotificationSettings UI Expandida
+- Novo toggle "Push Notifications" com ícone Smartphone
+- Status visual (Ativo/Ativar push/Bloqueado)
+- Seção separada das notificações in-app existentes
+
+#### Service Worker Atualizado
+- `importScripts` adicionado ao workbox config para incluir `sw-push.js`
+- Handlers: `push` (mostra notificação) e `notificationclick` (foca/abre app)
+
+### Infraestrutura
+- Tabela `push_subscriptions` com RLS (users CRUD próprio + service_role read/delete)
+- Cron via `pg_cron` + `pg_net` a cada 3 horas
+- Edge functions com `verify_jwt = false` (validação interna)
+
+---
+
 
 > **Auditoria de código** - Fix de anti-patterns React, tradução de UI
 

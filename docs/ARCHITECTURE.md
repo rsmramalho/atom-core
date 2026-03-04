@@ -2,9 +2,9 @@
 
 ## Arquitetura do Sistema
 
-**Versão:** 4.0.0-alpha.23  
+**Versão:** 4.0.0-alpha.25  
 **Data:** 2026-03-04  
-**Status:** Production Ready - Auth Optimizado
+**Status:** Production Ready - Push Notifications
 
 ---
 
@@ -119,7 +119,8 @@ src/
 │   ├── useRecurrence.ts            # Virtual projection
 │   ├── useNetworkStatus.ts         # Detecção online/offline
 │   ├── useOfflineSync.ts           # Sync queue management
-│   ├── useNotifications.ts         # Web Notifications API
+│   ├── useNotifications.ts         # Web Notifications API (in-app)
+│   ├── usePushNotifications.ts     # ⭐ Web Push via VAPID (alpha.25)
 │   ├── useSwipe.ts                 # Touch/swipe gestures
 │   ├── useDebugConsole.ts          # Controle do console
 │   ├── useEngineLogger.ts          # Sistema de logs (Zustand)
@@ -155,8 +156,13 @@ src/
 │   ├── Privacy.tsx                # Política de privacidade
 │   └── NotFound.tsx               # 404
 │
-└── integrations/
-    └── supabase/                   # Cliente Supabase (auto-gerado)
+├── integrations/
+│   └── supabase/                   # Cliente Supabase (auto-gerado)
+│
+└── supabase/
+    └── functions/
+        ├── send-push-notification/ # ⭐ Push via VAPID/WebCrypto (alpha.25)
+        └── check-due-tasks/        # ⭐ Cron: verifica tarefas vencidas (alpha.25)
 ```
 
 ---
@@ -563,7 +569,7 @@ export function asTypedRow(row: ItemsRow): TypedItemsRow;
 
 ## 📋 Roadmap
 
-### ✅ Implementado (v4.0.0-alpha.23)
+### ✅ Implementado (v4.0.0-alpha.25)
 
 - [x] Modelo de dados (Single Table Design)
 - [x] Tipos TypeScript completos (Zero Any Policy)
@@ -589,10 +595,11 @@ export function asTypedRow(row: ItemsRow): TypedItemsRow;
 - [x] Debug Console (God Mode)
 - [x] Autenticação + RLS
 - [x] Auth Otimizado - useCurrentUser com cache síncrono (alpha.23)
+- [x] Code Audit - useMemo fix + AuthForm i18n (alpha.24)
+- [x] **Push Notifications - VAPID + Service Worker + Edge Functions (alpha.25)** ⭐
 
 ### 🔲 Próximas Etapas
 
-- [ ] Push Notifications (VAPID)
 - [ ] Colaboração multi-usuário
 - [ ] Widgets nativos (Android/iOS)
 - [ ] API pública

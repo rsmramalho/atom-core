@@ -1,9 +1,9 @@
 # MindMate - Atom Engine 4.0
 # Documentação Completa Consolidada
 
-**Versão:** 4.0.0-alpha.24  
+**Versão:** 4.0.0-alpha.25  
 **Data:** 2026-03-04  
-**Status:** ✅ **Production Ready** - Auth Optimizado & Auditado
+**Status:** ✅ **Production Ready** - Push Notifications com VAPID
 
 > Esta versão representa o marco estável do Atom Engine 4.0, com todas as funcionalidades core
 > implementadas e testadas. Refatoração arquitetural completa: auth centralizada, Landing componentizada (9 seções),
@@ -368,7 +368,8 @@ src/
 │   ├── useRecurrence.ts            # Virtual projection
 │   ├── useNetworkStatus.ts         # Detecção online/offline
 │   ├── useOfflineSync.ts           # Sync queue management
-│   ├── useNotifications.ts         # Web Notifications API
+│   ├── useNotifications.ts         # Web Notifications API (in-app)
+│   ├── usePushNotifications.ts     # ⭐ Web Push via VAPID (alpha.25)
 │   ├── useSwipe.ts                 # Touch/swipe gestures
 │   ├── useDebugConsole.ts          # Controle do console
 │   ├── useEngineLogger.ts          # Sistema de logs (Zustand)
@@ -1404,7 +1405,30 @@ npx playwright show-report
 
 ---
 
-## [4.0.0-alpha.19] - 2025-12-17
+## [4.0.0-alpha.25] - 2026-03-04 🔔 PUSH NOTIFICATIONS
+
+> **Web Push Notifications com VAPID Keys** - Lembretes mesmo com o app fechado
+
+### Adicionado
+
+#### Push Notifications Architecture
+- **`push_subscriptions` table** — Armazena endpoints e chaves de encriptação por usuário
+- **`usePushNotifications` hook** — Subscribe/unsubscribe via PushManager API
+- **`send-push-notification` Edge Function** — Envia push via VAPID/WebCrypto
+- **`check-due-tasks` Edge Function** — Cron job (3h) verifica tarefas vencidas
+- **`sw-push.js`** — Handler de `push` e `notificationclick` no Service Worker
+
+### Alterado
+- **NotificationSettings UI** — Novo toggle "Push Notifications" com status visual
+- **Service Worker** — `importScripts` para push handler
+- **supabase/config.toml** — Edge functions com `verify_jwt = false`
+
+### Infraestrutura
+- Tabela `push_subscriptions` com RLS
+- Cron via `pg_cron` + `pg_net` a cada 3 horas
+- VAPID keys como secrets no backend
+
+---
 
 ### Adicionado
 
@@ -1767,11 +1791,11 @@ Depois: getCurrentUserId() (leitura de cache sync, fallback getSession)
 - [x] **6 Deps Radix Adicionais Removidas** ⭐ NOVO
 - [x] **useCurrentUser Hook - Auth Cache Síncrono** ⭐ alpha.23
 - [x] **Code Audit - useMemo fix + AuthForm i18n** ⭐ alpha.24
+- [x] **Push Notifications - VAPID + Service Worker + Edge Functions** ⭐ alpha.25
 
 ## 🔲 Próximas Etapas
-- [ ] Metas diárias de produtividade
-- [ ] Gamificação avançada
-- [ ] Push Notifications (VAPID)
+- [ ] Colaboração multi-usuário
+- [ ] Widgets nativos (Android/iOS)
 
 ---
 
