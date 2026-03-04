@@ -106,7 +106,7 @@ export function ShareProjectModal({ open, onOpenChange, projectId, projectTitle 
                         <Pencil className="h-4 w-4 text-muted-foreground" />
                       )}
                       <span className="text-sm truncate max-w-[180px]">
-                        {member.user_id === user?.id ? "Você" : member.user_id.slice(0, 8) + "..."}
+                        {member.user_id === user?.id ? "Você" : (member.email || member.user_id.slice(0, 8) + "...")}
                       </span>
                       {member.role === "owner" ? (
                         <Badge variant="outline" className="text-xs">Owner</Badge>
