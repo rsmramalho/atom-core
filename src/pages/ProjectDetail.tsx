@@ -13,7 +13,8 @@ import {
   Flag,
   BookOpen,
   Feather,
-  Settings2
+  Settings2,
+  Users
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -31,7 +32,10 @@ import { ProjectFab } from "@/components/project-sheet/ProjectFab";
 import { QuickAddTaskModal } from "@/components/project-sheet/QuickAddTaskModal";
 import { QuickAddMilestoneModal } from "@/components/project-sheet/QuickAddMilestoneModal";
 import { QuickAddListModal } from "@/components/lists";
+import { ShareProjectModal } from "@/components/project-sheet/ShareProjectModal";
 import { Confetti } from "@/components/shared/Confetti";
+import { useProjectMembers } from "@/hooks/useProjectMembers";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import type { ProjectStatus, ProgressMode, ChecklistItem } from "@/types/atom-engine";
@@ -59,6 +63,11 @@ export default function ProjectDetail() {
     deleteMilestone,
     isCreating: isCreatingMilestone
   } = useMilestones(id);
+
+  // Collaboration
+  const currentUser = useCurrentUser();
+  const { members, ensureOwner, isOwner } = useProjectMembers(id);
+  const [shareModalOpen, setShareModalOpen] = useState(false);
 
   // Modal states
   const [taskModalOpen, setTaskModalOpen] = useState(false);
@@ -305,15 +314,29 @@ export default function ProjectDetail() {
             </div>
           </div>
           
-          {/* Settings button */}
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setSettingsModalOpen(true)}
-            className="flex-shrink-0"
-          >
-            <Settings2 className="h-5 w-5" />
-          </Button>
+          {/* Share + Settings buttons */}
+          <div className="flex gap-1 flex-shrink-0">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={async () => {
+                // Ensure owner membership before opening share modal
+                if (currentUser && project?.user_id === currentUser.id && members.length === 0) {
+                  await ensureOwner();
+                }
+                setShareModalOpen(true);
+              }}
+            >
+              <Users className="h-5 w-5" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setSettingsModalOpen(true)}
+            >
+              <Settings2 className="h-5 w-5" />
+            </Button>
+          </div>
         </div>
 
         {/* Progress Card */}
@@ -461,6 +484,12 @@ export default function ProjectDetail() {
         progressMode={progressMode}
         manualProgress={manualProgress}
         onSave={handleSettingsSave}
+      />
+      <ShareProjectModal
+        open={shareModalOpen}
+        onOpenChange={setShareModalOpen}
+        projectId={id!}
+        projectTitle={project.title}
       />
     </div>
   );
