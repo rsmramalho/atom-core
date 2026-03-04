@@ -1,6 +1,6 @@
 import { useState, memo } from "react";
 import { useNavigate } from "react-router-dom";
-import { FolderKanban, ChevronRight, Pause, CheckCircle2, Archive } from "lucide-react";
+import { FolderKanban, ChevronRight, Pause, CheckCircle2, Archive, Users } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
@@ -16,6 +16,7 @@ interface ProjectCardProps {
     totalItems: number;
     completedItems: number;
   };
+  isShared?: boolean;
 }
 
 // Status visual config
@@ -39,7 +40,7 @@ const STATUS_BADGE_CONFIG: Record<ProjectStatus, { label: string; icon: React.Re
   },
 };
 
-export const ProjectCard = memo(function ProjectCard({ project }: ProjectCardProps) {
+export const ProjectCard = memo(function ProjectCard({ project, isShared }: ProjectCardProps) {
   const navigate = useNavigate();
   const { updateItem, deleteItem, items, isUpdating, isDeleting } = useAtomItems();
   
@@ -154,6 +155,9 @@ export const ProjectCard = memo(function ProjectCard({ project }: ProjectCardPro
                 status === "completed" ? "text-blue-500" : "text-primary"
               )} />
               <h3 className="font-semibold">{project.title}</h3>
+              {isShared && (
+                <Users className="h-3.5 w-3.5 text-primary/70 flex-shrink-0" />
+              )}
             </div>
             <div className="flex items-center gap-1">
               <ItemContextMenu
