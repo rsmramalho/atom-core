@@ -68,6 +68,7 @@ const hapticFeedback = {
 interface WorkAreaPaneProps {
   items: AtomItem[];
   onToggle: (id: string) => void;
+  readOnly?: boolean;
 }
 
 const RITUAL_ICONS: Record<RitualSlot, React.ElementType> = {
@@ -88,12 +89,14 @@ function SortableTaskItem({
   item, 
   onToggle,
   isSection = false,
-  isRecentlyConverted = false
+  isRecentlyConverted = false,
+  readOnly = false
 }: { 
   item: AtomItem; 
   onToggle: (id: string) => void;
   isSection?: boolean;
   isRecentlyConverted?: boolean;
+  readOnly?: boolean;
 }) {
   const { updateItem, deleteItem, isUpdating, isDeleting } = useAtomItems();
   const [editModalOpen, setEditModalOpen] = useState(false);
@@ -174,7 +177,7 @@ function SortableTaskItem({
             {displayTitle}
           </span>
           
-          <ItemContextMenu onEdit={handleEdit} onDelete={handleDelete} />
+          <ItemContextMenu onEdit={handleEdit} onDelete={handleDelete} readOnly={readOnly} />
         </div>
 
         <EditItemModal
@@ -239,7 +242,7 @@ function SortableTaskItem({
         </span>
 
         {/* Context menu */}
-        <ItemContextMenu onEdit={handleEdit} onDelete={handleDelete} />
+        <ItemContextMenu onEdit={handleEdit} onDelete={handleDelete} readOnly={readOnly} />
       </div>
 
       <EditItemModal
@@ -334,11 +337,13 @@ function DroppableSection({
 function SortableHabitItem({ 
   item, 
   onToggle,
-  isRecentlyConverted = false
+  isRecentlyConverted = false,
+  readOnly = false
 }: { 
   item: AtomItem; 
   onToggle: (id: string) => void;
   isRecentlyConverted?: boolean;
+  readOnly?: boolean;
 }) {
   const { updateItem, deleteItem, isUpdating, isDeleting } = useAtomItems();
   const [editModalOpen, setEditModalOpen] = useState(false);
@@ -484,6 +489,7 @@ function SortableHabitItem({
           isHabit
           onRitualSlotChange={handleRitualSlotChange}
           currentRitualSlot={item.ritual_slot}
+          readOnly={readOnly}
         />
       </div>
 
@@ -506,7 +512,7 @@ function SortableHabitItem({
   );
 }
 
-export function WorkAreaPane({ items, onToggle }: WorkAreaPaneProps) {
+export function WorkAreaPane({ items, onToggle, readOnly = false }: WorkAreaPaneProps) {
   const { updateItem, deleteItem } = useAtomItems();
   const [activeId, setActiveId] = useState<string | null>(null);
   const [overSection, setOverSection] = useState<string | null>(null);
@@ -734,15 +740,16 @@ export function WorkAreaPane({ items, onToggle }: WorkAreaPaneProps) {
                 strategy={verticalListSortingStrategy}
               >
                 <div className="space-y-1">
-                  {pendingTasksAndSections.map((task) => (
-                    <SortableTaskItem 
-                      key={task.id} 
-                      item={task} 
-                      onToggle={onToggle}
-                      isSection={isSectionHeader(task)}
-                      isRecentlyConverted={task.id === recentlyConvertedId}
-                    />
-                  ))}
+                    {pendingTasksAndSections.map((task) => (
+                      <SortableTaskItem 
+                        key={task.id} 
+                        item={task} 
+                        onToggle={onToggle}
+                        isSection={isSectionHeader(task)}
+                        isRecentlyConverted={task.id === recentlyConvertedId}
+                        readOnly={readOnly}
+                      />
+                    ))}
                 </div>
               </SortableContext>
             </DroppableSection>
@@ -802,14 +809,15 @@ export function WorkAreaPane({ items, onToggle }: WorkAreaPaneProps) {
                 strategy={verticalListSortingStrategy}
               >
                 <div className="space-y-1">
-                  {pendingHabits.map((habit) => (
-                    <SortableHabitItem 
-                      key={habit.id} 
-                      item={habit} 
-                      onToggle={onToggle}
-                      isRecentlyConverted={habit.id === recentlyConvertedId}
-                    />
-                  ))}
+                    {pendingHabits.map((habit) => (
+                      <SortableHabitItem 
+                        key={habit.id} 
+                        item={habit} 
+                        onToggle={onToggle}
+                        isRecentlyConverted={habit.id === recentlyConvertedId}
+                        readOnly={readOnly}
+                      />
+                    ))}
                 </div>
               </SortableContext>
             </DroppableSection>
