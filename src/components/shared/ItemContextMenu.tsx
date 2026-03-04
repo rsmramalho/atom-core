@@ -2,6 +2,7 @@
 // Dropdown menu with Edit/Delete actions for items
 
 import { MoreVertical, Pencil, Trash2, Archive, Sunrise, Sun, Sunset, Clock, X } from "lucide-react";
+import { cn } from "@/lib/utils";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,6 +16,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import type { RitualSlot } from "@/types/atom-engine";
+import { toast } from "sonner";
 
 interface ItemContextMenuProps {
   onEdit: () => void;
@@ -24,6 +26,7 @@ interface ItemContextMenuProps {
   currentRitualSlot?: RitualSlot | null;
   isProject?: boolean;
   isHabit?: boolean;
+  readOnly?: boolean;
 }
 
 export function ItemContextMenu({ 
@@ -33,8 +36,15 @@ export function ItemContextMenu({
   onRitualSlotChange,
   currentRitualSlot,
   isProject = false,
-  isHabit = false
+  isHabit = false,
+  readOnly = false
 }: ItemContextMenuProps) {
+  const handleReadOnlyAction = () => {
+    toast.info("Somente leitura", {
+      description: "Você é viewer neste projeto e não pode editar itens.",
+    });
+  };
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -52,9 +62,9 @@ export function ItemContextMenu({
         <DropdownMenuItem 
           onClick={(e) => {
             e.stopPropagation();
-            onEdit();
+            readOnly ? handleReadOnlyAction() : onEdit();
           }}
-          className="cursor-pointer"
+          className={cn("cursor-pointer", readOnly && "opacity-50")}
         >
           <Pencil className="h-4 w-4 mr-2" />
           Editar
@@ -137,9 +147,9 @@ export function ItemContextMenu({
         <DropdownMenuItem 
           onClick={(e) => {
             e.stopPropagation();
-            onDelete();
+            readOnly ? handleReadOnlyAction() : onDelete();
           }}
-          className="cursor-pointer text-destructive focus:text-destructive focus:bg-destructive/10"
+          className={cn("cursor-pointer text-destructive focus:text-destructive focus:bg-destructive/10", readOnly && "opacity-50")}
         >
           <Trash2 className="h-4 w-4 mr-2" />
           Excluir

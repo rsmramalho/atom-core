@@ -37,6 +37,7 @@ import { QuickAddListModal } from "@/components/lists";
 import { ShareProjectModal } from "@/components/project-sheet/ShareProjectModal";
 import { Confetti } from "@/components/shared/Confetti";
 import { useProjectMembers } from "@/hooks/useProjectMembers";
+import { useProjectRole } from "@/hooks/useProjectRole";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { toast } from "sonner";
 import { logProjectActivity } from "@/hooks/useProjectActivities";
@@ -70,6 +71,7 @@ export default function ProjectDetail() {
   // Collaboration
   const currentUser = useCurrentUser();
   const { members, ensureOwner, isOwner } = useProjectMembers(id);
+  const { isViewer } = useProjectRole(id);
   const [shareModalOpen, setShareModalOpen] = useState(false);
 
   // Modal states
@@ -97,6 +99,7 @@ export default function ProjectDetail() {
   const isProjectArchived = project?.project_status === "archived";
   const isProjectPaused = project?.project_status === "paused";
   const isProjectLocked = isProjectCompleted || isProjectArchived;
+  const isReadOnly = isProjectLocked || isViewer;
 
   // Handle status change
   const handleStatusChange = async (newStatus: ProjectStatus) => {
@@ -403,11 +406,22 @@ export default function ProjectDetail() {
         </Card>
       )}
 
+      {/* Viewer notice */}
+      {isViewer && !isProjectLocked && (
+        <Card className="border-blue-500/50 bg-blue-500/10">
+          <CardContent className="p-4 text-center">
+            <p className="text-sm text-blue-600 dark:text-blue-400">
+              👁️ Você é <strong>Viewer</strong> neste projeto — somente leitura.
+            </p>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Empty state when no content */}
       {projectItems.length === 0 && milestones.length === 0 ? (
         <EmptyProjectStart 
-          onCreateMilestone={isProjectLocked ? undefined : () => setMilestoneModalOpen(true)}
-          onCreateTask={isProjectLocked ? undefined : () => setTaskModalOpen(true)}
+          onCreateMilestone={isReadOnly ? undefined : () => setMilestoneModalOpen(true)}
+          onCreateTask={isReadOnly ? undefined : () => setTaskModalOpen(true)}
         />
       ) : (
         <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as ProjectTab)} className="w-full">
@@ -437,7 +451,8 @@ export default function ProjectDetail() {
           <TabsContent value="work" className="mt-0">
             <WorkAreaPane 
               items={projectItems}
-              onToggle={toggleComplete}
+              onToggle={isViewer ? () => toast.info("Somente leitura", { description: "Viewers não podem alterar itens." }) : toggleComplete}
+              readOnly={isViewer}
             />
           </TabsContent>
 
@@ -445,7 +460,7 @@ export default function ProjectDetail() {
             <MilestonesPane
               milestones={milestones}
               onToggle={toggleMilestone}
-              onCreate={isProjectLocked ? undefined : handleCreateMilestone}
+              onCreate={isReadOnly ? undefined : handleCreateMilestone}
               onDelete={handleDeleteMilestone}
               onUpdate={handleUpdateMilestone}
               isCreating={isCreatingMilestone}
@@ -470,8 +485,8 @@ export default function ProjectDetail() {
         </Tabs>
       )}
 
-      {/* FAB - Hidden when project is locked */}
-      {!isProjectLocked && (
+      {/* FAB - Hidden when project is locked or viewer */}
+      {!isReadOnly && (
         <ProjectFab
           onCreateTask={() => setTaskModalOpen(true)}
           onCreateMilestone={() => setMilestoneModalOpen(true)}
