@@ -170,6 +170,82 @@ export type Database = {
         }
         Relationships: []
       }
+      project_invites: {
+        Row: {
+          created_at: string
+          created_by: string
+          expires_at: string
+          id: string
+          invite_code: string
+          max_uses: number | null
+          project_id: string
+          role: Database["public"]["Enums"]["member_role"]
+          use_count: number
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          expires_at?: string
+          id?: string
+          invite_code?: string
+          max_uses?: number | null
+          project_id: string
+          role?: Database["public"]["Enums"]["member_role"]
+          use_count?: number
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          expires_at?: string
+          id?: string
+          invite_code?: string
+          max_uses?: number | null
+          project_id?: string
+          role?: Database["public"]["Enums"]["member_role"]
+          use_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_invites_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      project_members: {
+        Row: {
+          created_at: string
+          id: string
+          project_id: string
+          role: Database["public"]["Enums"]["member_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          project_id: string
+          role?: Database["public"]["Enums"]["member_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          project_id?: string
+          role?: Database["public"]["Enums"]["member_role"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_members_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       push_subscriptions: {
         Row: {
           auth: string
@@ -202,7 +278,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      accept_project_invite: { Args: { _invite_code: string }; Returns: string }
+      is_project_member: {
+        Args: { _project_id: string; _user_id: string }
+        Returns: boolean
+      }
+      is_project_owner: {
+        Args: { _project_id: string; _user_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       item_type:
@@ -213,6 +297,7 @@ export type Database = {
         | "reflection"
         | "resource"
         | "list"
+      member_role: "owner" | "editor"
       progress_mode: "auto" | "manual" | "milestone"
       project_status: "draft" | "active" | "paused" | "completed" | "archived"
       ritual_slot: "manha" | "meio_dia" | "noite"
@@ -352,6 +437,7 @@ export const Constants = {
         "resource",
         "list",
       ],
+      member_role: ["owner", "editor"],
       progress_mode: ["auto", "manual", "milestone"],
       project_status: ["draft", "active", "paused", "completed", "archived"],
       ritual_slot: ["manha", "meio_dia", "noite"],

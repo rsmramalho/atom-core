@@ -27,6 +27,7 @@ const Analytics = lazy(() => import("./pages/Analytics"));
 const Install = lazy(() => import("./pages/Install"));
 const Privacy = lazy(() => import("./pages/Privacy"));
 const Landing = lazy(() => import("./pages/Landing"));
+const InviteAccept = lazy(() => import("./pages/InviteAccept"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -176,6 +177,18 @@ function AnimatedRoutes() {
           }
         />
         
+        {/* Invite acceptance */}
+        <Route
+          path="/invite/:code"
+          element={
+            <ImmersiveRoute>
+              <Suspense fallback={<PageLoader />}>
+                <InviteAccept />
+              </Suspense>
+            </ImmersiveRoute>
+          }
+        />
+
         {/* Catch-all */}
         <Route path="*" element={<ImmersiveRoute><NotFound /></ImmersiveRoute>} />
       </Routes>

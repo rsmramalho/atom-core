@@ -7,6 +7,38 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [4.0.0-alpha.26] - 2026-03-04 👥 SHARED PROJECTS
+
+> **Colaboração Multi-Usuário** - Projetos compartilhados com Owner + Editor e links de convite
+
+### Adicionado
+
+#### Collaboration Database Schema
+- **`project_members` table** — Associa usuários a projetos com role (owner/editor)
+- **`project_invites` table** — Links de convite com código único, expiração (7d) e controle de uso
+- **`member_role` enum** — owner | editor
+- **`is_project_member()` function** — Security definer para check de membership
+- **`is_project_owner()` function** — Security definer para check de ownership
+- **`accept_project_invite()` function** — RPC para aceitar convite (idempotente)
+
+#### RLS Policies para Colaboração
+- Items de projetos compartilhados visíveis para todos os membros
+- Membros podem criar e editar items em projetos compartilhados
+- Items pessoais (sem project_id) continuam privados
+- Owners gerenciam membros e convites
+
+#### UI de Compartilhamento
+- **ShareProjectModal** — Lista de membros + gerenciamento de links de convite
+- **Botão Users** no header do ProjectDetail para abrir share modal
+- **Página `/invite/:code`** — Aceitar convite com feedback visual (loading/success/error/needsAuth)
+- Auto-registro do owner ao abrir share modal pela primeira vez
+
+#### Hooks
+- **`useProjectMembers`** — CRUD de membros e convites
+- **`acceptProjectInvite`** — Função para aceitar convite via RPC
+
+---
+
 ## [4.0.0-alpha.25] - 2026-03-04 🔔 PUSH NOTIFICATIONS
 
 > **Web Push Notifications com VAPID Keys** - Lembretes mesmo com o app fechado
