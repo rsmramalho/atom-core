@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useProjectMembers } from "@/hooks/useProjectMembers";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
-import { Copy, Link2, Trash2, UserPlus, Users, Crown, Pencil, Check } from "lucide-react";
+import { Copy, Link2, Trash2, UserPlus, Users, Crown, Pencil, Eye, Check } from "lucide-react";
 import { toast } from "sonner";
 
 interface ShareProjectModalProps {
@@ -25,12 +25,12 @@ export function ShareProjectModal({ open, onOpenChange, projectId, projectTitle 
   const user = useCurrentUser();
   const { members, invites, isOwner, createInvite, removeMember, deleteInvite, isCreatingInvite } = useProjectMembers(projectId);
   const [copiedId, setCopiedId] = useState<string | null>(null);
-
+  const [inviteRole, setInviteRole] = useState<"editor" | "viewer">("editor");
   const isCurrentUserOwner = user ? isOwner(user.id) : false;
 
   const handleCreateInvite = async () => {
     try {
-      const invite = await createInvite({});
+      const invite = await createInvite({ role: inviteRole });
       const url = `${window.location.origin}/invite/${invite.invite_code}`;
       await navigator.clipboard.writeText(url);
       toast.success("Link de convite copiado!");
@@ -91,6 +91,8 @@ export function ShareProjectModal({ open, onOpenChange, projectId, projectTitle 
                     <div className="flex items-center gap-2">
                       {member.role === "owner" ? (
                         <Crown className="h-4 w-4 text-amber-500" />
+                      ) : member.role === "viewer" ? (
+                        <Eye className="h-4 w-4 text-muted-foreground" />
                       ) : (
                         <Pencil className="h-4 w-4 text-muted-foreground" />
                       )}
@@ -98,7 +100,7 @@ export function ShareProjectModal({ open, onOpenChange, projectId, projectTitle 
                         {member.user_id === user?.id ? "Você" : member.user_id.slice(0, 8) + "..."}
                       </span>
                       <Badge variant="outline" className="text-xs">
-                        {member.role === "owner" ? "Owner" : "Editor"}
+                        {member.role === "owner" ? "Owner" : member.role === "viewer" ? "Viewer" : "Editor"}
                       </Badge>
                     </div>
                     {isCurrentUserOwner && member.user_id !== user?.id && (
@@ -122,16 +124,32 @@ export function ShareProjectModal({ open, onOpenChange, projectId, projectTitle 
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <h4 className="text-sm font-medium text-muted-foreground">Links de Convite</h4>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleCreateInvite}
-                  disabled={isCreatingInvite}
-                  className="gap-1.5"
-                >
-                  <UserPlus className="h-3.5 w-3.5" />
-                  Novo Link
-                </Button>
+                <div className="flex items-center gap-1.5">
+                  <div className="flex rounded-md border border-input overflow-hidden text-xs">
+                    <button
+                      className={`px-2 py-1 ${inviteRole === "editor" ? "bg-primary text-primary-foreground" : "bg-muted"}`}
+                      onClick={() => setInviteRole("editor")}
+                    >
+                      Editor
+                    </button>
+                    <button
+                      className={`px-2 py-1 ${inviteRole === "viewer" ? "bg-primary text-primary-foreground" : "bg-muted"}`}
+                      onClick={() => setInviteRole("viewer")}
+                    >
+                      Viewer
+                    </button>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleCreateInvite}
+                    disabled={isCreatingInvite}
+                    className="gap-1.5"
+                  >
+                    <UserPlus className="h-3.5 w-3.5" />
+                    Novo Link
+                  </Button>
+                </div>
               </div>
 
               {invites.length === 0 ? (
@@ -150,7 +168,10 @@ export function ShareProjectModal({ open, onOpenChange, projectId, projectTitle 
                             <span className="text-xs font-mono text-muted-foreground">
                               ...{invite.invite_code.slice(-8)}
                             </span>
-                            <div className="flex gap-1">
+                            <div className="flex gap-1 flex-wrap">
+                              <Badge variant="secondary" className="text-xs">
+                                {invite.role === "viewer" ? "Viewer" : "Editor"}
+                              </Badge>
                               {isExpired && <Badge variant="destructive" className="text-xs">Expirado</Badge>}
                               {isExhausted && <Badge variant="secondary" className="text-xs">Esgotado</Badge>}
                               {!isExpired && !isExhausted && (

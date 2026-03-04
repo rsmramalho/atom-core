@@ -287,6 +287,10 @@ export type Database = {
         Args: { _project_id: string; _user_id: string }
         Returns: boolean
       }
+      is_project_editor: {
+        Args: { _project_id: string; _user_id: string }
+        Returns: boolean
+      }
       is_project_member: {
         Args: { _project_id: string; _user_id: string }
         Returns: boolean
@@ -305,7 +309,7 @@ export type Database = {
         | "reflection"
         | "resource"
         | "list"
-      member_role: "owner" | "editor"
+      member_role: "owner" | "editor" | "viewer"
       progress_mode: "auto" | "manual" | "milestone"
       project_status: "draft" | "active" | "paused" | "completed" | "archived"
       ritual_slot: "manha" | "meio_dia" | "noite"
@@ -445,7 +449,7 @@ export const Constants = {
         "resource",
         "list",
       ],
-      member_role: ["owner", "editor"],
+      member_role: ["owner", "editor", "viewer"],
       progress_mode: ["auto", "manual", "milestone"],
       project_status: ["draft", "active", "paused", "completed", "archived"],
       ritual_slot: ["manha", "meio_dia", "noite"],
