@@ -1,80 +1,83 @@
 
 
-# Activity Feed para Projetos Compartilhados
+# Auditoria Completa & Roadmap — MindMate v4.0.0-alpha.26
 
-## Objetivo
-Adicionar um feed de atividades no projeto compartilhado mostrando ações dos membros (criação de tasks, conclusão de itens, entrada de membros, etc).
+## Estado Atual
 
-## Arquitetura
+**Versão:** v4.0.0-alpha.26 (2026-03-04)
+**Stack:** React 18 + Vite + Tailwind + Lovable Cloud + PWA
+**Arquitetura:** Single Table Design (tabela `items`) com 7 tipos de item
 
-```text
-┌──────────────────────┐       ┌─────────────────────┐
-│  project_activities  │◄──────│  Triggers / App Code│
-│  (nova tabela)       │       │  (inserts on action) │
-└──────────┬───────────┘       └─────────────────────┘
-           │
-           ▼
-┌──────────────────────┐
-│  ActivityPane (UI)   │
-│  Nova aba no projeto │
-└──────────────────────┘
-```
+### Funcionalidades Implementadas
+- Parsing Engine com tokens inteligentes
+- Dashboard operacional (Focus, Today, Overdue, Ritual)
+- Projetos com state machine + progresso híbrido (auto/milestone/manual)
+- Colaboração multi-usuário (Owner/Editor/Viewer) com links de convite
+- Activity Feed em tempo real por projeto
+- Sistema de Rituais (manhã/meio-dia/noite) com habits
+- Calendário mensal/semanal com drag-and-drop
+- Journal/Reflexões com prompts guiados
+- Listas rápidas estilo Google Keep
+- Recurrence Engine (RRULE)
+- Analytics com gráficos (recharts)
+- PWA completo com offline sync + push notifications
+- Onboarding (welcome, tour, checklist)
+- Command Palette + keyboard shortcuts
+- Landing page de marketing
 
-## Passos de Implementação
+---
 
-### 1. Criar tabela `project_activities`
+## Problemas Encontrados
 
-Nova tabela para armazenar eventos do projeto:
+### 1. Violação da Zero Any Policy (CRÍTICO)
+O projeto mantém uma política de zero `any`, mas há **5 ocorrências** em código de produção:
 
-```sql
-CREATE TABLE public.project_activities (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  project_id uuid NOT NULL,
-  user_id uuid NOT NULL,
-  action text NOT NULL,        -- 'task_created', 'task_completed', 'member_joined', etc.
-  target_title text,           -- título do item afetado
-  metadata jsonb DEFAULT '{}'::jsonb,
-  created_at timestamptz NOT NULL DEFAULT now()
-);
+| Arquivo | Linha | Ocorrência |
+|---------|-------|------------|
+| `useProjectMembers.ts` | 41 | `(row: any)` no map de membros |
+| `useProjectMembers.ts` | 88 | `as any` no insert de invite role |
+| `useProjectMembers.ts` | 134 | `as any` no update de member role |
+| `usePushNotifications.ts` | 49, 80, 123 | `as any` no pushManager |
 
-ALTER TABLE public.project_activities ENABLE ROW LEVEL SECURITY;
-```
+### 2. Console Logs em Produção
+125 ocorrências de `console.log/warn/error` em 11 arquivos. A maioria são `warn/error` em catch blocks (aceitável), mas devem ser auditados para remover os desnecessários.
 
-**RLS**: Membros do projeto podem ler; inserção via `SECURITY DEFINER` function ou direto pelo app (com policy usando `is_project_member`).
+### 3. RLS: Sem DELETE para items de projetos compartilhados
+A tabela `items` tem policies para SELECT, INSERT e UPDATE em projetos compartilhados, mas **não tem DELETE policy** para membros. Editores não conseguem excluir itens de projetos compartilhados.
 
-### 2. Criar function para registrar atividades
+### 4. Viewer Role incompleto no DB
+O enum `member_role` no banco tem `owner | editor`, mas o código TypeScript referencia `viewer`. A policy de UPDATE permite apenas `editor` e `viewer` no check, mas o enum pode não incluir `viewer`.
 
-Uma function `log_project_activity` (SECURITY DEFINER) que insere no feed, validando que o user é membro do projeto.
+### 5. `useProjectMembers` — `invitesQuery` usa `as unknown as`
+Linha 59: cast forçado que pode mascarar incompatibilidades de tipo.
 
-### 3. Registrar atividades no código existente
+### 6. Query sem limit
+`useAtomItems` faz `select("*")` sem `.limit()`. Com muitos itens, vai bater no limite de 1000 rows do Supabase silenciosamente.
 
-Adicionar chamadas ao `log_project_activity` nos pontos-chave:
-- **`ProjectDetail.tsx`**: Ao criar task, milestone, ou lista → log `task_created`, `milestone_created`, `list_created`
-- **`WorkAreaPane.tsx`**: Ao completar item → log `item_completed`
-- **`InviteAccept.tsx`**: Ao aceitar convite → log `member_joined`
-- **Status change**: Ao mudar status do projeto → log `status_changed`
+---
 
-### 4. Criar hook `useProjectActivities`
+## Roadmap Proposto
 
-Hook com `useQuery` para buscar atividades do projeto, ordenadas por `created_at DESC`, com paginação simples (últimas 50).
+### Fase 7: Hardening & Type Safety (Próxima)
+1. **Eliminar `any` em `useProjectMembers.ts`** — Tipar o resultado do join com profiles e usar tipos corretos para enums do DB
+2. **Eliminar `as any` em `usePushNotifications.ts`** — Usar interface `PushManager` com type assertion segura
+3. **Adicionar DELETE policy para items em projetos compartilhados** — Permitir que editors deletem itens
+4. **Verificar enum `member_role`** — Confirmar que `viewer` existe no DB, adicionar migration se necessário
+5. **Adicionar `.limit()` ou paginação** em `useAtomItems` para projetos com muitos itens
 
-### 5. Criar componente `ActivityPane`
+### Fase 8: UX & Polish
+6. **Busca global** — Filtrar itens por título/tag em todas as views
+7. **Drag-and-drop na WorkArea** — Reordenar tasks dentro de projetos
+8. **Dark/Light mode toggle** acessível na sidebar (já tem next-themes instalado)
+9. **Skeleton loading** para ProjectDetail (já existe para outros)
 
-Nova aba "Atividade" no `ProjectDetail.tsx` (5ª tab) com:
-- Timeline vertical com ícones por tipo de ação
-- Nome/email do membro que fez a ação
-- Timestamp relativo (ex: "há 2 horas")
-- Scroll infinito ou "carregar mais"
+### Fase 9: Inteligência
+10. **AI Summary** — Resumo semanal automático usando Lovable AI (Gemini Flash)
+11. **Smart suggestions** — Sugerir próxima ação baseado em padrões de uso
+12. **Natural language input** melhorado com AI para parsing de datas complexas
 
-### 6. Atualizar `ProjectDetail.tsx`
-
-- Adicionar 5ª aba "Atividade" com ícone `Activity` do lucide
-- Grid do TabsList passa de 4 para 5 colunas
-
-## Detalhes Técnicos
-
-- **Tipos de ação**: `task_created`, `task_completed`, `milestone_created`, `milestone_completed`, `list_created`, `member_joined`, `member_removed`, `status_changed`, `note_created`
-- **RLS policies**: SELECT para `is_project_member`, INSERT para `is_project_member` (membros logam suas próprias ações)
-- **Sem realtime** inicialmente — refresh ao abrir a aba
-- A tabela não tem foreign keys para `items` (usa `target_title` como snapshot para simplicidade)
+### Fase 10: Escala
+13. **Paginação real** para items (cursor-based)
+14. **Realtime subscriptions** para projetos compartilhados (ver edições de outros membros ao vivo)
+15. **Export PDF** de projetos com progresso e milestones
 
