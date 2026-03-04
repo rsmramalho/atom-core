@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { ReactNode } from "react";
+import { ReactNode, forwardRef } from "react";
 
 interface PageTransitionProps {
   children: ReactNode;
@@ -26,17 +26,20 @@ const pageTransition = {
   duration: 0.2,
 };
 
-export function PageTransition({ children }: PageTransitionProps) {
-  return (
-    <motion.div
-      initial="initial"
-      animate="animate"
-      exit="exit"
-      variants={pageVariants}
-      transition={pageTransition}
-      className="h-full"
-    >
-      {children}
-    </motion.div>
-  );
-}
+export const PageTransition = forwardRef<HTMLDivElement, PageTransitionProps>(
+  function PageTransition({ children }, ref) {
+    return (
+      <motion.div
+        ref={ref}
+        initial="initial"
+        animate="animate"
+        exit="exit"
+        variants={pageVariants}
+        transition={pageTransition}
+        className="h-full"
+      >
+        {children}
+      </motion.div>
+    );
+  }
+);
