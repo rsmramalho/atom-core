@@ -2,6 +2,7 @@
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { getCurrentUserId } from "./useCurrentUser";
 import type { AtomItem } from "@/types/atom-engine";
 import type { ItemsRow } from "@/types/database";
 import { startOfMonth, endOfMonth, format, isBefore, startOfDay, subMonths, addMonths } from "date-fns";
@@ -52,14 +53,13 @@ export function useCalendarItems(currentDate: Date) {
   const itemsQuery = useQuery({
     queryKey: ["calendar-items", format(monthStart, "yyyy-MM")],
     queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Not authenticated");
+      const userId = await getCurrentUserId();
 
       // Get items with due_date
       const { data, error } = await supabase
         .from("items")
         .select("*")
-        .eq("user_id", user.id)
+        .eq("user_id", userId)
         .not("due_date", "is", null)
         .gte("due_date", format(monthStart, "yyyy-MM-dd"))
         .lte("due_date", format(monthEnd, "yyyy-MM-dd"))
@@ -74,13 +74,12 @@ export function useCalendarItems(currentDate: Date) {
   const recurrentItemsQuery = useQuery({
     queryKey: ["recurrent-items"],
     queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Not authenticated");
+      const userId = await getCurrentUserId();
 
       const { data, error } = await supabase
         .from("items")
         .select("*")
-        .eq("user_id", user.id)
+        .eq("user_id", userId)
         .not("recurrence_rule", "is", null)
         .eq("completed", false);
 
@@ -93,15 +92,14 @@ export function useCalendarItems(currentDate: Date) {
   const overdueQuery = useQuery({
     queryKey: ["calendar-overdue"],
     queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Not authenticated");
+      const userId = await getCurrentUserId();
 
       const today = format(startOfDay(new Date()), "yyyy-MM-dd");
 
       const { data, error } = await supabase
         .from("items")
         .select("*")
-        .eq("user_id", user.id)
+        .eq("user_id", userId)
         .eq("completed", false)
         .not("due_date", "is", null)
         .lt("due_date", today)

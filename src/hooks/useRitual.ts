@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { getCurrentUserId } from "./useCurrentUser";
 import type { AtomItem, RitualSlot } from "@/types/atom-engine";
 
 export type RitualPeriod = "aurora" | "zenite" | "crepusculo";
@@ -55,13 +56,12 @@ export function useRitual(overridePeriod?: RitualPeriod) {
   const { data: habits = [], isLoading } = useQuery({
     queryKey: ["ritual-habits", config.slot],
     queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return [];
+      const userId = await getCurrentUserId();
 
       const { data, error } = await supabase
         .from("items")
         .select("*")
-        .eq("user_id", user.id)
+        .eq("user_id", userId)
         .eq("type", "habit")
         .eq("ritual_slot", config.slot);
 

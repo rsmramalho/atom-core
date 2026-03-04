@@ -1,5 +1,4 @@
-import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { useState } from "react";
 import { useAtomItems } from "@/hooks/useAtomItems";
 import { useEngineLogger } from "@/hooks/useEngineLogger";
 import { parseInput } from "@/lib/parsing-engine";
@@ -12,7 +11,6 @@ import { Button } from "@/components/ui/button";
 import { Inbox as InboxIcon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import type { AtomItem, RitualSlot } from "@/types/atom-engine";
-import type { User } from "@/types/auth";
 
 export default function Inbox() {
   const { toast } = useToast();
@@ -23,7 +21,6 @@ export default function Inbox() {
   const [isCreating, setIsCreating] = useState(false);
   const [selectedItem, setSelectedItem] = useState<AtomItem | null>(null);
   const [isPickerOpen, setIsPickerOpen] = useState(false);
-  const [user, setUser] = useState<User | null>(null);
 
   // Get inbox items (items with #inbox tag)
   // INTEGRITY: Exclude milestones from inbox - they only appear in project context
@@ -35,14 +32,8 @@ export default function Inbox() {
   // Get projects for the MacroPicker
   const projects = items.filter(item => item.type === "project");
 
-  useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
-      setUser(data.user);
-    });
-  }, []);
-
   const handleCapture = async () => {
-    if (!inputValue.trim() || !user) return;
+    if (!inputValue.trim()) return;
     
     setIsCreating(true);
     addLog("InboxEngine", "capture_start", { raw_input: inputValue });
