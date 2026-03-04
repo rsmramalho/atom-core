@@ -2,9 +2,9 @@
 
 ## Arquitetura do Sistema
 
-**Versão:** 4.0.0-alpha.20  
-**Data:** 2025-12-17  
-**Status:** Production Ready - All Core Engines + PWA + Offline + Analytics + Landing Page
+**Versão:** 4.0.0-alpha.22  
+**Data:** 2026-03-04  
+**Status:** Production Ready - Refactor Arquitetural Completo
 
 ---
 
@@ -70,12 +70,28 @@ src/
 │   │   ├── FirstStepsChecklist.tsx # Checklist gamificado
 │   │   ├── OnboardingContext.tsx   # State management
 │   │   └── index.ts
-│   ├── layout/
-│   │   ├── AppLayout.tsx           # Layout principal com auth
-│   │   ├── AppNavigation.tsx       # Nav sidebar/bottom
-│   │   ├── CommandPalette.tsx      # Busca global (⌘K)
+│   ├── landing/                      # ⭐ Landing componentizada (alpha.22)
+│   │   ├── HeroSection.tsx          # Hero com CTA
+│   │   ├── PillarSection.tsx        # 3 Pilares
+│   │   ├── AgnosticSection.tsx      # Agnóstico de metodologia
+│   │   ├── FeaturesSection.tsx      # Features operacionais e zen
+│   │   ├── BenefitsSection.tsx      # Benefícios + terminal animado
+│   │   ├── DeveloperSection.tsx     # Para desenvolvedores
+│   │   ├── FAQSection.tsx           # FAQ
+│   │   ├── CTASection.tsx           # CTA final
+│   │   ├── LandingNav.tsx           # Navbar
+│   │   ├── LandingFooter.tsx        # Footer
+│   │   ├── DemoModal.tsx            # Modal demo
+│   │   └── shared.tsx               # Componentes compartilhados
+│   ├── layout/                      # ⭐ Refatorado (alpha.22)
+│   │   ├── AppLayout.tsx            # Layout com auth centralizada
+│   │   ├── AppNavigation.tsx        # Nav compositor (~270 linhas)
+│   │   ├── NavItemList.tsx          # Links de navegação (extraído)
+│   │   ├── SyncStatus.tsx           # Indicador de sync (extraído)
+│   │   ├── SidebarActions.tsx       # Ações sidebar (extraído)
+│   │   ├── CommandPalette.tsx       # Busca global (⌘K)
 │   │   ├── KeyboardShortcutsHelp.tsx # Modal de atalhos
-│   │   └── PageTransition.tsx      # AnimatePresence wrapper
+│   │   └── PageTransition.tsx       # AnimatePresence wrapper
 │   ├── empty-states/               # Estados vazios com ilustrações
 │   ├── shared/
 │   │   ├── ErrorBoundary.tsx       # Error handling global
@@ -124,8 +140,8 @@ src/
 │   └── database.ts                 # Tipos de mapeamento DB
 │
 ├── pages/
-│   ├── Landing.tsx                # Landing page de marketing
-│   ├── Index.tsx                  # Dashboard principal (autenticado)
+│   ├── Landing.tsx                # Compositor da landing (9 seções)
+│   ├── Index.tsx                  # Dashboard (assume autenticado)
 │   ├── Inbox.tsx                  # Inbox Engine UI (B.6)
 │   ├── Projects.tsx               # Lista de projetos
 │   ├── ProjectDetail.tsx          # Project Sheet (A.13)

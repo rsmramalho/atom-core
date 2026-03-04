@@ -1,12 +1,13 @@
 # MindMate - Atom Engine 4.0
 # Documentação Completa Consolidada
 
-**Versão:** 4.0.0-alpha.21  
+**Versão:** 4.0.0-alpha.22  
 **Data:** 2026-03-04  
-**Status:** ✅ **RELEASE CANDIDATE** - Validado para Produção | 🧹 **Code Audit & Cleanup**
+**Status:** ✅ **RELEASE CANDIDATE** - Validado para Produção | 🏗️ **Refactor Arquitetural**
 
 > Esta versão representa o marco estável do Atom Engine 4.0, com todas as funcionalidades core
-> implementadas e testadas. Auditoria completa com remoção de 17 componentes UI e 6 dependências não utilizados.
+> implementadas e testadas. Refatoração arquitetural completa: auth centralizada, Landing componentizada (9 seções),
+> AppNavigation modularizada, QueryClient otimizado, 6 deps Radix adicionais removidas.
 
 ---
 
@@ -318,12 +319,28 @@ src/
 │   │   ├── FirstStepsChecklist.tsx # Checklist gamificado
 │   │   ├── OnboardingContext.tsx   # State management
 │   │   └── index.ts
-│   ├── layout/
-│   │   ├── AppLayout.tsx           # Layout principal com auth
-│   │   ├── AppNavigation.tsx       # Nav sidebar/bottom
-│   │   ├── CommandPalette.tsx      # Busca global (⌘K)
+│   ├── landing/                      # ⭐ Landing page componentizada (alpha.22)
+│   │   ├── HeroSection.tsx          # Hero com CTA principal
+│   │   ├── PillarSection.tsx        # 3 Pilares (Capturar, Organizar, Refletir)
+│   │   ├── AgnosticSection.tsx      # Agnóstico de metodologia
+│   │   ├── FeaturesSection.tsx      # Features operacionais e zen
+│   │   ├── BenefitsSection.tsx      # Benefícios com terminal animado
+│   │   ├── DeveloperSection.tsx     # Para desenvolvedores (fork-friendly)
+│   │   ├── FAQSection.tsx           # Perguntas frequentes
+│   │   ├── CTASection.tsx           # CTA final
+│   │   ├── LandingNav.tsx           # Navbar da landing
+│   │   ├── LandingFooter.tsx        # Footer da landing
+│   │   ├── DemoModal.tsx            # Modal de demonstração
+│   │   └── shared.tsx               # Componentes compartilhados (FeatureCard, etc.)
+│   ├── layout/                      # ⭐ Refatorado (alpha.22)
+│   │   ├── AppLayout.tsx            # Layout com auth centralizada (único ponto)
+│   │   ├── AppNavigation.tsx        # Nav compositor (~270 linhas)
+│   │   ├── NavItemList.tsx          # Lista de links de navegação (extraído)
+│   │   ├── SyncStatus.tsx           # Indicador de sincronização (extraído)
+│   │   ├── SidebarActions.tsx       # Ações: debug, cache, backup, logout (extraído)
+│   │   ├── CommandPalette.tsx       # Busca global (⌘K)
 │   │   ├── KeyboardShortcutsHelp.tsx # Modal de atalhos
-│   │   └── PageTransition.tsx      # AnimatePresence wrapper
+│   │   └── PageTransition.tsx       # AnimatePresence wrapper (forwardRef)
 │   ├── empty-states/               # Estados vazios com ilustrações
 │   ├── shared/
 │   │   ├── ErrorBoundary.tsx       # Error handling global
@@ -372,8 +389,9 @@ src/
 │   └── database.ts                 # Tipos de mapeamento DB
 │
 ├── pages/
-│   ├── Index.tsx                   # Dashboard principal
-│   ├── Inbox.tsx                   # Inbox Engine UI (B.6)
+│   ├── Landing.tsx                  # Compositor da landing (importa 9 seções)
+│   ├── Index.tsx                    # Dashboard (assume autenticado)
+│   ├── Inbox.tsx                    # Inbox Engine UI (B.6)
 │   ├── Projects.tsx                # Lista de projetos
 │   ├── ProjectDetail.tsx           # Project Sheet (A.13)
 │   ├── Calendar.tsx                # Calendário (B.4)
@@ -387,6 +405,27 @@ src/
 │
 └── integrations/
     └── supabase/                   # Cliente Supabase (auto-gerado)
+```
+
+## Arquitetura de Autenticação (alpha.22)
+
+```
+App.tsx (QueryClient otimizado: staleTime 5min, retry 2, refetchOnWindowFocus false)
+  └── Routes
+       ├── Landing (pública, sem auth check)
+       │   └── Compositor → 9 componentes de seção
+       └── AppLayout (auth centralizada - ÚNICO ponto)
+            ├── loading? → Spinner
+            ├── !user? → AuthForm
+            └── user ✓
+                 ├── AppNavigation (compositor)
+                 │   ├── NavItemList (links reutilizáveis)
+                 │   ├── SyncStatus (indicador de sync)
+                 │   └── SidebarActions (debug, cache, backup, logout)
+                 ├── WelcomeModal (só autenticado)
+                 ├── TourOverlay (só autenticado)
+                 ├── FirstStepsChecklist (só autenticado)
+                 └── {children} (páginas assumem autenticado)
 ```
 
 ## Arquitetura Visual
@@ -1642,7 +1681,13 @@ npx playwright show-report
 - [x] **React.lazy + React.memo Optimizations** ⭐ NOVO
 - [x] **Page Transitions com AnimatePresence** ⭐ NOVO
 - [x] **Micro-animações em UI Components** ⭐ NOVO
-- [x] **Code Audit & Cleanup (17 UI components, 6 deps removidos)** ⭐ NOVO
+- [x] **Code Audit & Cleanup (17 UI components, 6 deps removidos)**
+- [x] **Auth Centralizada no AppLayout (único ponto)** ⭐ NOVO
+- [x] **Landing Componentizada (9 seções modulares)** ⭐ NOVO
+- [x] **AppNavigation Modularizada (NavItemList, SyncStatus, SidebarActions)** ⭐ NOVO
+- [x] **QueryClient Otimizado (staleTime 5min, retry 2)** ⭐ NOVO
+- [x] **Onboarding Scoped (só renderiza autenticado)** ⭐ NOVO
+- [x] **6 Deps Radix Adicionais Removidas** ⭐ NOVO
 
 ## 🔲 Próximas Etapas
 - [ ] Metas diárias de produtividade
