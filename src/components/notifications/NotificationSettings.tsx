@@ -1,4 +1,4 @@
-import { Bell, BellOff, BellRing } from "lucide-react";
+import { Bell, BellOff, BellRing, Smartphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -8,6 +8,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { useNotifications } from "@/hooks/useNotifications";
+import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { toast } from "sonner";
 
 export function NotificationSettings() {
@@ -19,12 +20,28 @@ export function NotificationSettings() {
     isSupported,
   } = useNotifications();
 
+  const push = usePushNotifications();
+
   const handleRequestPermission = async () => {
     const result = await requestPermission();
     if (result === "granted") {
       toast.success("Notificações ativadas!");
     } else if (result === "denied") {
       toast.error("Permissão negada. Ative nas configurações do navegador.");
+    }
+  };
+
+  const handlePushToggle = async (enabled: boolean) => {
+    if (enabled) {
+      const ok = await push.subscribe();
+      if (ok) {
+        toast.success("Push notifications ativadas! Você receberá lembretes mesmo com o app fechado.");
+      } else {
+        toast.error("Não foi possível ativar push notifications.");
+      }
+    } else {
+      await push.unsubscribe();
+      toast.success("Push notifications desativadas.");
     }
   };
 
@@ -135,6 +152,44 @@ export function NotificationSettings() {
                       />
                     </div>
                   </div>
+
+                  {/* Push Notifications Section */}
+                  {push.isSupported && (
+                    <>
+                      <div className="h-px bg-border" />
+                      
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-1.5">
+                          <Smartphone className="h-3.5 w-3.5 text-muted-foreground" />
+                          <p className="text-xs text-muted-foreground uppercase tracking-wide">
+                            Push Notifications
+                          </p>
+                        </div>
+                        
+                        <p className="text-xs text-muted-foreground">
+                          Receba lembretes mesmo com o app fechado.
+                        </p>
+                        
+                        <div className="flex items-center justify-between">
+                          <Label htmlFor="push-enabled" className="text-sm font-normal">
+                            {push.status === "subscribed" ? "Ativo" : "Ativar push"}
+                          </Label>
+                          <Switch
+                            id="push-enabled"
+                            checked={push.status === "subscribed"}
+                            onCheckedChange={handlePushToggle}
+                            disabled={push.isLoading || push.status === "denied"}
+                          />
+                        </div>
+
+                        {push.status === "denied" && (
+                          <p className="text-xs text-destructive">
+                            Push bloqueado pelo navegador.
+                          </p>
+                        )}
+                      </div>
+                    </>
+                  )}
                 </>
               )}
             </div>
