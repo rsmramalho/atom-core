@@ -20,6 +20,7 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 - **`check-due-tasks` Edge Function** — Cron job (3h) que verifica tarefas vencidas e envia lembretes
 - **`sw-push.js`** — Handler de `push` e `notificationclick` no Service Worker
 - **VAPID keys** — Configuradas como secrets no backend
+- **Botão "Enviar teste"** — Dispara push de teste ao próprio usuário via edge function
 
 ### Alterado
 
@@ -27,6 +28,7 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 - Novo toggle "Push Notifications" com ícone Smartphone
 - Status visual (Ativo/Ativar push/Bloqueado)
 - Seção separada das notificações in-app existentes
+- Botão "Enviar teste" visível quando push está ativo (chama `send-push-notification`)
 
 #### Service Worker Atualizado
 - `importScripts` adicionado ao workbox config para incluir `sw-push.js`

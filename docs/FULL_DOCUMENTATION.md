@@ -1417,9 +1417,10 @@ npx playwright show-report
 - **`send-push-notification` Edge Function** — Envia push via VAPID/WebCrypto
 - **`check-due-tasks` Edge Function** — Cron job (3h) verifica tarefas vencidas
 - **`sw-push.js`** — Handler de `push` e `notificationclick` no Service Worker
+- **Botão "Enviar teste"** — Dispara push de teste ao próprio usuário via edge function
 
 ### Alterado
-- **NotificationSettings UI** — Novo toggle "Push Notifications" com status visual
+- **NotificationSettings UI** — Novo toggle "Push Notifications" com status visual + botão de teste
 - **Service Worker** — `importScripts` para push handler
 - **supabase/config.toml** — Edge functions com `verify_jwt = false`
 
