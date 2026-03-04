@@ -1,12 +1,12 @@
 # MindMate - Atom Engine 4.0
 # Documentação Completa Consolidada
 
-**Versão:** 4.0.0-alpha.20  
-**Data:** 2025-12-17  
-**Status:** ✅ **RELEASE CANDIDATE** - Validado para Produção | 🚀 **Landing Page & Marketing**
+**Versão:** 4.0.0-alpha.21  
+**Data:** 2026-03-04  
+**Status:** ✅ **RELEASE CANDIDATE** - Validado para Produção | 🧹 **Code Audit & Cleanup**
 
 > Esta versão representa o marco estável do Atom Engine 4.0, com todas as funcionalidades core
-> implementadas e testadas. **Landing Page** de marketing com posicionamento estratégico adicionada.
+> implementadas e testadas. Auditoria completa com remoção de 17 componentes UI e 6 dependências não utilizados.
 
 ---
 
@@ -1267,6 +1267,22 @@ npx playwright show-report
 
 # CHANGELOG
 
+## [4.0.0-alpha.21] - 2026-03-04
+
+### Removido
+
+#### Code Audit & Cleanup 🧹
+- **17 Componentes UI não utilizados:** resizable, input-otp, carousel, drawer, hover-card, menubar, navigation-menu, toggle-group, sidebar, pagination, breadcrumb, table, aspect-ratio, avatar, alert, form, use-toast (duplicata)
+- **6 Dependências npm:** react-resizable-panels, input-otp, embla-carousel-react, vaul, @hookform/resolvers, react-hook-form
+- **Arquivos órfãos:** `public/placeholder.svg`, `src/hooks/use-mobile.tsx`
+
+### Verificado
+- Zero erros de build
+- Todas as páginas testadas end-to-end
+- Nenhuma regressão funcional
+
+---
+
 ## [4.0.0-alpha.19] - 2025-12-17
 
 ### Adicionado
@@ -1626,6 +1642,7 @@ npx playwright show-report
 - [x] **React.lazy + React.memo Optimizations** ⭐ NOVO
 - [x] **Page Transitions com AnimatePresence** ⭐ NOVO
 - [x] **Micro-animações em UI Components** ⭐ NOVO
+- [x] **Code Audit & Cleanup (17 UI components, 6 deps removidos)** ⭐ NOVO
 
 ## 🔲 Próximas Etapas
 - [ ] Metas diárias de produtividade

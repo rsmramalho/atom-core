@@ -7,6 +7,38 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [4.0.0-alpha.21] - 2026-03-04 🧹 CODE AUDIT & CLEANUP
+
+> **Auditoria completa do codebase** - Remoção de código morto, componentes e dependências não utilizados
+
+### Removido
+
+#### 17 Componentes UI Não Utilizados
+- `resizable.tsx`, `input-otp.tsx`, `carousel.tsx`, `drawer.tsx`
+- `hover-card.tsx`, `menubar.tsx`, `navigation-menu.tsx`, `toggle-group.tsx`
+- `sidebar.tsx`, `pagination.tsx`, `breadcrumb.tsx`, `table.tsx`
+- `aspect-ratio.tsx`, `avatar.tsx`, `alert.tsx`, `form.tsx`, `chart.tsx` (restaurado — usado por Analytics)
+
+#### 6 Dependências npm Removidas
+- `react-resizable-panels` — não utilizado
+- `input-otp` — não utilizado
+- `embla-carousel-react` — não utilizado
+- `vaul` — não utilizado
+- `@hookform/resolvers` — não utilizado
+- `react-hook-form` — não utilizado
+
+#### Outros Arquivos Removidos
+- `public/placeholder.svg` — nunca referenciado
+- `src/hooks/use-mobile.tsx` — apenas usado pelo sidebar deletado
+- `src/components/ui/use-toast.ts` — wrapper duplicado desnecessário
+
+### Verificado
+- Zero erros de build após limpeza
+- Todas as páginas testadas: Landing, Dashboard, Analytics, Calendar, Inbox, Projects
+- Nenhuma regressão funcional
+
+---
+
 ## [4.0.0-alpha.20] - 2025-12-17 🚀 LANDING PAGE & MARKETING
 
 > **Landing Page de Marketing** - Nova página de entrada com posicionamento estratégico

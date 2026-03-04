@@ -139,15 +139,14 @@ export function AppNavigation() {
                   <h1 className="text-xl font-bold text-primary">MindMate</h1>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <p className="text-xs text-muted-foreground cursor-help hover:text-primary transition-colors">v4.0.0-alpha.20</p>
+                      <p className="text-xs text-muted-foreground cursor-help hover:text-primary transition-colors">v4.0.0-alpha.21</p>
                     </TooltipTrigger>
                     <TooltipContent side="bottom" className="max-w-xs">
                       <p className="font-semibold mb-1">Novidades:</p>
                       <ul className="text-xs space-y-0.5 list-disc list-inside">
-                        <li>ErrorBoundary global</li>
-                        <li>Skeleton loading states</li>
-                        <li>Page transitions suaves</li>
-                        <li>Micro-animações em UI</li>
+                        <li>Code audit & cleanup</li>
+                        <li>17 UI components removidos</li>
+                        <li>6 dependências removidas</li>
                       </ul>
                     </TooltipContent>
                   </Tooltip>
@@ -283,15 +282,14 @@ export function AppNavigation() {
             <h1 className="text-lg font-bold text-primary leading-none">MindMate</h1>
             <Tooltip>
               <TooltipTrigger asChild>
-                <span className="text-[10px] text-muted-foreground cursor-help hover:text-primary transition-colors">v4.0.0-alpha.20</span>
+                <span className="text-[10px] text-muted-foreground cursor-help hover:text-primary transition-colors">v4.0.0-alpha.21</span>
               </TooltipTrigger>
               <TooltipContent side="bottom" className="max-w-xs">
                 <p className="font-semibold mb-1">Novidades:</p>
                 <ul className="text-xs space-y-0.5 list-disc list-inside">
-                  <li>ErrorBoundary global</li>
-                  <li>Skeleton loading states</li>
-                  <li>Page transitions suaves</li>
-                  <li>Micro-animações em UI</li>
+                  <li>Code audit & cleanup</li>
+                  <li>17 UI components removidos</li>
+                  <li>6 dependências removidas</li>
                 </ul>
               </TooltipContent>
             </Tooltip>
@@ -320,15 +318,14 @@ export function AppNavigation() {
               <h1 className="text-xl font-bold text-primary">MindMate</h1>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <p className="text-xs text-muted-foreground cursor-help hover:text-primary transition-colors">v4.0.0-alpha.20</p>
+                  <p className="text-xs text-muted-foreground cursor-help hover:text-primary transition-colors">v4.0.0-alpha.21</p>
                 </TooltipTrigger>
                 <TooltipContent side="bottom" className="max-w-xs">
                   <p className="font-semibold mb-1">Novidades:</p>
                   <ul className="text-xs space-y-0.5 list-disc list-inside">
-                    <li>ErrorBoundary global</li>
-                    <li>Skeleton loading states</li>
-                    <li>Page transitions suaves</li>
-                    <li>Micro-animações em UI</li>
+                    <li>Code audit & cleanup</li>
+                    <li>17 UI components removidos</li>
+                    <li>6 dependências removidas</li>
                   </ul>
                 </TooltipContent>
               </Tooltip>
