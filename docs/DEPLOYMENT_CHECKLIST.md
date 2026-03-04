@@ -1,7 +1,7 @@
 # MindMate Production Deployment Checklist
 
-## Version: 4.0.0-alpha.16 (Release Candidate)
-## Last Updated: 2025-12-17
+## Version: 4.0.0-alpha.22
+## Last Updated: 2026-03-04
 
 Use this checklist before every production release to ensure a smooth deployment.
 
