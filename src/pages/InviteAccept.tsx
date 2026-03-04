@@ -53,7 +53,7 @@ export default function InviteAccept() {
               body: {
                 user_id: owner.user_id,
                 title: "Novo membro no projeto!",
-                body: `Alguém acabou de entrar no projeto "${project?.title || "Sem título"}"`,
+                body: `${user.email || "Novo membro"} entrou no projeto "${project?.title || "Sem título"}"`,
                 url: `/projects/${pid}`,
               },
             });
