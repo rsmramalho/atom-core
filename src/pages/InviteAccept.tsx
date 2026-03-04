@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { acceptProjectInvite } from "@/hooks/useProjectMembers";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Loader2, CheckCircle2, XCircle, Users } from "lucide-react";
@@ -28,9 +29,38 @@ export default function InviteAccept() {
     }
 
     acceptProjectInvite(code)
-      .then((pid) => {
+      .then(async (pid) => {
         setProjectId(pid);
         setStatus("success");
+
+        // Notify project owner via push
+        try {
+          const { data: owner } = await supabase
+            .from("project_members")
+            .select("user_id")
+            .eq("project_id", pid)
+            .eq("role", "owner")
+            .maybeSingle();
+
+          const { data: project } = await supabase
+            .from("items")
+            .select("title")
+            .eq("id", pid)
+            .maybeSingle();
+
+          if (owner && owner.user_id !== user.id) {
+            await supabase.functions.invoke("send-push-notification", {
+              body: {
+                user_id: owner.user_id,
+                title: "Novo membro no projeto!",
+                body: `Alguém acabou de entrar no projeto "${project?.title || "Sem título"}"`,
+                url: `/projects/${pid}`,
+              },
+            });
+          }
+        } catch {
+          // Non-critical — don't block the flow
+        }
       })
       .catch((err) => {
         setStatus("error");
