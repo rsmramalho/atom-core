@@ -123,6 +123,20 @@ export function useProjectMembers(projectId: string | undefined) {
     },
   });
 
+  // Update a member's role
+  const updateMemberRole = useMutation({
+    mutationFn: async ({ memberId, role }: { memberId: string; role: "editor" | "viewer" }) => {
+      const { error } = await supabase
+        .from("project_members")
+        .update({ role: role as any })
+        .eq("id", memberId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["project-members", projectId] });
+    },
+  });
+
   // Check if current user is owner
   const currentUserId = membersQuery.data?.find(m => m.role === "owner")?.user_id;
 
@@ -135,6 +149,7 @@ export function useProjectMembers(projectId: string | undefined) {
     createInvite: createInvite.mutateAsync,
     removeMember: removeMember.mutateAsync,
     deleteInvite: deleteInvite.mutateAsync,
+    updateMemberRole: updateMemberRole.mutateAsync,
     isCreatingInvite: createInvite.isPending,
   };
 }

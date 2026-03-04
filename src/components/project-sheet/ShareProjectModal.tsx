@@ -23,7 +23,7 @@ interface ShareProjectModalProps {
 
 export function ShareProjectModal({ open, onOpenChange, projectId, projectTitle }: ShareProjectModalProps) {
   const user = useCurrentUser();
-  const { members, invites, isOwner, createInvite, removeMember, deleteInvite, isCreatingInvite } = useProjectMembers(projectId);
+  const { members, invites, isOwner, createInvite, removeMember, deleteInvite, updateMemberRole, isCreatingInvite } = useProjectMembers(projectId);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [inviteRole, setInviteRole] = useState<"editor" | "viewer">("editor");
   const isCurrentUserOwner = user ? isOwner(user.id) : false;
@@ -53,6 +53,15 @@ export function ShareProjectModal({ open, onOpenChange, projectId, projectTitle 
       toast.success("Membro removido");
     } catch (error) {
       toast.error("Erro ao remover membro");
+    }
+  };
+
+  const handleRoleChange = async (memberId: string, newRole: "editor" | "viewer") => {
+    try {
+      await updateMemberRole({ memberId, role: newRole });
+      toast.success(`Role alterado para ${newRole === "editor" ? "Editor" : "Viewer"}`);
+    } catch (error) {
+      toast.error("Erro ao alterar role");
     }
   };
 
@@ -99,9 +108,28 @@ export function ShareProjectModal({ open, onOpenChange, projectId, projectTitle 
                       <span className="text-sm truncate max-w-[180px]">
                         {member.user_id === user?.id ? "Você" : member.user_id.slice(0, 8) + "..."}
                       </span>
-                      <Badge variant="outline" className="text-xs">
-                        {member.role === "owner" ? "Owner" : member.role === "viewer" ? "Viewer" : "Editor"}
-                      </Badge>
+                      {member.role === "owner" ? (
+                        <Badge variant="outline" className="text-xs">Owner</Badge>
+                      ) : isCurrentUserOwner ? (
+                        <div className="flex rounded-md border border-input overflow-hidden text-xs">
+                          <button
+                            className={`px-2 py-0.5 transition-colors ${member.role === "editor" ? "bg-primary text-primary-foreground" : "bg-muted hover:bg-muted/80"}`}
+                            onClick={() => handleRoleChange(member.id, "editor")}
+                          >
+                            Editor
+                          </button>
+                          <button
+                            className={`px-2 py-0.5 transition-colors ${member.role === "viewer" ? "bg-primary text-primary-foreground" : "bg-muted hover:bg-muted/80"}`}
+                            onClick={() => handleRoleChange(member.id, "viewer")}
+                          >
+                            Viewer
+                          </button>
+                        </div>
+                      ) : (
+                        <Badge variant="outline" className="text-xs">
+                          {member.role === "viewer" ? "Viewer" : "Editor"}
+                        </Badge>
+                      )}
                     </div>
                     {isCurrentUserOwner && member.user_id !== user?.id && (
                       <Button
