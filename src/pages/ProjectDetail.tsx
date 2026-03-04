@@ -14,7 +14,8 @@ import {
   BookOpen,
   Feather,
   Settings2,
-  Users
+  Users,
+  Activity
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -25,6 +26,7 @@ import { MilestonesPane } from "@/components/project-sheet/MilestonesPane";
 import { WorkAreaPane } from "@/components/project-sheet/WorkAreaPane";
 import { NotesPane } from "@/components/project-sheet/NotesPane";
 import { JournalPane } from "@/components/project-sheet/JournalPane";
+import { ActivityPane } from "@/components/project-sheet/ActivityPane";
 import { ProjectStatusDropdown } from "@/components/project-sheet/ProjectStatusDropdown";
 import { ProjectSettingsModal } from "@/components/project-sheet/ProjectSettingsModal";
 import { EmptyProjectStart } from "@/components/empty-states";
@@ -37,10 +39,11 @@ import { Confetti } from "@/components/shared/Confetti";
 import { useProjectMembers } from "@/hooks/useProjectMembers";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { toast } from "sonner";
+import { logProjectActivity } from "@/hooks/useProjectActivities";
 import { cn } from "@/lib/utils";
 import type { ProjectStatus, ProgressMode, ChecklistItem } from "@/types/atom-engine";
 
-type ProjectTab = "work" | "milestones" | "notes" | "journal";
+type ProjectTab = "work" | "milestones" | "notes" | "journal" | "activity";
 
 // Progress mode labels
 const PROGRESS_MODE_LABELS: Record<ProgressMode, string> = {
@@ -108,6 +111,7 @@ export default function ProjectDetail() {
       // Trigger confetti and special toast on completion
       if (newStatus === "completed") {
         setShowConfetti(true);
+        logProjectActivity(project.id, "status_changed", project.title, { new_status: "completed", user_email: currentUser?.email });
         toast.success("🎉 Projeto concluído! Parabéns pela conquista!", {
           description: "Que tal criar uma reflexão de encerramento para documentar este momento?",
           action: {
@@ -119,10 +123,13 @@ export default function ProjectDetail() {
           duration: 8000,
         });
       } else if (newStatus === "active") {
+        logProjectActivity(project.id, "status_changed", project.title, { new_status: "active", user_email: currentUser?.email });
         toast.success("Projeto reativado");
       } else if (newStatus === "paused") {
+        logProjectActivity(project.id, "status_changed", project.title, { new_status: "paused", user_email: currentUser?.email });
         toast.info("Projeto pausado - itens não contam para métricas globais");
       } else if (newStatus === "archived") {
+        logProjectActivity(project.id, "status_changed", project.title, { new_status: "archived", user_email: currentUser?.email });
         toast.info("Projeto arquivado");
       }
 
@@ -182,6 +189,7 @@ export default function ProjectDetail() {
         module: module ?? project?.module ?? null,
       });
       toast.success("Milestone criada!");
+      logProjectActivity(id!, "milestone_created", title, { user_email: currentUser?.email });
     } catch (error) {
       toast.error("Erro ao criar milestone");
     }
@@ -234,6 +242,7 @@ export default function ProjectDetail() {
         order_index: 0,
       });
       toast.success("Task criada!");
+      logProjectActivity(id!, "task_created", title, { user_email: currentUser?.email });
     } catch (error) {
       toast.error("Erro ao criar task");
     }
@@ -269,6 +278,7 @@ export default function ProjectDetail() {
         order_index: 0,
       });
       toast.success("Lista criada!");
+      logProjectActivity(id!, "list_created", title, { user_email: currentUser?.email });
       setListModalOpen(false);
     } catch (error) {
       toast.error("Erro ao criar lista");
@@ -401,7 +411,7 @@ export default function ProjectDetail() {
         />
       ) : (
         <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as ProjectTab)} className="w-full">
-          <TabsList className="grid w-full grid-cols-4 mb-6">
+          <TabsList className="grid w-full grid-cols-5 mb-6">
             <TabsTrigger value="work" className="gap-1.5">
               <ListTodo className="h-4 w-4" />
               <span className="hidden sm:inline">Trabalho</span>
@@ -417,6 +427,10 @@ export default function ProjectDetail() {
             <TabsTrigger value="journal" className="gap-1.5">
               <Feather className="h-4 w-4" />
               <span className="hidden sm:inline">Journal</span>
+            </TabsTrigger>
+            <TabsTrigger value="activity" className="gap-1.5">
+              <Activity className="h-4 w-4" />
+              <span className="hidden sm:inline">Atividade</span>
             </TabsTrigger>
           </TabsList>
 
@@ -448,6 +462,10 @@ export default function ProjectDetail() {
               projectTitle={project.title}
               projectModule={project.module}
             />
+          </TabsContent>
+
+          <TabsContent value="activity" className="mt-0">
+            <ActivityPane projectId={id!} />
           </TabsContent>
         </Tabs>
       )}

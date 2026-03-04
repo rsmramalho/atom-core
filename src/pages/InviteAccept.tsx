@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { acceptProjectInvite } from "@/hooks/useProjectMembers";
+import { logProjectActivity } from "@/hooks/useProjectActivities";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -32,6 +33,9 @@ export default function InviteAccept() {
       .then(async (pid) => {
         setProjectId(pid);
         setStatus("success");
+
+        // Log activity
+        logProjectActivity(pid, "member_joined", undefined, { user_email: user.email });
 
         // Notify project owner via push
         try {
