@@ -201,7 +201,7 @@ export function AppNavigation() {
 
           <div className="flex items-center gap-1">
             <NotificationSettings />
-            <Button variant="ghost" size="icon" onClick={openCommandPalette}>
+            <Button variant="ghost" size="icon" onClick={openCommandPalette} aria-label="Busca global">
               <Command className="h-5 w-5" />
             </Button>
           </div>
