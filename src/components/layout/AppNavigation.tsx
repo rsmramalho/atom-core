@@ -154,7 +154,7 @@ export function AppNavigation() {
         <div className="flex items-center justify-between px-4 py-3">
           <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="-ml-2">
+              <Button variant="ghost" size="icon" className="-ml-2" aria-label="Abrir menu">
                 <Menu className="h-5 w-5" />
               </Button>
             </SheetTrigger>
