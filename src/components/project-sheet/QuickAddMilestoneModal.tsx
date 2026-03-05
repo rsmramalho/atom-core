@@ -58,7 +58,7 @@ export function QuickAddMilestoneModal({
     }
   }, [open, defaultModule]);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const result = quickAddMilestoneSchema.safeParse({
       title,
       weight,
@@ -68,10 +68,15 @@ export function QuickAddMilestoneModal({
       toast.error(getFirstError(result.error));
       return;
     }
-    onSubmit(title.trim(), weight, module === "geral" ? null : module);
-    setTitle("");
-    setWeight(3);
-    onOpenChange(false);
+    setIsSubmitting(true);
+    try {
+      await onSubmit(title.trim(), weight, module === "geral" ? null : module);
+      setTitle("");
+      setWeight(3);
+      onOpenChange(false);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleClose = () => {
