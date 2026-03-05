@@ -70,7 +70,7 @@ export function QuickAddTaskModal({
     }
   }, [open, defaultModule]);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const result = quickAddTaskSchema.safeParse({
       title,
       module: module === "geral" ? null : module,
@@ -81,16 +81,21 @@ export function QuickAddTaskModal({
       toast.error(getFirstError(result.error));
       return;
     }
-    onSubmit(
-      title.trim(), 
-      module === "geral" ? null : module,
-      dueDate ? format(dueDate, "yyyy-MM-dd") : null,
-      recurrenceRule
-    );
-    setTitle("");
-    setDueDate(undefined);
-    setRecurrenceRule(null);
-    onOpenChange(false);
+    setIsSubmitting(true);
+    try {
+      await onSubmit(
+        title.trim(), 
+        module === "geral" ? null : module,
+        dueDate ? format(dueDate, "yyyy-MM-dd") : null,
+        recurrenceRule
+      );
+      setTitle("");
+      setDueDate(undefined);
+      setRecurrenceRule(null);
+      onOpenChange(false);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleClose = () => {
