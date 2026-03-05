@@ -188,7 +188,7 @@ export function AppNavigation() {
                     wrapper={MobileSheetClose}
                   />
                 </div>
-              </div>
+              </nav>
             </SheetContent>
           </Sheet>
 
