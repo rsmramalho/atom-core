@@ -339,6 +339,10 @@ export type Database = {
         Args: { _project_id: string }
         Returns: undefined
       }
+      is_project_co_member: {
+        Args: { _target_id: string; _viewer_id: string }
+        Returns: boolean
+      }
       is_project_creator: {
         Args: { _project_id: string; _user_id: string }
         Returns: boolean
