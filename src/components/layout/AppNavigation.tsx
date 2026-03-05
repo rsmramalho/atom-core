@@ -169,7 +169,7 @@ export function AppNavigation() {
 
                 <div className="flex-1 p-4 space-y-1">
                   <NavItemList onItemClick={() => setMobileMenuOpen(false)} wrapper={MobileSheetClose} />
-                </nav>
+                </div>
 
                 <div className="px-4 py-2 border-t border-border">
                   <SyncStatus {...syncProps} />
