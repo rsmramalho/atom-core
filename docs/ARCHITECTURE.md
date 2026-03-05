@@ -134,6 +134,7 @@ src/
 │   ├── journal-export.ts           # Export MD/JSON/PDF
 │   ├── offline-queue.ts            # IndexedDB queue
 │   ├── local-cache.ts              # localStorage cache
+│   ├── validation.ts               # ⭐ Zod schemas para formulários (beta)
 │   └── utils.ts                    # Utilitários (cn, etc)
 │
 ├── types/
