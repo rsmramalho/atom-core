@@ -42,6 +42,7 @@ import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { toast } from "sonner";
 import { logProjectActivity } from "@/hooks/useProjectActivities";
 import { cn } from "@/lib/utils";
+import { ProjectDetailSkeleton } from "@/components/projects/ProjectDetailSkeleton";
 import type { ProjectStatus, ProgressMode, ChecklistItem } from "@/types/atom-engine";
 
 type ProjectTab = "work" | "milestones" | "notes" | "journal" | "activity";
@@ -160,11 +161,7 @@ export default function ProjectDetail() {
   };
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
+    return <ProjectDetailSkeleton />;
   }
 
   if (!project) {
