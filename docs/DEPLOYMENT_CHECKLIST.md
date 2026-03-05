@@ -154,10 +154,33 @@ ls dist/pwa-icons/
 
 ### Edge Functions
 
-- [ ] All edge functions deployed
-- [ ] Edge function secrets configured
+- [ ] `send-push-notification` deployed and functional
+- [ ] `check-due-tasks` deployed with cron schedule
+- [ ] `weekly-summary` deployed with AI model access
+- [ ] Edge function secrets configured (VAPID keys, etc.)
 - [ ] CORS headers properly set
 - [ ] Error handling implemented
+
+### Push Notifications
+
+- [ ] VAPID public/private keys configured as secrets
+- [ ] `push_subscriptions` table has RLS policies
+- [ ] Service Worker (`sw-push.js`) registered correctly
+- [ ] Test push notification delivery end-to-end
+
+### Password Reset
+
+- [ ] Password reset email template configured
+- [ ] `/reset-password` route accessible
+- [ ] Redirect URL configured for production domain
+- [ ] Reset flow tested end-to-end
+
+### Collaboration
+
+- [ ] `project_members` RLS policies verified (per-role access)
+- [ ] `project_invites` expiry and use-count logic working
+- [ ] `accept_project_invite` function tested
+- [ ] Activity feed logging verified
 
 ---
 
