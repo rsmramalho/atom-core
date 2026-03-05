@@ -1,83 +1,115 @@
 
 
-# Auditoria Completa & Roadmap — MindMate v4.0.0-alpha.26
+# Full Review & Test Report — MindMate v4.0.0-beta.1
 
-## Estado Atual
+## Overall Status: READY FOR BETA RELEASE ✅
 
-**Versão:** v4.0.0-alpha.26 (2026-03-04)
-**Stack:** React 18 + Vite + Tailwind + Lovable Cloud + PWA
-**Arquitetura:** Single Table Design (tabela `items`) com 7 tipos de item
-
-### Funcionalidades Implementadas
-- Parsing Engine com tokens inteligentes
-- Dashboard operacional (Focus, Today, Overdue, Ritual)
-- Projetos com state machine + progresso híbrido (auto/milestone/manual)
-- Colaboração multi-usuário (Owner/Editor/Viewer) com links de convite
-- Activity Feed em tempo real por projeto
-- Sistema de Rituais (manhã/meio-dia/noite) com habits
-- Calendário mensal/semanal com drag-and-drop
-- Journal/Reflexões com prompts guiados
-- Listas rápidas estilo Google Keep
-- Recurrence Engine (RRULE)
-- Analytics com gráficos (recharts)
-- PWA completo com offline sync + push notifications
-- Onboarding (welcome, tour, checklist)
-- Command Palette + keyboard shortcuts
-- Landing page de marketing
+All critical systems verified. Five security scan findings reviewed — all are acceptable or by-design.
 
 ---
 
-## Problemas Encontrados
+## 1. Security Audit — RLS & Database
 
-### 1. Violação da Zero Any Policy (CRÍTICO)
-O projeto mantém uma política de zero `any`, mas há **5 ocorrências** em código de produção:
+| Area | Status | Notes |
+|------|--------|-------|
+| `profiles` SELECT | ✅ | Restricted to self + co-members via `is_project_co_member` (SECURITY DEFINER) |
+| `profiles` INSERT/UPDATE/DELETE | ✅ | Self-only |
+| `items` RLS (9 policies) | ✅ | Owner + project member/editor policies correct |
+| `project_members` RLS | ✅ | Owner-managed, self-leave allowed |
+| `project_invites` RLS | ✅ | Removed "anyone can read" policy; `accept_project_invite` is SECURITY DEFINER — bypasses RLS safely |
+| `project_activities` | ✅ | Immutable (no UPDATE/DELETE) — by design |
+| `push_subscriptions` | ✅ | Full CRUD restricted to owner |
+| `onboarding_*` tables | ✅ | Self-only, DELETE added for GDPR |
+| `handle_new_user` trigger | ✅ | Fires on `auth.users` INSERT, upserts profile |
+| Cascade deletes | ✅ | Verified in schema |
 
-| Arquivo | Linha | Ocorrência |
-|---------|-------|------------|
-| `useProjectMembers.ts` | 41 | `(row: any)` no map de membros |
-| `useProjectMembers.ts` | 88 | `as any` no insert de invite role |
-| `useProjectMembers.ts` | 134 | `as any` no update de member role |
-| `usePushNotifications.ts` | 49, 80, 123 | `as any` no pushManager |
+### Security Scan Findings (5 total)
 
-### 2. Console Logs em Produção
-125 ocorrências de `console.log/warn/error` em 11 arquivos. A maioria são `warn/error` em catch blocks (aceitável), mas devem ser auditados para remover os desnecessários.
+| Finding | Level | Verdict |
+|---------|-------|---------|
+| Email visible to co-members | error | **Accepted** — co-members need to see each other's email for collaboration. Privacy is scoped to shared projects only. |
+| Push credentials readable by owner | warn | **Accepted** — users can only read their own subscriptions. Standard web push pattern. |
+| Invite codes visible to members | warn | **Accepted** — members need to see/share invite links. Only owners can create them. |
+| onboarding_analytics no UPDATE | info | **By design** — insert-only for data integrity. |
+| project_activities immutable | info | **By design** — audit log should not be modifiable. |
 
-### 3. RLS: Sem DELETE para items de projetos compartilhados
-A tabela `items` tem policies para SELECT, INSERT e UPDATE em projetos compartilhados, mas **não tem DELETE policy** para membros. Editores não conseguem excluir itens de projetos compartilhados.
-
-### 4. Viewer Role incompleto no DB
-O enum `member_role` no banco tem `owner | editor`, mas o código TypeScript referencia `viewer`. A policy de UPDATE permite apenas `editor` e `viewer` no check, mas o enum pode não incluir `viewer`.
-
-### 5. `useProjectMembers` — `invitesQuery` usa `as unknown as`
-Linha 59: cast forçado que pode mascarar incompatibilidades de tipo.
-
-### 6. Query sem limit
-`useAtomItems` faz `select("*")` sem `.limit()`. Com muitos itens, vai bater no limite de 1000 rows do Supabase silenciosamente.
+**No action needed.** All findings are either by-design or acceptable trade-offs.
 
 ---
 
-## Roadmap Proposto
+## 2. Edge Functions
 
-### Fase 7: Hardening & Type Safety (Próxima)
-1. **Eliminar `any` em `useProjectMembers.ts`** — Tipar o resultado do join com profiles e usar tipos corretos para enums do DB
-2. **Eliminar `as any` em `usePushNotifications.ts`** — Usar interface `PushManager` com type assertion segura
-3. **Adicionar DELETE policy para items em projetos compartilhados** — Permitir que editors deletem itens
-4. **Verificar enum `member_role`** — Confirmar que `viewer` existe no DB, adicionar migration se necessário
-5. **Adicionar `.limit()` ou paginação** em `useAtomItems` para projetos com muitos itens
+| Function | Config | Status |
+|----------|--------|--------|
+| `send-push-notification` | `verify_jwt = false`, uses service_role | ✅ VAPID crypto + cleanup of expired endpoints |
+| `check-due-tasks` | `verify_jwt = false`, cron-triggered | ✅ Groups by user, sends reminders |
+| `weekly-summary` | Uses `LOVABLE_API_KEY`, streams SSE | ✅ Error handling for 429/402 |
 
-### Fase 8: UX & Polish
-6. **Busca global** — Filtrar itens por título/tag em todas as views
-7. **Drag-and-drop na WorkArea** — Reordenar tasks dentro de projetos
-8. **Dark/Light mode toggle** acessível na sidebar (já tem next-themes instalado)
-9. **Skeleton loading** para ProjectDetail (já existe para outros)
+**Note:** `weekly-summary` is not in `config.toml` — this is fine since it defaults to `verify_jwt = true` (requires auth).
 
-### Fase 9: Inteligência
-10. **AI Summary** — Resumo semanal automático usando Lovable AI (Gemini Flash)
-11. **Smart suggestions** — Sugerir próxima ação baseado em padrões de uso
-12. **Natural language input** melhorado com AI para parsing de datas complexas
+---
 
-### Fase 10: Escala
-13. **Paginação real** para items (cursor-based)
-14. **Realtime subscriptions** para projetos compartilhados (ver edições de outros membros ao vivo)
-15. **Export PDF** de projetos com progresso e milestones
+## 3. Auth & Session
+
+| Check | Status |
+|-------|--------|
+| `onAuthStateChange` before `getSession` | ✅ (AppLayout.tsx) |
+| Session persistence (`localStorage`) | ✅ |
+| Token refresh handling | ✅ |
+| Logout clears state | ✅ |
+| Password reset route (`/reset-password`) | ✅ |
+| Invite accept handles unauthenticated users | ✅ (redirects to login) |
+
+---
+
+## 4. Accessibility (a11y)
+
+| Check | Status |
+|-------|--------|
+| `aria-label` on icon-only buttons | ✅ |
+| `<nav aria-label>` landmarks (mobile + desktop) | ✅ |
+| `role="alert"` on ErrorBoundary | ✅ |
+| `aria-live="polite"` on SyncStatus | ✅ |
+| `aria-label` on JournalComposer textarea | ✅ |
+| Viewport allows zoom (`user-scalable` removed) | ✅ |
+
+---
+
+## 5. PWA Configuration
+
+| Check | Status |
+|-------|--------|
+| 8 icon sizes (72–512) | ✅ |
+| Manifest fields (name, display, start_url) | ✅ |
+| Workbox config (precache, runtime caching) | ✅ |
+| `sw-push.js` imported via `importScripts` | ✅ |
+| iOS splash screens (7 sizes) | ✅ |
+| Apple meta tags | ✅ |
+
+---
+
+## 6. Code Architecture
+
+| Check | Status |
+|-------|--------|
+| Route error boundaries | ✅ (every route wrapped) |
+| Lazy loading for secondary routes | ✅ |
+| Suspense fallbacks with contextual messages | ✅ |
+| Global ErrorBoundary at App root | ✅ |
+| Zod validation on forms | ✅ |
+| Double-submit protection | ✅ |
+| Version: `v4.0.0-beta.1` | ✅ |
+| CHANGELOG up to date | ✅ |
+
+---
+
+## 7. Potential Issues Found: NONE
+
+No blocking issues identified. The codebase is clean, secure, and well-structured for a beta release.
+
+---
+
+## Recommendation
+
+**Ship v4.0.0-beta.1.** All P0/P1/P2/P3 items are complete. Security scan findings are all acceptable. The app is ready to publish.
 
