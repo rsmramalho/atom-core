@@ -1,9 +1,9 @@
 # MindMate - Atom Engine 4.0
 # Documentação Completa Consolidada
 
-**Versão:** 4.0.0-alpha.25  
-**Data:** 2026-03-04  
-**Status:** ✅ **Production Ready** - Push Notifications com VAPID
+**Versão:** 4.0.0-beta.0  
+**Data:** 2026-03-05  
+**Status:** ✅ **Beta** - Collaboration + Push + AI + Zod Validation
 
 > Esta versão representa o marco estável do Atom Engine 4.0, com todas as funcionalidades core
 > implementadas e testadas. Refatoração arquitetural completa: auth centralizada, Landing componentizada (9 seções),
