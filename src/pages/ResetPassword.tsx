@@ -17,6 +17,8 @@ export default function ResetPassword() {
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  const [timedOut, setTimedOut] = useState(false);
+
   useEffect(() => {
     // Listen for PASSWORD_RECOVERY event from the auth callback
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
@@ -31,7 +33,15 @@ export default function ResetPassword() {
       setIsRecovery(true);
     }
 
-    return () => subscription.unsubscribe();
+    // Timeout after 10 seconds
+    const timeout = setTimeout(() => {
+      setTimedOut(true);
+    }, 10000);
+
+    return () => {
+      subscription.unsubscribe();
+      clearTimeout(timeout);
+    };
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
