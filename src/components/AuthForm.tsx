@@ -125,7 +125,7 @@ export const AuthForm = forwardRef<HTMLDivElement, AuthFormProps>(function AuthF
             ) : (
               <UserPlus className="w-4 h-4" />
             )}
-            {isLogin ? "Entrar" : "Cadastrar"}
+            {isForgotPassword ? "Enviar link" : isLogin ? "Entrar" : "Cadastrar"}
           </button>
         </form>
 
