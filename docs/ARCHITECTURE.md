@@ -294,6 +294,7 @@ CREATE TYPE item_type AS ENUM (
 CREATE TYPE ritual_slot AS ENUM ('manha', 'meio_dia', 'noite');
 CREATE TYPE project_status AS ENUM ('draft', 'active', 'paused', 'completed', 'archived');
 CREATE TYPE progress_mode AS ENUM ('auto', 'milestone', 'manual');
+CREATE TYPE member_role AS ENUM ('owner', 'editor', 'viewer');
 ```
 
 ---
