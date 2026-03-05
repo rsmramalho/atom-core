@@ -12,7 +12,7 @@ interface SyncStatusProps {
 
 export function SyncStatus({ lastSync, pendingCount, isOnline, isSyncing, onSync, onShowPending }: SyncStatusProps) {
   return (
-    <div className="flex items-center justify-between px-3 py-2">
+    <div className="flex items-center justify-between px-3 py-2" aria-live="polite">
       <div className="flex items-center gap-2 text-xs text-muted-foreground">
         <RefreshCw className="h-3 w-3" />
         <span>Sync: {lastSync}</span>

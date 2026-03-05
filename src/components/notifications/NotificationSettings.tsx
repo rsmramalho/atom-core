@@ -93,7 +93,7 @@ export function NotificationSettings() {
           variant="ghost" 
           size="icon"
           className="relative"
-          title="Configurações de notificação"
+          aria-label="Configurações de notificação"
         >
           {getIcon()}
           {permission === "granted" && settings.enabled && (

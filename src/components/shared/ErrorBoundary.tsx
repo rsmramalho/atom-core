@@ -48,7 +48,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
       }
 
       return (
-        <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <div role="alert" className="min-h-screen bg-background flex items-center justify-center p-4">
           <div className="max-w-md w-full text-center space-y-6">
             {/* Icon */}
             <div className="mx-auto w-20 h-20 rounded-full bg-destructive/10 flex items-center justify-center">

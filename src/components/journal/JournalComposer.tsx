@@ -202,6 +202,7 @@ export function JournalComposer() {
           value={content}
           onChange={(e) => setContent(e.target.value)}
           onKeyDown={handleKeyDown}
+          aria-label="Escreva sua reflexão"
           placeholder="O que está na sua mente agora?"
           className="w-full min-h-[120px] resize-none bg-transparent border-none outline-none text-lg leading-relaxed placeholder:text-muted-foreground/50 focus:ring-0 prose prose-lg dark:prose-invert"
           disabled={isSaving}

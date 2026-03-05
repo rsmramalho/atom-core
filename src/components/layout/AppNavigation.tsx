@@ -209,7 +209,7 @@ export function AppNavigation() {
       </div>
 
       {/* Desktop: Sidebar */}
-      <nav className="hidden md:flex md:flex-col md:border-r md:border-border md:h-screen md:w-64 md:flex-shrink-0 md:bg-card/50">
+      <nav aria-label="Navegação principal" className="hidden md:flex md:flex-col md:border-r md:border-border md:h-screen md:w-64 md:flex-shrink-0 md:bg-card/50">
         <div className="flex flex-col h-full py-6 px-4">
           <div className="mb-8 flex items-start justify-between">
             <div>
