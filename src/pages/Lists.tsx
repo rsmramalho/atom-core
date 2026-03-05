@@ -54,7 +54,11 @@ export default function Lists() {
   };
 
   const handleCreateList = async () => {
-    if (!newListTitle.trim()) return;
+    const validation = quickAddListSchema.safeParse({ title: newListTitle });
+    if (!validation.success) {
+      toast.error(getFirstError(validation.error));
+      return;
+    }
     
     setIsCreating(true);
     try {
