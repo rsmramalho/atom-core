@@ -23,6 +23,8 @@ import {
 import { ListDetailModal, getListColor } from "@/components/lists/ListDetailModal";
 import { useAtomItems } from "@/hooks/useAtomItems";
 import { toast } from "sonner";
+import { quickAddListSchema, getFirstError } from "@/lib/validation";
+import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import type { AtomItem } from "@/types/atom-engine";
 
