@@ -127,12 +127,22 @@ export const AuthForm = forwardRef<HTMLDivElement, AuthFormProps>(function AuthF
           </button>
         </form>
 
-        <div className="mt-4 text-center">
+        <div className="mt-4 text-center space-y-2">
+          {isLogin && !isForgotPassword && (
+            <button
+              type="button"
+              onClick={() => setIsForgotPassword(true)}
+              className="text-console-muted font-mono text-xs hover:text-console-accent hover:underline block mx-auto"
+            >
+              Esqueceu a senha?
+            </button>
+          )}
           <button
-            onClick={() => setIsLogin(!isLogin)}
+            type="button"
+            onClick={() => { setIsLogin(!isLogin); setIsForgotPassword(false); }}
             className="text-console-accent font-mono text-xs hover:underline"
           >
-            {isLogin ? "Não tem conta? Cadastre-se" : "Já tem conta? Entrar"}
+            {isForgotPassword ? "Voltar ao login" : isLogin ? "Não tem conta? Cadastre-se" : "Já tem conta? Entrar"}
           </button>
         </div>
       </div>
