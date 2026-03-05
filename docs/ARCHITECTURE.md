@@ -206,6 +206,54 @@ Todos os tipos de itens em uma única tabela (Doc B.3, B.9).
 
 ### Tabelas Auxiliares
 
+#### `profiles`
+| Coluna | Tipo | Descrição |
+|--------|------|-----------|
+| `id` | uuid | FK para auth.users |
+| `email` | text | Email do usuário |
+| `created_at` | timestamptz | Timestamp |
+
+> Auto-populated via trigger `on_auth_user_created`.
+
+#### `project_members`
+| Coluna | Tipo | Descrição |
+|--------|------|-----------|
+| `id` | uuid | Chave primária |
+| `project_id` | uuid | FK para items (ON DELETE CASCADE) |
+| `user_id` | uuid | FK para auth.users |
+| `role` | member_role | owner, editor, viewer |
+
+#### `project_invites`
+| Coluna | Tipo | Descrição |
+|--------|------|-----------|
+| `id` | uuid | Chave primária |
+| `project_id` | uuid | FK para items (ON DELETE CASCADE) |
+| `invite_code` | text | Código único do convite |
+| `role` | member_role | Role atribuído ao aceitar |
+| `max_uses` | integer | Limite de uso (null = ilimitado) |
+| `use_count` | integer | Contador de uso |
+| `expires_at` | timestamptz | Expiração |
+| `created_by` | uuid | Criador do convite |
+
+#### `project_activities`
+| Coluna | Tipo | Descrição |
+|--------|------|-----------|
+| `id` | uuid | Chave primária |
+| `project_id` | uuid | FK para items (ON DELETE CASCADE) |
+| `user_id` | uuid | FK para auth.users |
+| `action` | text | Tipo da ação |
+| `target_title` | text | Título do alvo |
+| `metadata` | jsonb | Dados adicionais |
+
+#### `push_subscriptions`
+| Coluna | Tipo | Descrição |
+|--------|------|-----------|
+| `id` | uuid | Chave primária |
+| `user_id` | uuid | FK para auth.users |
+| `endpoint` | text | Push endpoint |
+| `p256dh` | text | Chave pública |
+| `auth` | text | Token de autenticação |
+
 #### `onboarding_progress`
 | Coluna | Tipo | Descrição |
 |--------|------|-----------|
@@ -222,6 +270,18 @@ Todos os tipos de itens em uma única tabela (Doc B.3, B.9).
 | `event_type` | text | Tipo do evento |
 | `event_data` | jsonb | Dados do evento |
 | `created_at` | timestamptz | Timestamp |
+
+### Database Functions (RLS Helpers)
+
+| Função | Descrição |
+|--------|-----------|
+| `is_project_member(_project_id, _user_id)` | Verifica se é membro |
+| `is_project_editor(_project_id, _user_id)` | Verifica se é editor+ |
+| `is_project_owner(_project_id, _user_id)` | Verifica se é owner |
+| `is_project_creator(_project_id, _user_id)` | Verifica se é criador |
+| `accept_project_invite(_invite_code)` | Aceita convite |
+| `log_project_activity(...)` | Registra atividade |
+| `ensure_project_owner(_project_id)` | Garante que owner existe |
 
 ### Enums
 
