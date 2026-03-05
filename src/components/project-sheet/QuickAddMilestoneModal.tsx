@@ -192,8 +192,8 @@ export function QuickAddMilestoneModal({
             <Button variant="outline" onClick={handleClose}>
               Cancelar
             </Button>
-            <Button onClick={handleSubmit} disabled={!title.trim() || weight < 1}>
-              Criar Milestone
+            <Button onClick={handleSubmit} disabled={!title.trim() || weight < 1 || isSubmitting}>
+              {isSubmitting ? "Criando..." : "Criar Milestone"}
             </Button>
           </div>
         </div>

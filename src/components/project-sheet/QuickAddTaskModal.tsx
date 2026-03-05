@@ -218,8 +218,8 @@ export function QuickAddTaskModal({
             <Button variant="outline" onClick={handleClose}>
               Cancelar
             </Button>
-            <Button onClick={handleSubmit} disabled={!title.trim()}>
-              Criar Task
+            <Button onClick={handleSubmit} disabled={!title.trim() || isSubmitting}>
+              {isSubmitting ? "Criando..." : "Criar Task"}
             </Button>
           </div>
         </div>

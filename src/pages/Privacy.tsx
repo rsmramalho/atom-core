@@ -137,7 +137,7 @@ const Privacy = () => {
 
           <div className="border-t border-border pt-8 mt-8">
             <p className="text-sm text-muted-foreground text-center">
-              © 2025 MindMate. Todos os direitos reservados.
+              © 2025–2026 MindMate. Todos os direitos reservados.
             </p>
           </div>
         </article>
