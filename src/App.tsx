@@ -1,4 +1,5 @@
 import { Suspense, lazy } from "react";
+import { ThemeProvider } from "next-themes";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -198,21 +199,23 @@ function AnimatedRoutes() {
 
 const App = () => (
   <ErrorBoundary>
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <OfflineSyncProvider>
-          <OnboardingProvider>
-            <Toaster />
-            <Sonner />
-            <InstallPrompt />
-            <NetworkStatusIndicator />
-            <BrowserRouter>
-              <AnimatedRoutes />
-            </BrowserRouter>
-          </OnboardingProvider>
-        </OfflineSyncProvider>
-      </TooltipProvider>
-    </QueryClientProvider>
+    <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <OfflineSyncProvider>
+            <OnboardingProvider>
+              <Toaster />
+              <Sonner />
+              <InstallPrompt />
+              <NetworkStatusIndicator />
+              <BrowserRouter>
+                <AnimatedRoutes />
+              </BrowserRouter>
+            </OnboardingProvider>
+          </OfflineSyncProvider>
+        </TooltipProvider>
+      </QueryClientProvider>
+    </ThemeProvider>
   </ErrorBoundary>
 );
 
