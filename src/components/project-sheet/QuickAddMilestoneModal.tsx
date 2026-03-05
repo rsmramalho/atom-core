@@ -1,5 +1,7 @@
 // Project Sheet - Quick Add Modal for Milestones with Module Inheritance + Tag Glossary
 import { useState, useEffect } from "react";
+import { toast } from "sonner";
+import { quickAddMilestoneSchema, getFirstError } from "@/lib/validation";
 import {
   Dialog,
   DialogContent,
