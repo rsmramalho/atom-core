@@ -49,6 +49,7 @@ export function QuickAddMilestoneModal({
   const [title, setTitle] = useState("");
   const [weight, setWeight] = useState(3);
   const [module, setModule] = useState<string>(defaultModule || "geral");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Reset values when modal opens
   useEffect(() => {
@@ -57,7 +58,7 @@ export function QuickAddMilestoneModal({
     }
   }, [open, defaultModule]);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const result = quickAddMilestoneSchema.safeParse({
       title,
       weight,
@@ -67,10 +68,15 @@ export function QuickAddMilestoneModal({
       toast.error(getFirstError(result.error));
       return;
     }
-    onSubmit(title.trim(), weight, module === "geral" ? null : module);
-    setTitle("");
-    setWeight(3);
-    onOpenChange(false);
+    setIsSubmitting(true);
+    try {
+      await onSubmit(title.trim(), weight, module === "geral" ? null : module);
+      setTitle("");
+      setWeight(3);
+      onOpenChange(false);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleClose = () => {
@@ -186,8 +192,8 @@ export function QuickAddMilestoneModal({
             <Button variant="outline" onClick={handleClose}>
               Cancelar
             </Button>
-            <Button onClick={handleSubmit} disabled={!title.trim() || weight < 1}>
-              Criar Milestone
+            <Button onClick={handleSubmit} disabled={!title.trim() || weight < 1 || isSubmitting}>
+              {isSubmitting ? "Criando..." : "Criar Milestone"}
             </Button>
           </div>
         </div>

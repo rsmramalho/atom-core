@@ -45,14 +45,20 @@ const queryClient = new QueryClient({
 function LayoutRoute({ children }: { children: React.ReactNode }) {
   return (
     <AppLayout>
-      <PageTransition>{children}</PageTransition>
+      <ErrorBoundary>
+        <PageTransition>{children}</PageTransition>
+      </ErrorBoundary>
     </AppLayout>
   );
 }
 
 // Wrapper for immersive routes (no layout) with page transition
 function ImmersiveRoute({ children }: { children: React.ReactNode }) {
-  return <PageTransition>{children}</PageTransition>;
+  return (
+    <ErrorBoundary>
+      <PageTransition>{children}</PageTransition>
+    </ErrorBoundary>
+  );
 }
 
 // Animated routes component that uses location for AnimatePresence

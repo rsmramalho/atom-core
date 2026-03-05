@@ -17,6 +17,8 @@ export default function ResetPassword() {
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  const [timedOut, setTimedOut] = useState(false);
+
   useEffect(() => {
     // Listen for PASSWORD_RECOVERY event from the auth callback
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
@@ -31,7 +33,15 @@ export default function ResetPassword() {
       setIsRecovery(true);
     }
 
-    return () => subscription.unsubscribe();
+    // Timeout after 10 seconds
+    const timeout = setTimeout(() => {
+      setTimedOut(true);
+    }, 10000);
+
+    return () => {
+      subscription.unsubscribe();
+      clearTimeout(timeout);
+    };
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -77,6 +87,23 @@ export default function ResetPassword() {
   };
 
   if (!isRecovery) {
+    if (timedOut) {
+      return (
+        <div className="min-h-screen bg-background flex items-center justify-center p-4">
+          <div className="text-center space-y-4">
+            <p className="text-destructive font-mono text-sm font-semibold">
+              Link inválido ou expirado
+            </p>
+            <p className="text-muted-foreground text-sm">
+              Solicite um novo link de recuperação na tela de login.
+            </p>
+            <Button variant="outline" onClick={() => navigate("/app")}>
+              Voltar ao login
+            </Button>
+          </div>
+        </div>
+      );
+    }
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-4">
         <div className="text-center space-y-4">

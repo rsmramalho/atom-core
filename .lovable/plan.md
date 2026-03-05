@@ -1,76 +1,83 @@
 
 
-# Audit Report + P2 Beta Continuation Plan
+# Auditoria Completa & Roadmap — MindMate v4.0.0-alpha.26
 
-## Audit Results
+## Estado Atual
 
-### CRITICAL FINDINGS (must fix)
+**Versão:** v4.0.0-alpha.26 (2026-03-04)
+**Stack:** React 18 + Vite + Tailwind + Lovable Cloud + PWA
+**Arquitetura:** Single Table Design (tabela `items`) com 7 tipos de item
 
-1. **Trigger `on_auth_user_created` exists in DB functions but NOT in `db-triggers` section** -- the triggers section says "There are no triggers in the database." This means the trigger from migration `20260305120951` likely failed or was dropped. The `handle_new_user` function exists but is not attached. New signups will NOT auto-create profiles.
-
-2. **Duplicate trigger creation** -- Migration `20260304194403` already creates the trigger AND `20260305120951` re-creates it. This could cause conflicts. Need to verify trigger actually exists via a SQL query.
-
-3. **`assetlinks.json` still has placeholder** -- `COLE_AQUI_O_SHA256_DO_SEU_KEYSTORE` in production. This breaks Android TWA verification.
-
-4. **Privacy page has placeholder email** -- `privacy@mindmate.app` is non-functional.
-
-### HIGH FINDINGS
-
-5. **No route-level error boundaries** -- Only one global ErrorBoundary wraps the entire app. A crash in any page (e.g., Calendar) takes down everything including navigation.
-
-6. **No double-click protection on most forms** -- Only `MacroPickerModal` has `isSubmitting` guard. `AuthForm`, `JournalComposer`, `QuickAddTaskModal`, `QuickAddMilestoneModal`, and Lists create all lack it (Inbox's `handleCapture` has `isCreating` which is good).
-
-7. **ResetPassword infinite loading if no recovery hash** -- If user navigates to `/reset-password` directly without a valid hash, they see a spinner forever with no timeout or escape.
-
-### MEDIUM FINDINGS
-
-8. **Journal page has no loading skeleton** -- Goes straight to content, no skeleton state while data loads.
-
-9. **Copyright says 2025** in Privacy page (line 140), should say 2025-2026.
-
-10. **`console.error` in ErrorBoundary** -- While intentional for debugging, the zero-console-log policy should exempt only this one explicitly.
+### Funcionalidades Implementadas
+- Parsing Engine com tokens inteligentes
+- Dashboard operacional (Focus, Today, Overdue, Ritual)
+- Projetos com state machine + progresso híbrido (auto/milestone/manual)
+- Colaboração multi-usuário (Owner/Editor/Viewer) com links de convite
+- Activity Feed em tempo real por projeto
+- Sistema de Rituais (manhã/meio-dia/noite) com habits
+- Calendário mensal/semanal com drag-and-drop
+- Journal/Reflexões com prompts guiados
+- Listas rápidas estilo Google Keep
+- Recurrence Engine (RRULE)
+- Analytics com gráficos (recharts)
+- PWA completo com offline sync + push notifications
+- Onboarding (welcome, tour, checklist)
+- Command Palette + keyboard shortcuts
+- Landing page de marketing
 
 ---
 
-## P2 Implementation Plan
+## Problemas Encontrados
 
-### Task 1: Verify & fix `handle_new_user` trigger
-- Run a SQL query to check if trigger exists on `auth.users`
-- If missing, create a new migration to re-attach it
-- This is P0-critical -- without it, new users get no profile
+### 1. Violação da Zero Any Policy (CRÍTICO)
+O projeto mantém uma política de zero `any`, mas há **5 ocorrências** em código de produção:
 
-### Task 2: Add route-level error boundaries
-- Wrap each `LayoutRoute` and `ImmersiveRoute` child in an `ErrorBoundary` with a route-specific fallback
-- The fallback shows a simpler error card with "Go Home" button instead of crashing the whole app
-- Edit `App.tsx` to wrap each route's inner content
+| Arquivo | Linha | Ocorrência |
+|---------|-------|------------|
+| `useProjectMembers.ts` | 41 | `(row: any)` no map de membros |
+| `useProjectMembers.ts` | 88 | `as any` no insert de invite role |
+| `useProjectMembers.ts` | 134 | `as any` no update de member role |
+| `usePushNotifications.ts` | 49, 80, 123 | `as any` no pushManager |
 
-### Task 3: Add double-submit protection
-- Add `disabled={isLoading || isCreating}` guards to:
-  - `AuthForm` submit button (already has `isLoading`, verify button uses it)
-  - `QuickAddTaskModal` create button
-  - `QuickAddMilestoneModal` create button  
-  - Lists create in `Lists.tsx`
-  - `JournalComposer` save button
+### 2. Console Logs em Produção
+125 ocorrências de `console.log/warn/error` em 11 arquivos. A maioria são `warn/error` em catch blocks (aceitável), mas devem ser auditados para remover os desnecessários.
 
-### Task 4: Fix ResetPassword timeout
-- Add a 10-second timeout on the recovery detection
-- After timeout, show "Invalid or expired link" with a "Back to login" button
+### 3. RLS: Sem DELETE para items de projetos compartilhados
+A tabela `items` tem policies para SELECT, INSERT e UPDATE em projetos compartilhados, mas **não tem DELETE policy** para membros. Editores não conseguem excluir itens de projetos compartilhados.
 
-### Task 5: Add Journal loading skeleton
-- Add a skeleton state in `JournalFeed` that shows while data is loading, matching the reflection card layout
+### 4. Viewer Role incompleto no DB
+O enum `member_role` no banco tem `owner | editor`, mas o código TypeScript referencia `viewer`. A policy de UPDATE permite apenas `editor` e `viewer` no check, mas o enum pode não incluir `viewer`.
 
-### Task 6: Clean up placeholders
-- Update `assetlinks.json` with a comment explaining it needs real SHA256 (or remove the file if no Android TWA is planned)
-- Update copyright year in Privacy page
+### 5. `useProjectMembers` — `invitesQuery` usa `as unknown as`
+Linha 59: cast forçado que pode mascarar incompatibilidades de tipo.
 
-### Summary
+### 6. Query sem limit
+`useAtomItems` faz `select("*")` sem `.limit()`. Com muitos itens, vai bater no limite de 1000 rows do Supabase silenciosamente.
 
-| Task | Priority | Effort |
-|------|----------|--------|
-| Verify/fix handle_new_user trigger | P0 | Small |
-| Route-level error boundaries | P2 | Small |
-| Double-submit protection | P2 | Small |
-| ResetPassword timeout fix | P2 | Small |
-| Journal loading skeleton | P2 | Small |
-| Clean up placeholders | P2 | Tiny |
+---
+
+## Roadmap Proposto
+
+### Fase 7: Hardening & Type Safety (Próxima)
+1. **Eliminar `any` em `useProjectMembers.ts`** — Tipar o resultado do join com profiles e usar tipos corretos para enums do DB
+2. **Eliminar `as any` em `usePushNotifications.ts`** — Usar interface `PushManager` com type assertion segura
+3. **Adicionar DELETE policy para items em projetos compartilhados** — Permitir que editors deletem itens
+4. **Verificar enum `member_role`** — Confirmar que `viewer` existe no DB, adicionar migration se necessário
+5. **Adicionar `.limit()` ou paginação** em `useAtomItems` para projetos com muitos itens
+
+### Fase 8: UX & Polish
+6. **Busca global** — Filtrar itens por título/tag em todas as views
+7. **Drag-and-drop na WorkArea** — Reordenar tasks dentro de projetos
+8. **Dark/Light mode toggle** acessível na sidebar (já tem next-themes instalado)
+9. **Skeleton loading** para ProjectDetail (já existe para outros)
+
+### Fase 9: Inteligência
+10. **AI Summary** — Resumo semanal automático usando Lovable AI (Gemini Flash)
+11. **Smart suggestions** — Sugerir próxima ação baseado em padrões de uso
+12. **Natural language input** melhorado com AI para parsing de datas complexas
+
+### Fase 10: Escala
+13. **Paginação real** para items (cursor-based)
+14. **Realtime subscriptions** para projetos compartilhados (ver edições de outros membros ao vivo)
+15. **Export PDF** de projetos com progresso e milestones
 

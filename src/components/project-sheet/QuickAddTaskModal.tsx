@@ -59,6 +59,7 @@ export function QuickAddTaskModal({
   const [dueDate, setDueDate] = useState<Date | undefined>();
   const [recurrenceRule, setRecurrenceRule] = useState<string | null>(null);
   const [showRecurrencePicker, setShowRecurrencePicker] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Reset state when modal opens
   useEffect(() => {
@@ -69,7 +70,7 @@ export function QuickAddTaskModal({
     }
   }, [open, defaultModule]);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const result = quickAddTaskSchema.safeParse({
       title,
       module: module === "geral" ? null : module,
@@ -80,16 +81,21 @@ export function QuickAddTaskModal({
       toast.error(getFirstError(result.error));
       return;
     }
-    onSubmit(
-      title.trim(), 
-      module === "geral" ? null : module,
-      dueDate ? format(dueDate, "yyyy-MM-dd") : null,
-      recurrenceRule
-    );
-    setTitle("");
-    setDueDate(undefined);
-    setRecurrenceRule(null);
-    onOpenChange(false);
+    setIsSubmitting(true);
+    try {
+      await onSubmit(
+        title.trim(), 
+        module === "geral" ? null : module,
+        dueDate ? format(dueDate, "yyyy-MM-dd") : null,
+        recurrenceRule
+      );
+      setTitle("");
+      setDueDate(undefined);
+      setRecurrenceRule(null);
+      onOpenChange(false);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleClose = () => {
@@ -212,8 +218,8 @@ export function QuickAddTaskModal({
             <Button variant="outline" onClick={handleClose}>
               Cancelar
             </Button>
-            <Button onClick={handleSubmit} disabled={!title.trim()}>
-              Criar Task
+            <Button onClick={handleSubmit} disabled={!title.trim() || isSubmitting}>
+              {isSubmitting ? "Criando..." : "Criar Task"}
             </Button>
           </div>
         </div>
