@@ -1,13 +1,13 @@
 # MindMate - Atom Engine 4.0
 ## Resumo Executivo
 
-**Versão:** 4.0.0-alpha.22 | **Status:** Production Ready | **Data:** 2026-03-04
+**Versão:** 4.0.0-beta.0 | **Status:** Beta | **Data:** 2026-03-05
 
 ---
 
 ### O Que É
 
-Sistema de produtividade pessoal com arquitetura modular de engines. Combina gestão de tarefas, hábitos, projetos e journaling em uma experiência unificada.
+Sistema de produtividade pessoal com arquitetura modular de engines. Combina gestão de tarefas, hábitos, projetos e journaling em uma experiência unificada com colaboração em tempo real.
 
 ### Stack Tecnológica
 
@@ -18,8 +18,9 @@ Sistema de produtividade pessoal com arquitetura modular de engines. Combina ges
 | Backend | Lovable Cloud (Supabase) |
 | State | TanStack Query + Zustand |
 | PWA | vite-plugin-pwa + Service Worker |
+| Validação | Zod |
 
-### Engines Implementados
+### Engines Implementados (9)
 
 | Engine | Função |
 |--------|--------|
@@ -33,6 +34,15 @@ Sistema de produtividade pessoal com arquitetura modular de engines. Combina ges
 | **List** | Listas rápidas estilo Google Keep |
 | **Recurrence** | Tarefas recorrentes via RRULE |
 
+### Colaboração Multi-Usuário
+
+| Feature | Descrição |
+|---------|-----------|
+| **Roles** | Owner / Editor / Viewer com permissões distintas |
+| **Convites** | Link com código único, expiração e limite de uso |
+| **Activity Feed** | Timeline de ações no projeto |
+| **RLS** | Políticas por role com funções `is_project_member`, `is_project_editor`, etc. |
+
 ### Modelo de Dados (Single Table Design)
 
 ```typescript
@@ -41,14 +51,16 @@ type RitualSlot = 'manha' | 'meio_dia' | 'noite' | null;
 type ProjectStatus = 'draft' | 'active' | 'paused' | 'completed' | 'archived';
 ```
 
-**Tabela única `items`** com campos opcionais por tipo. Milestones são tasks com tag `#milestone`.
+**Tabela principal `items`** com campos opcionais por tipo. Milestones são tasks com tag `#milestone`.
 
-### Arquitetura (alpha.22)
+**Tabelas auxiliares:** `profiles`, `project_members`, `project_invites`, `project_activities`, `push_subscriptions`, `onboarding_progress`, `onboarding_analytics`.
+
+### Arquitetura (beta.0)
 
 ```
 App.tsx (QueryClient: staleTime 5min, retry 2)
 ├── Landing (pública) → 9 componentes modulares
-└── AppLayout (auth centralizada - ÚNICO ponto)
+└── AppLayout (auth centralizada + session expiry handling)
     ├── AppNavigation → NavItemList + SyncStatus + SidebarActions
     ├── Onboarding (só autenticado)
     └── {pages} (assumem autenticado)
@@ -57,13 +69,17 @@ App.tsx (QueryClient: staleTime 5min, retry 2)
 ### Features Principais
 
 - **Landing Componentizada:** 9 seções modulares (Hero, Pillars, Features, FAQ, etc.)
-- **Auth Centralizada:** Único ponto de verificação no AppLayout
+- **Auth Centralizada:** Único ponto de verificação no AppLayout com session expiry
+- **Password Reset:** Fluxo completo de "Esqueci minha senha"
 - **PWA Completo:** Instalável, offline-first, splash screens
 - **Offline Sync:** IndexedDB queue + auto-sync ao reconectar
-- **Notificações:** Web Notifications API para lembretes
+- **Push Notifications:** VAPID + Edge Functions para lembretes
+- **AI Weekly Summary:** Gemini Flash via Edge Function
+- **Colaboração:** Projetos compartilhados com roles e convites
 - **Analytics:** Dashboard de métricas de produtividade
 - **Keyboard-First:** Atalhos globais (⌘K, ⌘H, ⌘I, ⌘P, ⌘J, etc.)
 - **Onboarding:** Welcome modal + tour guiado + checklist gamificado
+- **Zod Validation:** Formulários validados com schemas centralizados
 
 ### Qualidade de Código
 
@@ -71,6 +87,7 @@ App.tsx (QueryClient: staleTime 5min, retry 2)
 - **150+ Testes:** Vitest (unit) + Playwright (E2E + visual)
 - **CI/CD:** GitHub Actions com 3 jobs automatizados
 - **Performance:** React.memo, React.lazy, Suspense, Skeletons
+- **Segurança:** RLS auditado, cascade deletes, profiles auto-create trigger
 
 ### Rotas
 
@@ -88,6 +105,8 @@ App.tsx (QueryClient: staleTime 5min, retry 2)
 | `/analytics` | Métricas de produtividade |
 | `/install` | Guia de instalação PWA |
 | `/privacy` | Política de privacidade |
+| `/invite/:code` | Aceitar convite de projeto |
+| `/reset-password` | Redefinir senha |
 
 ### Arquivos Essenciais
 
@@ -95,15 +114,25 @@ App.tsx (QueryClient: staleTime 5min, retry 2)
 |---------|-----------|
 | `src/types/atom-engine.ts` | Source of Truth - Tipos do domínio |
 | `src/lib/parsing-engine.ts` | Motor de parsing de linguagem natural |
+| `src/lib/validation.ts` | Schemas Zod para formulários |
 | `src/hooks/useAtomItems.ts` | CRUD de itens via Supabase |
 | `docs/FULL_DOCUMENTATION.md` | Documentação técnica completa |
 
-### Próximos Passos
+### Edge Functions
 
-- [ ] Publicação Google Play Store (TWA)
-- [ ] Push Notifications (VAPID)
-- [ ] Metas diárias de produtividade
-- [ ] Gamificação avançada
+| Função | Descrição |
+|--------|-----------|
+| `send-push-notification` | Push via VAPID/WebCrypto |
+| `check-due-tasks` | Cron: verifica tarefas vencidas |
+| `weekly-summary` | AI weekly summary via Gemini Flash |
+
+### Segurança (Beta)
+
+- [x] RLS auditado em todas as tabelas
+- [x] Cascade deletes (project → members, invites, activities)
+- [x] Profiles auto-create via trigger `on_auth_user_created`
+- [x] Session expiry handling com redirect gracioso
+- [x] Push subscriptions com políticas per-user
 
 ---
 

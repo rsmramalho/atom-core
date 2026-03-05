@@ -423,7 +423,8 @@ If issues arise after deployment:
 |---------|------|-------------|--------------|-------|
 | 4.0.0-alpha.16 | Dec 2024 | | ☐ | RC with PWA |
 | 4.0.0-rc.1 | Dec 2024 | | ☐ | Milestone release |
+| 4.0.0-beta.0 | Mar 2026 | | ☐ | Beta release |
 
 ---
 
-*Last updated: 2025-12-17*
+*Last updated: 2026-03-05*

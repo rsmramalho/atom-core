@@ -636,7 +636,7 @@ export function asTypedRow(row: ItemsRow): TypedItemsRow;
 
 ## 📋 Roadmap
 
-### ✅ Implementado (v4.0.0-alpha.25)
+### ✅ Implementado (v4.0.0-beta.0)
 
 - [x] Modelo de dados (Single Table Design)
 - [x] Tipos TypeScript completos (Zero Any Policy)
@@ -663,11 +663,21 @@ export function asTypedRow(row: ItemsRow): TypedItemsRow;
 - [x] Autenticação + RLS
 - [x] Auth Otimizado - useCurrentUser com cache síncrono (alpha.23)
 - [x] Code Audit - useMemo fix + AuthForm i18n (alpha.24)
-- [x] **Push Notifications - VAPID + Service Worker + Edge Functions (alpha.25)** ⭐
+- [x] Push Notifications - VAPID + Service Worker + Edge Functions (alpha.25)
+- [x] **Colaboração Multi-Usuário** - Roles, convites, activity feed (alpha.26-28)
+- [x] **AI Weekly Summary** - Gemini Flash via Edge Function (alpha.27)
+- [x] **Password Reset** - Fluxo completo de recuperação (beta)
+- [x] **Profiles Auto-Create** - Trigger on_auth_user_created (beta)
+- [x] **RLS Audit** - Auditoria completa + cascade deletes (beta)
+- [x] **Session Expiry** - Redirect gracioso (beta)
+- [x] **Zod Validation** - Schemas centralizados para formulários (beta)
+- [x] **Lists Skeleton** - Loading state consistente (beta)
 
 ### 🔲 Próximas Etapas
 
-- [ ] Colaboração multi-usuário
+- [ ] Error boundaries por rota
+- [ ] a11y audit completo
+- [ ] CSP headers
 - [ ] Widgets nativos (Android/iOS)
 - [ ] API pública
 - [ ] Temas customizáveis
