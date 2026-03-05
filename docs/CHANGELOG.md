@@ -7,6 +7,45 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [4.0.0-beta.1] - 2026-03-05 🎉 BETA RELEASE
+
+> **Transição para Beta** — Todas as tarefas de estabilidade, segurança, validação, documentação e acessibilidade concluídas.
+
+### Corrigido
+
+#### Integridade de Dados (P0)
+- **Trigger `on_auth_user_created`** re-anexado — novos signups agora criam perfil automaticamente
+- **Cascade deletes** em `project_members`, `project_invites`, `project_activities` ao deletar projeto
+
+#### Segurança (P0)
+- **RLS audit completo** — todas as tabelas com políticas corretas
+- **Password reset flow** — fluxo de redefinição de senha funcional com timeout de 10s para links inválidos
+
+### Adicionado
+
+#### Validação (P1)
+- **Zod schemas** em todos os formulários: AuthForm, JournalComposer, QuickAdd modals, Lists
+- **Skeleton loading** na página de Listas
+
+#### Resiliência (P2)
+- **Error boundaries por rota** — crash em uma página não derruba o app inteiro
+- **Proteção contra double-submit** em QuickAddTaskModal, QuickAddMilestoneModal
+- **Timeout de 10s** no ResetPassword para links sem hash válido
+
+#### Acessibilidade (P2)
+- **`aria-label`** em todos os botões icon-only (menu hambúrguer, busca, notificações, opções de lista)
+- **`aria-label`** no textarea do JournalComposer
+- **`role="alert"`** no container de erro do ErrorBoundary
+- **`aria-live="polite"`** no SyncStatus para leitores de tela
+- **Landmarks `<nav>`** com `aria-label` no menu mobile e sidebar desktop
+- **Pinch-to-zoom habilitado** — removido `user-scalable=no` do viewport (WCAG compliance)
+
+#### Documentação (P1)
+- **CHANGELOG.md** sincronizado com todas as versões alpha
+- **Placeholders limpos** — `assetlinks.json` e copyright da Privacy page atualizados
+
+---
+
 ## [4.0.0-alpha.28] - 2026-03-05 🧪 E2E SHARING TESTS
 
 > **Testes E2E completos** para o fluxo de compartilhamento de projetos

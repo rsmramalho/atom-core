@@ -29,14 +29,14 @@ import { NavItemList } from "./NavItemList";
 import { SyncStatus } from "./SyncStatus";
 import { SidebarActions } from "./SidebarActions";
 
-const VERSION = "v4.0.0-alpha.28";
+const VERSION = "v4.0.0-beta.1";
 const VERSION_NOTES = [
-  "Testes E2E de compartilhamento (10 cenários)",
-  "Teste cross-user: convite + aceite + membros",
-  "Teste de permissões Viewer read-only",
-  "Resumo semanal com IA (Gemini Flash)",
-  "Busca global via CMD+K",
-  "Dark/Light mode toggle",
+  "Trigger de perfil auto-criado corrigido",
+  "Error boundaries por rota",
+  "Proteção contra double-submit em formulários",
+  "Timeout no reset de senha",
+  "Validação Zod em todos os inputs",
+  "Acessibilidade (aria-labels, landmarks, zoom)",
 ];
 
 function VersionTooltip({ children }: { children: React.ReactNode }) {
@@ -154,12 +154,12 @@ export function AppNavigation() {
         <div className="flex items-center justify-between px-4 py-3">
           <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="-ml-2">
+              <Button variant="ghost" size="icon" className="-ml-2" aria-label="Abrir menu">
                 <Menu className="h-5 w-5" />
               </Button>
             </SheetTrigger>
             <SheetContent side="left" className="w-64 p-0">
-              <div className="flex flex-col h-full">
+              <nav aria-label="Menu principal" className="flex flex-col h-full">
                 <div className="p-6 border-b border-border">
                   <h1 className="text-xl font-bold text-primary">MindMate</h1>
                   <VersionTooltip>
@@ -167,9 +167,9 @@ export function AppNavigation() {
                   </VersionTooltip>
                 </div>
 
-                <nav className="flex-1 p-4 space-y-1">
+                <div className="flex-1 p-4 space-y-1">
                   <NavItemList onItemClick={() => setMobileMenuOpen(false)} wrapper={MobileSheetClose} />
-                </nav>
+                </div>
 
                 <div className="px-4 py-2 border-t border-border">
                   <SyncStatus {...syncProps} />
@@ -188,7 +188,7 @@ export function AppNavigation() {
                     wrapper={MobileSheetClose}
                   />
                 </div>
-              </div>
+              </nav>
             </SheetContent>
           </Sheet>
 
@@ -201,7 +201,7 @@ export function AppNavigation() {
 
           <div className="flex items-center gap-1">
             <NotificationSettings />
-            <Button variant="ghost" size="icon" onClick={openCommandPalette}>
+            <Button variant="ghost" size="icon" onClick={openCommandPalette} aria-label="Busca global">
               <Command className="h-5 w-5" />
             </Button>
           </div>
@@ -209,7 +209,7 @@ export function AppNavigation() {
       </div>
 
       {/* Desktop: Sidebar */}
-      <nav className="hidden md:flex md:flex-col md:border-r md:border-border md:h-screen md:w-64 md:flex-shrink-0 md:bg-card/50">
+      <nav aria-label="Navegação principal" className="hidden md:flex md:flex-col md:border-r md:border-border md:h-screen md:w-64 md:flex-shrink-0 md:bg-card/50">
         <div className="flex flex-col h-full py-6 px-4">
           <div className="mb-8 flex items-start justify-between">
             <div>
