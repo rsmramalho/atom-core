@@ -49,6 +49,7 @@ export function QuickAddMilestoneModal({
   const [title, setTitle] = useState("");
   const [weight, setWeight] = useState(3);
   const [module, setModule] = useState<string>(defaultModule || "geral");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Reset values when modal opens
   useEffect(() => {
