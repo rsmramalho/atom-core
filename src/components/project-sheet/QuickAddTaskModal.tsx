@@ -1,6 +1,8 @@
 // Project Sheet - Quick Add Modal for Tasks with Module Inheritance + Tag Glossary
 import { useState, useEffect } from "react";
 import { format } from "date-fns";
+import { toast } from "sonner";
+import { quickAddTaskSchema, getFirstError } from "@/lib/validation";
 import {
   Dialog,
   DialogContent,
