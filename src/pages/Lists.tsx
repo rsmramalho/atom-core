@@ -23,6 +23,8 @@ import {
 import { ListDetailModal, getListColor } from "@/components/lists/ListDetailModal";
 import { useAtomItems } from "@/hooks/useAtomItems";
 import { toast } from "sonner";
+import { quickAddListSchema, getFirstError } from "@/lib/validation";
+import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import type { AtomItem } from "@/types/atom-engine";
 
@@ -52,7 +54,11 @@ export default function Lists() {
   };
 
   const handleCreateList = async () => {
-    if (!newListTitle.trim()) return;
+    const validation = quickAddListSchema.safeParse({ title: newListTitle });
+    if (!validation.success) {
+      toast.error(getFirstError(validation.error));
+      return;
+    }
     
     setIsCreating(true);
     try {
@@ -174,8 +180,30 @@ export default function Lists() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="p-4 md:p-8 max-w-6xl mx-auto space-y-6">
+        <header className="flex items-center justify-between">
+          <div>
+            <Skeleton className="h-8 w-32 mb-2" />
+            <Skeleton className="h-4 w-20" />
+          </div>
+          <Skeleton className="h-10 w-28 rounded-md" />
+        </header>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="rounded-lg border bg-card p-4 space-y-3">
+              <div className="flex items-center gap-2">
+                <Skeleton className="h-3 w-3 rounded-full" />
+                <Skeleton className="h-5 w-3/4" />
+              </div>
+              <Skeleton className="h-1.5 w-full rounded-full" />
+              <div className="space-y-1.5">
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-5/6" />
+                <Skeleton className="h-4 w-2/3" />
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     );
   }

@@ -2,9 +2,9 @@
 
 ## Arquitetura do Sistema
 
-**Versão:** 4.0.0-alpha.25  
-**Data:** 2026-03-04  
-**Status:** Production Ready - Push Notifications
+**Versão:** 4.0.0-beta.0  
+**Data:** 2026-03-05  
+**Status:** Beta - Collaboration + Push + AI + Zod Validation
 
 ---
 
@@ -134,6 +134,7 @@ src/
 │   ├── journal-export.ts           # Export MD/JSON/PDF
 │   ├── offline-queue.ts            # IndexedDB queue
 │   ├── local-cache.ts              # localStorage cache
+│   ├── validation.ts               # ⭐ Zod schemas para formulários (beta)
 │   └── utils.ts                    # Utilitários (cn, etc)
 │
 ├── types/
@@ -154,6 +155,8 @@ src/
 │   ├── Analytics.tsx              # Dashboard de métricas
 │   ├── Install.tsx                # Guia de instalação PWA
 │   ├── Privacy.tsx                # Política de privacidade
+│   ├── InviteAccept.tsx           # ⭐ Aceitar convite (beta)
+│   ├── ResetPassword.tsx          # ⭐ Redefinir senha (beta)
 │   └── NotFound.tsx               # 404
 │
 ├── integrations/
@@ -161,8 +164,9 @@ src/
 │
 └── supabase/
     └── functions/
-        ├── send-push-notification/ # ⭐ Push via VAPID/WebCrypto (alpha.25)
-        └── check-due-tasks/        # ⭐ Cron: verifica tarefas vencidas (alpha.25)
+        ├── send-push-notification/ # Push via VAPID/WebCrypto (alpha.25)
+        ├── check-due-tasks/        # Cron: verifica tarefas vencidas (alpha.25)
+        └── weekly-summary/         # ⭐ AI summary via Gemini Flash (beta)
 ```
 
 ---
@@ -202,6 +206,54 @@ Todos os tipos de itens em uma única tabela (Doc B.3, B.9).
 
 ### Tabelas Auxiliares
 
+#### `profiles`
+| Coluna | Tipo | Descrição |
+|--------|------|-----------|
+| `id` | uuid | FK para auth.users |
+| `email` | text | Email do usuário |
+| `created_at` | timestamptz | Timestamp |
+
+> Auto-populated via trigger `on_auth_user_created`.
+
+#### `project_members`
+| Coluna | Tipo | Descrição |
+|--------|------|-----------|
+| `id` | uuid | Chave primária |
+| `project_id` | uuid | FK para items (ON DELETE CASCADE) |
+| `user_id` | uuid | FK para auth.users |
+| `role` | member_role | owner, editor, viewer |
+
+#### `project_invites`
+| Coluna | Tipo | Descrição |
+|--------|------|-----------|
+| `id` | uuid | Chave primária |
+| `project_id` | uuid | FK para items (ON DELETE CASCADE) |
+| `invite_code` | text | Código único do convite |
+| `role` | member_role | Role atribuído ao aceitar |
+| `max_uses` | integer | Limite de uso (null = ilimitado) |
+| `use_count` | integer | Contador de uso |
+| `expires_at` | timestamptz | Expiração |
+| `created_by` | uuid | Criador do convite |
+
+#### `project_activities`
+| Coluna | Tipo | Descrição |
+|--------|------|-----------|
+| `id` | uuid | Chave primária |
+| `project_id` | uuid | FK para items (ON DELETE CASCADE) |
+| `user_id` | uuid | FK para auth.users |
+| `action` | text | Tipo da ação |
+| `target_title` | text | Título do alvo |
+| `metadata` | jsonb | Dados adicionais |
+
+#### `push_subscriptions`
+| Coluna | Tipo | Descrição |
+|--------|------|-----------|
+| `id` | uuid | Chave primária |
+| `user_id` | uuid | FK para auth.users |
+| `endpoint` | text | Push endpoint |
+| `p256dh` | text | Chave pública |
+| `auth` | text | Token de autenticação |
+
 #### `onboarding_progress`
 | Coluna | Tipo | Descrição |
 |--------|------|-----------|
@@ -219,6 +271,18 @@ Todos os tipos de itens em uma única tabela (Doc B.3, B.9).
 | `event_data` | jsonb | Dados do evento |
 | `created_at` | timestamptz | Timestamp |
 
+### Database Functions (RLS Helpers)
+
+| Função | Descrição |
+|--------|-----------|
+| `is_project_member(_project_id, _user_id)` | Verifica se é membro |
+| `is_project_editor(_project_id, _user_id)` | Verifica se é editor+ |
+| `is_project_owner(_project_id, _user_id)` | Verifica se é owner |
+| `is_project_creator(_project_id, _user_id)` | Verifica se é criador |
+| `accept_project_invite(_invite_code)` | Aceita convite |
+| `log_project_activity(...)` | Registra atividade |
+| `ensure_project_owner(_project_id)` | Garante que owner existe |
+
 ### Enums
 
 ```sql
@@ -230,6 +294,7 @@ CREATE TYPE item_type AS ENUM (
 CREATE TYPE ritual_slot AS ENUM ('manha', 'meio_dia', 'noite');
 CREATE TYPE project_status AS ENUM ('draft', 'active', 'paused', 'completed', 'archived');
 CREATE TYPE progress_mode AS ENUM ('auto', 'milestone', 'manual');
+CREATE TYPE member_role AS ENUM ('owner', 'editor', 'viewer');
 ```
 
 ---
@@ -487,6 +552,8 @@ const userId = await getCurrentUserId(); // string (throws se não autenticado)
 | `/analytics` | Analytics.tsx | Métricas e estatísticas |
 | `/install` | Install.tsx | Guia de instalação PWA |
 | `/privacy` | Privacy.tsx | Política de privacidade |
+| `/invite/:code` | InviteAccept.tsx | Aceitar convite de projeto |
+| `/reset-password` | ResetPassword.tsx | Redefinir senha |
 
 ---
 
@@ -569,7 +636,7 @@ export function asTypedRow(row: ItemsRow): TypedItemsRow;
 
 ## 📋 Roadmap
 
-### ✅ Implementado (v4.0.0-alpha.25)
+### ✅ Implementado (v4.0.0-beta.0)
 
 - [x] Modelo de dados (Single Table Design)
 - [x] Tipos TypeScript completos (Zero Any Policy)
@@ -596,11 +663,21 @@ export function asTypedRow(row: ItemsRow): TypedItemsRow;
 - [x] Autenticação + RLS
 - [x] Auth Otimizado - useCurrentUser com cache síncrono (alpha.23)
 - [x] Code Audit - useMemo fix + AuthForm i18n (alpha.24)
-- [x] **Push Notifications - VAPID + Service Worker + Edge Functions (alpha.25)** ⭐
+- [x] Push Notifications - VAPID + Service Worker + Edge Functions (alpha.25)
+- [x] **Colaboração Multi-Usuário** - Roles, convites, activity feed (alpha.26-28)
+- [x] **AI Weekly Summary** - Gemini Flash via Edge Function (alpha.27)
+- [x] **Password Reset** - Fluxo completo de recuperação (beta)
+- [x] **Profiles Auto-Create** - Trigger on_auth_user_created (beta)
+- [x] **RLS Audit** - Auditoria completa + cascade deletes (beta)
+- [x] **Session Expiry** - Redirect gracioso (beta)
+- [x] **Zod Validation** - Schemas centralizados para formulários (beta)
+- [x] **Lists Skeleton** - Loading state consistente (beta)
 
 ### 🔲 Próximas Etapas
 
-- [ ] Colaboração multi-usuário
+- [ ] Error boundaries por rota
+- [ ] a11y audit completo
+- [ ] CSP headers
 - [ ] Widgets nativos (Android/iOS)
 - [ ] API pública
 - [ ] Temas customizáveis

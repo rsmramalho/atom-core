@@ -1,7 +1,7 @@
 # MindMate Production Deployment Checklist
 
-## Version: 4.0.0-alpha.22
-## Last Updated: 2026-03-04
+## Version: 4.0.0-beta.0
+## Last Updated: 2026-03-05
 
 Use this checklist before every production release to ensure a smooth deployment.
 
@@ -133,15 +133,54 @@ ls dist/pwa-icons/
 | Table | RLS Enabled | Policies Verified |
 |-------|-------------|-------------------|
 | `items` | ☐ | ☐ |
+| `profiles` | ☐ | ☐ |
+| `project_members` | ☐ | ☐ |
+| `project_invites` | ☐ | ☐ |
+| `project_activities` | ☐ | ☐ |
+| `push_subscriptions` | ☐ | ☐ |
 | `onboarding_progress` | ☐ | ☐ |
 | `onboarding_analytics` | ☐ | ☐ |
 
+### Cascade Deletes
+
+- [ ] Deleting a project cascades to `project_members`
+- [ ] Deleting a project cascades to `project_invites`
+- [ ] Deleting a project cascades to `project_activities`
+
+### Profiles Auto-Create
+
+- [ ] Trigger `on_auth_user_created` fires on new signup
+- [ ] Profile row created with correct `id` and `email`
+
 ### Edge Functions
 
-- [ ] All edge functions deployed
-- [ ] Edge function secrets configured
+- [ ] `send-push-notification` deployed and functional
+- [ ] `check-due-tasks` deployed with cron schedule
+- [ ] `weekly-summary` deployed with AI model access
+- [ ] Edge function secrets configured (VAPID keys, etc.)
 - [ ] CORS headers properly set
 - [ ] Error handling implemented
+
+### Push Notifications
+
+- [ ] VAPID public/private keys configured as secrets
+- [ ] `push_subscriptions` table has RLS policies
+- [ ] Service Worker (`sw-push.js`) registered correctly
+- [ ] Test push notification delivery end-to-end
+
+### Password Reset
+
+- [ ] Password reset email template configured
+- [ ] `/reset-password` route accessible
+- [ ] Redirect URL configured for production domain
+- [ ] Reset flow tested end-to-end
+
+### Collaboration
+
+- [ ] `project_members` RLS policies verified (per-role access)
+- [ ] `project_invites` expiry and use-count logic working
+- [ ] `accept_project_invite` function tested
+- [ ] Activity feed logging verified
 
 ---
 
@@ -384,7 +423,8 @@ If issues arise after deployment:
 |---------|------|-------------|--------------|-------|
 | 4.0.0-alpha.16 | Dec 2024 | | ☐ | RC with PWA |
 | 4.0.0-rc.1 | Dec 2024 | | ☐ | Milestone release |
+| 4.0.0-beta.0 | Mar 2026 | | ☐ | Beta release |
 
 ---
 
-*Last updated: 2025-12-17*
+*Last updated: 2026-03-05*

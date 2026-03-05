@@ -7,6 +7,7 @@ import { useAtomItems } from "@/hooks/useAtomItems";
 import { toast } from "sonner";
 import { Feather, Sparkles, RefreshCw, Heart, TrendingUp, Smile, Target, Lightbulb } from "lucide-react";
 import { reflectionPrompts, getRandomPrompt, getPromptsByCategory, ReflectionPrompt } from "@/lib/reflection-prompts";
+import { journalContentSchema, getFirstError } from "@/lib/validation";
 import { cn } from "@/lib/utils";
 
 type PromptCategory = ReflectionPrompt["category"] | "all";
@@ -71,8 +72,12 @@ export function JournalComposer() {
   };
 
   const handleSave = async () => {
+    const validation = journalContentSchema.safeParse({ content });
+    if (!validation.success) {
+      toast.error(getFirstError(validation.error));
+      return;
+    }
     const trimmedContent = content.trim();
-    if (!trimmedContent) return;
 
     setIsSaving(true);
     try {
