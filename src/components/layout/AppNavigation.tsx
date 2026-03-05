@@ -29,14 +29,14 @@ import { NavItemList } from "./NavItemList";
 import { SyncStatus } from "./SyncStatus";
 import { SidebarActions } from "./SidebarActions";
 
-const VERSION = "v4.0.0-alpha.28";
+const VERSION = "v4.0.0-beta.1";
 const VERSION_NOTES = [
-  "Testes E2E de compartilhamento (10 cenários)",
-  "Teste cross-user: convite + aceite + membros",
-  "Teste de permissões Viewer read-only",
-  "Resumo semanal com IA (Gemini Flash)",
-  "Busca global via CMD+K",
-  "Dark/Light mode toggle",
+  "Trigger de perfil auto-criado corrigido",
+  "Error boundaries por rota",
+  "Proteção contra double-submit em formulários",
+  "Timeout no reset de senha",
+  "Validação Zod em todos os inputs",
+  "Acessibilidade (aria-labels, landmarks, zoom)",
 ];
 
 function VersionTooltip({ children }: { children: React.ReactNode }) {
