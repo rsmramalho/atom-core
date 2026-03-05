@@ -78,10 +78,10 @@ export const AuthForm = forwardRef<HTMLDivElement, AuthFormProps>(function AuthF
     <div className="w-full max-w-md mx-auto">
       <div className="bg-console rounded-lg border border-console-border p-6">
         <h2 className="text-console-text font-mono text-lg font-semibold mb-4">
-          {isLogin ? "Entrar" : "Criar Conta"}
+          {isForgotPassword ? "Recuperar Senha" : isLogin ? "Entrar" : "Criar Conta"}
         </h2>
         
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={isForgotPassword ? handleForgotPassword : handleSubmit} className="space-y-4">
           <div>
               <label className="block text-console-muted font-mono text-xs mb-1">
               E-mail
