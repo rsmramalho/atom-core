@@ -72,8 +72,12 @@ export function JournalComposer() {
   };
 
   const handleSave = async () => {
+    const validation = journalContentSchema.safeParse({ content });
+    if (!validation.success) {
+      toast.error(getFirstError(validation.error));
+      return;
+    }
     const trimmedContent = content.trim();
-    if (!trimmedContent) return;
 
     setIsSaving(true);
     try {

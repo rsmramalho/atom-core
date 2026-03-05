@@ -70,7 +70,16 @@ export function QuickAddTaskModal({
   }, [open, defaultModule]);
 
   const handleSubmit = () => {
-    if (!title.trim()) return;
+    const result = quickAddTaskSchema.safeParse({
+      title,
+      module: module === "geral" ? null : module,
+      dueDate: dueDate ? format(dueDate, "yyyy-MM-dd") : null,
+      recurrenceRule,
+    });
+    if (!result.success) {
+      toast.error(getFirstError(result.error));
+      return;
+    }
     onSubmit(
       title.trim(), 
       module === "geral" ? null : module,
