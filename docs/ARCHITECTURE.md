@@ -552,6 +552,8 @@ const userId = await getCurrentUserId(); // string (throws se não autenticado)
 | `/analytics` | Analytics.tsx | Métricas e estatísticas |
 | `/install` | Install.tsx | Guia de instalação PWA |
 | `/privacy` | Privacy.tsx | Política de privacidade |
+| `/invite/:code` | InviteAccept.tsx | Aceitar convite de projeto |
+| `/reset-password` | ResetPassword.tsx | Redefinir senha |
 
 ---
 
