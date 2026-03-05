@@ -14,6 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
+      error_logs: {
+        Row: {
+          app_version: string | null
+          component_stack: string | null
+          created_at: string
+          error_message: string
+          error_stack: string | null
+          error_type: string | null
+          id: string
+          metadata: Json | null
+          url: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          app_version?: string | null
+          component_stack?: string | null
+          created_at?: string
+          error_message: string
+          error_stack?: string | null
+          error_type?: string | null
+          id?: string
+          metadata?: Json | null
+          url?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          app_version?: string | null
+          component_stack?: string | null
+          created_at?: string
+          error_message?: string
+          error_stack?: string | null
+          error_type?: string | null
+          id?: string
+          metadata?: Json | null
+          url?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       items: {
         Row: {
           checklist: Json | null
