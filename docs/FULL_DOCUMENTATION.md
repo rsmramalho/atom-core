@@ -102,9 +102,61 @@ Na tela de login, clique em **"Não tem conta? Cadastre-se"**
 └── Distribuição por módulo
 ```
 
+🔗 Convites (/invite/:code)
+└── Aceitar convite de projeto compartilhado
+
+🔑 Reset Password (/reset-password)
+└── Redefinir senha via link de email
+
 ---
 
 # FEATURES
+
+## 🤝 Colaboração Multi-Usuário (Beta)
+
+Projetos podem ser compartilhados com outros usuários via sistema de convites.
+
+### Roles
+
+| Role | Permissões |
+|------|-----------|
+| **Owner** | CRUD completo, gerenciar membros, configurar projeto |
+| **Editor** | Criar/editar/completar tasks e milestones |
+| **Viewer** | Somente leitura |
+
+### Convites
+
+- Código único gerado automaticamente
+- Expiração configurável (default: 7 dias)
+- Limite de uso opcional (`max_uses`)
+- Aceite via rota `/invite/:code`
+
+### Activity Feed
+
+Timeline de ações no projeto: task criada, milestone concluída, membro adicionado, etc.
+
+### Segurança
+
+- RLS policies por role via funções `is_project_member`, `is_project_editor`, `is_project_owner`
+- Cascade deletes: deletar projeto limpa members, invites, activities
+
+## 🔐 Password Reset (Beta)
+
+Fluxo completo:
+1. Usuário clica "Esqueci minha senha" no AuthForm
+2. Email enviado com link de reset
+3. Redirect para `/reset-password`
+4. Usuário define nova senha
+
+## ✅ Zod Validation (Beta)
+
+Schemas centralizados em `src/lib/validation.ts`:
+- `quickAddTaskSchema` — título, módulo, data
+- `quickAddMilestoneSchema` — título, peso, módulo
+- `quickAddListSchema` — título
+- `journalContentSchema` — conteúdo
+
+Erros exibidos via `toast.error()`.
 
 ## 🧠 Parsing Engine
 
