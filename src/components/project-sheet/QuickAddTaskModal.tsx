@@ -59,6 +59,7 @@ export function QuickAddTaskModal({
   const [dueDate, setDueDate] = useState<Date | undefined>();
   const [recurrenceRule, setRecurrenceRule] = useState<string | null>(null);
   const [showRecurrencePicker, setShowRecurrencePicker] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Reset state when modal opens
   useEffect(() => {
