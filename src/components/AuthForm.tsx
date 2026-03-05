@@ -1,7 +1,7 @@
 // Atom Engine 4.0 - Authentication Form
 // Simple login/signup for testing the engine
 
-import { useState } from "react";
+import { useState, forwardRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { LogIn, UserPlus, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -11,7 +11,7 @@ interface AuthFormProps {
   onSuccess?: () => void;
 }
 
-export function AuthForm({ onSuccess }: AuthFormProps) {
+export const AuthForm = forwardRef<HTMLDivElement, AuthFormProps>(function AuthForm({ onSuccess }, ref) {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -115,4 +115,4 @@ export function AuthForm({ onSuccess }: AuthFormProps) {
       </div>
     </div>
   );
-}
+});
