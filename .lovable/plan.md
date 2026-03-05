@@ -1,83 +1,48 @@
 
 
-# Auditoria Completa & Roadmap — MindMate v4.0.0-alpha.26
+# P1 Implementation: Zod Validation, Skeletons, Docs Sync
 
-## Estado Atual
+## What's Done (P0)
+- Password reset flow
+- Profiles auto-create trigger
+- RLS audit + cascade deletes
+- Session expiry handling
 
-**Versão:** v4.0.0-alpha.26 (2026-03-04)
-**Stack:** React 18 + Vite + Tailwind + Lovable Cloud + PWA
-**Arquitetura:** Single Table Design (tabela `items`) com 7 tipos de item
+## What's Next (P1) - 3 Blocks
 
-### Funcionalidades Implementadas
-- Parsing Engine com tokens inteligentes
-- Dashboard operacional (Focus, Today, Overdue, Ritual)
-- Projetos com state machine + progresso híbrido (auto/milestone/manual)
-- Colaboração multi-usuário (Owner/Editor/Viewer) com links de convite
-- Activity Feed em tempo real por projeto
-- Sistema de Rituais (manhã/meio-dia/noite) com habits
-- Calendário mensal/semanal com drag-and-drop
-- Journal/Reflexões com prompts guiados
-- Listas rápidas estilo Google Keep
-- Recurrence Engine (RRULE)
-- Analytics com gráficos (recharts)
-- PWA completo com offline sync + push notifications
-- Onboarding (welcome, tour, checklist)
-- Command Palette + keyboard shortcuts
-- Landing page de marketing
+### Block 1: Zod Validation on Forms
 
----
+Add Zod schemas to validate user input before submission in:
 
-## Problemas Encontrados
+1. **QuickAddTaskModal** — title min 1 char, max 200; module enum; dueDate optional ISO string
+2. **QuickAddMilestoneModal** — title min 1 char, max 200; weight 1-10; module enum
+3. **Lists create modal** — title min 1 char, max 200
+4. **JournalComposer** — content min 1 char
+5. **Inbox capture** — title min 1 char after parsing
 
-### 1. Violação da Zero Any Policy (CRÍTICO)
-O projeto mantém uma política de zero `any`, mas há **5 ocorrências** em código de produção:
+Create `src/lib/validation.ts` with shared Zod schemas. Show inline error messages on invalid input using toast or field-level errors.
 
-| Arquivo | Linha | Ocorrência |
-|---------|-------|------------|
-| `useProjectMembers.ts` | 41 | `(row: any)` no map de membros |
-| `useProjectMembers.ts` | 88 | `as any` no insert de invite role |
-| `useProjectMembers.ts` | 134 | `as any` no update de member role |
-| `usePushNotifications.ts` | 49, 80, 123 | `as any` no pushManager |
+### Block 2: Lists Page Skeleton
 
-### 2. Console Logs em Produção
-125 ocorrências de `console.log/warn/error` em 11 arquivos. A maioria são `warn/error` em catch blocks (aceitável), mas devem ser auditados para remover os desnecessários.
+The Lists page currently shows a generic `Loader2` spinner. Replace with a proper card grid skeleton matching the existing card layout (3-column grid with card outlines, progress bars, and list item placeholders). Follows the pattern already used by `InboxItemCardSkeleton` and `ProjectCardSkeleton`.
 
-### 3. RLS: Sem DELETE para items de projetos compartilhados
-A tabela `items` tem policies para SELECT, INSERT e UPDATE em projetos compartilhados, mas **não tem DELETE policy** para membros. Editores não conseguem excluir itens de projetos compartilhados.
+### Block 3: Docs Sync
 
-### 4. Viewer Role incompleto no DB
-O enum `member_role` no banco tem `owner | editor`, mas o código TypeScript referencia `viewer`. A policy de UPDATE permite apenas `editor` e `viewer` no check, mas o enum pode não incluir `viewer`.
+Update 3 documents to reflect current state (alpha.28 → beta prep):
 
-### 5. `useProjectMembers` — `invitesQuery` usa `as unknown as`
-Linha 59: cast forçado que pode mascarar incompatibilidades de tipo.
+1. **EXECUTIVE_SUMMARY.md** — Currently references alpha.22. Update to alpha.28+. Add: collaboration system (Owner/Editor/Viewer), AI weekly summary, push notifications, password reset, 9 engines. Update routes table (add `/invite/:code`, `/reset-password`). Update "Próximos Passos".
 
-### 6. Query sem limit
-`useAtomItems` faz `select("*")` sem `.limit()`. Com muitos itens, vai bater no limite de 1000 rows do Supabase silenciosamente.
+2. **DEPLOYMENT_CHECKLIST.md** — Currently references alpha.22. Add sections for: collaboration tables RLS verification, push notification VAPID keys check, AI edge function deployment, password reset flow verification.
 
----
+3. **ARCHITECTURE.md** — Currently at alpha.25. Add: collaboration architecture (project_members, project_invites, project_activities tables + RLS functions), push notifications flow (VAPID + edge function), AI weekly summary edge function, password reset route.
 
-## Roadmap Proposto
+4. **FULL_DOCUMENTATION.md** — Consolidate all changes from above into the single-file reference.
 
-### Fase 7: Hardening & Type Safety (Próxima)
-1. **Eliminar `any` em `useProjectMembers.ts`** — Tipar o resultado do join com profiles e usar tipos corretos para enums do DB
-2. **Eliminar `as any` em `usePushNotifications.ts`** — Usar interface `PushManager` com type assertion segura
-3. **Adicionar DELETE policy para items em projetos compartilhados** — Permitir que editors deletem itens
-4. **Verificar enum `member_role`** — Confirmar que `viewer` existe no DB, adicionar migration se necessário
-5. **Adicionar `.limit()` ou paginação** em `useAtomItems` para projetos com muitos itens
+### Summary
 
-### Fase 8: UX & Polish
-6. **Busca global** — Filtrar itens por título/tag em todas as views
-7. **Drag-and-drop na WorkArea** — Reordenar tasks dentro de projetos
-8. **Dark/Light mode toggle** acessível na sidebar (já tem next-themes instalado)
-9. **Skeleton loading** para ProjectDetail (já existe para outros)
-
-### Fase 9: Inteligência
-10. **AI Summary** — Resumo semanal automático usando Lovable AI (Gemini Flash)
-11. **Smart suggestions** — Sugerir próxima ação baseado em padrões de uso
-12. **Natural language input** melhorado com AI para parsing de datas complexas
-
-### Fase 10: Escala
-13. **Paginação real** para items (cursor-based)
-14. **Realtime subscriptions** para projetos compartilhados (ver edições de outros membros ao vivo)
-15. **Export PDF** de projetos com progresso e milestones
+| Item | Files Changed | Effort |
+|------|--------------|--------|
+| Zod validation | Create `validation.ts`, edit 4 modal/form components | Medium |
+| Lists skeleton | Edit `Lists.tsx` | Small |
+| Docs sync | Edit 4 docs files | Medium |
 
