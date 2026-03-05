@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { useAtomItems } from "@/hooks/useAtomItems";
+import { WeeklySummary } from "@/components/analytics/WeeklySummary";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { 
@@ -210,6 +211,25 @@ export default function Analytics() {
       ? Math.round((completedTasks.length / totalActionable) * 100) 
       : 0;
 
+    // AI Summary stats
+    const aiStats = {
+      tasksCompleted: completedTasks.length,
+      tasksTotal: tasks.length,
+      tasksActive: activeTasks.length,
+      completionRate,
+      weeklyTasks: weeklyComparison.tasks.thisWeek,
+      weeklyTasksLastWeek: weeklyComparison.tasks.lastWeek,
+      weeklyHabits: weeklyComparison.habits.thisWeek,
+      weeklyHabitsLastWeek: weeklyComparison.habits.lastWeek,
+      weeklyReflections: weeklyComparison.reflections.thisWeek,
+      weeklyReflectionsLastWeek: weeklyComparison.reflections.lastWeek,
+      habitStreaks: habitStreaks.slice(0, 5).map(h => `${h.title}: streak ${h.currentStreak} dias (recorde: ${h.longestStreak})`).join("\n") || "Nenhum",
+      activeProjects: activeProjects.length,
+      completedProjects: completedProjects.length,
+      totalReflections: reflections.length,
+      dailyActivity: last7Days.map(d => `${d.day}: ${d.completed}`).join(", "),
+    };
+
     return {
       tasks: {
         total: tasks.length,
@@ -231,7 +251,8 @@ export default function Analytics() {
       streakEvolution,
       weeklyComparison,
       moduleData,
-      completionRate
+      completionRate,
+      aiStats,
     };
   }, [items]);
 
@@ -310,6 +331,9 @@ export default function Analytics() {
           </CardContent>
         </Card>
       </div>
+
+      {/* AI Weekly Summary */}
+      <WeeklySummary stats={stats.aiStats} />
 
       {/* Weekly Comparison */}
       <Card>
