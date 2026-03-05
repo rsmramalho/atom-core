@@ -7,6 +7,46 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [4.0.0-alpha.27] - 2026-03-05 🧠 AI INSIGHTS & UX POLISH
+
+> **Fase 7 & 8** - Resumo semanal com IA, busca global, dark/light mode, drag-and-drop, skeletons
+
+### Adicionado
+
+#### Resumo Semanal com IA (Fase 7)
+- **Edge Function `weekly-summary`** — Gera insights de produtividade via Gemini 3 Flash (streaming SSE)
+- **Componente `WeeklySummary`** — Renderiza markdown progressivo na página Analytics
+- **Métricas enviadas ao modelo:** tarefas concluídas, hábitos ativos, streaks, reflexões, distribuição por módulo
+- **Tratamento de erros:** Rate limit (429) e créditos (402) com toasts informativos
+
+#### Busca Global via Command Palette (Fase 8)
+- **CMD+K / Ctrl+K** — Busca por título e tags em todos os items (projetos, tasks, hábitos, notas, reflexões, listas)
+- **Resultados agrupados** por tipo com ícones e navegação direta
+- **Campo `value` combinado** — `title + tags.join()` para matching abrangente
+
+#### Dark/Light Mode Toggle (Fase 8)
+- **Toggle na sidebar** via `next-themes` (já instalado)
+- **Ícone contextual** Sun/Moon com label dinâmico
+- **Persistência** via localStorage automática do next-themes
+
+#### Drag-and-Drop na WorkArea (Fase 8)
+- **dnd-kit** para reordenação de tasks dentro de projetos
+- **Persistência** via campo `order_index` no banco
+- **Separadores visuais** — Items com `#scope_macro` funcionam como headers arrastáveis
+
+#### Skeleton Loading (Fase 8)
+- **ProjectDetailSkeleton** — Skeleton contextual para página de projeto (header, progress card, tabs, lista)
+
+### Alterado
+
+#### Colaboração Expandida (Fase 7)
+- **Viewer role** adicionado ao enum `member_role` (owner | editor | viewer)
+- **Editor com permissão de delete** — Editors podem excluir items de projetos compartilhados
+- **Activity Feed** — `project_activities` table com log de ações (status changes, task/milestone CRUD)
+- **ActivityPane** — Aba "Atividade" no ProjectDetail com feed em tempo real
+
+---
+
 ## [4.0.0-alpha.26] - 2026-03-04 👥 SHARED PROJECTS
 
 > **Colaboração Multi-Usuário** - Projetos compartilhados com Owner + Editor e links de convite
