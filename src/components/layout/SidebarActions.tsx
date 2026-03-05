@@ -1,5 +1,6 @@
-import { Terminal, Trash2, Download, Upload, LogOut } from "lucide-react";
+import { Terminal, Trash2, Download, Upload, LogOut, Moon, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useTheme } from "next-themes";
 
 interface SidebarActionsProps {
   onDebug: () => void;
@@ -11,7 +12,13 @@ interface SidebarActionsProps {
 }
 
 export function SidebarActions({ onDebug, onClearCache, onExport, onImport, onLogout, wrapper: Wrapper }: SidebarActionsProps) {
+  const { theme, setTheme } = useTheme();
+  const isDark = theme === "dark";
+
+  const toggleTheme = () => setTheme(isDark ? "light" : "dark");
+
   const actions = [
+    { icon: isDark ? Sun : Moon, label: isDark ? "Modo Claro" : "Modo Escuro", onClick: toggleTheme, destructive: false },
     { icon: Terminal, label: "Debug Console", onClick: onDebug, destructive: false },
     { icon: Trash2, label: "Limpar Cache", onClick: onClearCache, destructive: false },
     { icon: Download, label: "Exportar Backup", onClick: onExport, destructive: false },
