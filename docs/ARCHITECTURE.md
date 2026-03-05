@@ -155,6 +155,8 @@ src/
 │   ├── Analytics.tsx              # Dashboard de métricas
 │   ├── Install.tsx                # Guia de instalação PWA
 │   ├── Privacy.tsx                # Política de privacidade
+│   ├── InviteAccept.tsx           # ⭐ Aceitar convite (beta)
+│   ├── ResetPassword.tsx          # ⭐ Redefinir senha (beta)
 │   └── NotFound.tsx               # 404
 │
 ├── integrations/
@@ -162,8 +164,9 @@ src/
 │
 └── supabase/
     └── functions/
-        ├── send-push-notification/ # ⭐ Push via VAPID/WebCrypto (alpha.25)
-        └── check-due-tasks/        # ⭐ Cron: verifica tarefas vencidas (alpha.25)
+        ├── send-push-notification/ # Push via VAPID/WebCrypto (alpha.25)
+        ├── check-due-tasks/        # Cron: verifica tarefas vencidas (alpha.25)
+        └── weekly-summary/         # ⭐ AI summary via Gemini Flash (beta)
 ```
 
 ---
