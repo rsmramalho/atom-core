@@ -190,6 +190,18 @@ function AnimatedRoutes() {
             </ImmersiveRoute>
           }
         />
+        
+        {/* Password reset */}
+        <Route
+          path="/reset-password"
+          element={
+            <ImmersiveRoute>
+              <Suspense fallback={<PageLoader />}>
+                <ResetPassword />
+              </Suspense>
+            </ImmersiveRoute>
+          }
+        />
 
         {/* Catch-all */}
         <Route path="*" element={<ImmersiveRoute><NotFound /></ImmersiveRoute>} />

@@ -24,9 +24,18 @@ export function AppLayout({ children }: AppLayoutProps) {
 
   useEffect(() => {
     // Listen for auth changes - set up BEFORE getSession
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       setUser(session?.user ?? null);
       setLoading(false);
+
+      // Handle session expiry gracefully
+      if (event === "TOKEN_REFRESHED" && !session) {
+        navigate("/app");
+      }
+      if (event === "SIGNED_OUT") {
+        // Clear query cache on logout
+        setUser(null);
+      }
     });
 
     // Check current session
@@ -36,7 +45,7 @@ export function AppLayout({ children }: AppLayoutProps) {
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [navigate]);
 
   if (loading) {
     return (
