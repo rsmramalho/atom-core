@@ -16,7 +16,30 @@ export const AuthForm = forwardRef<HTMLDivElement, AuthFormProps>(function AuthF
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isForgotPassword, setIsForgotPassword] = useState(false);
   const { toast } = useToast();
+
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) {
+      toast({ title: "Informe o e-mail", description: "Digite seu e-mail para recuperar a senha.", variant: "destructive" });
+      return;
+    }
+    setIsLoading(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+      if (error) throw error;
+      toast({ title: "E-mail enviado", description: "Verifique sua caixa de entrada para redefinir a senha." });
+      setIsForgotPassword(false);
+    } catch (error) {
+      const authError = error as AuthError;
+      toast({ title: "Erro", description: authError.message, variant: "destructive" });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,10 +78,10 @@ export const AuthForm = forwardRef<HTMLDivElement, AuthFormProps>(function AuthF
     <div className="w-full max-w-md mx-auto">
       <div className="bg-console rounded-lg border border-console-border p-6">
         <h2 className="text-console-text font-mono text-lg font-semibold mb-4">
-          {isLogin ? "Entrar" : "Criar Conta"}
+          {isForgotPassword ? "Recuperar Senha" : isLogin ? "Entrar" : "Criar Conta"}
         </h2>
         
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={isForgotPassword ? handleForgotPassword : handleSubmit} className="space-y-4">
           <div>
               <label className="block text-console-muted font-mono text-xs mb-1">
               E-mail
@@ -73,20 +96,22 @@ export const AuthForm = forwardRef<HTMLDivElement, AuthFormProps>(function AuthF
             />
           </div>
           
-          <div>
-            <label className="block text-console-muted font-mono text-xs mb-1">
-              Senha
-            </label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full bg-console-input border border-console-border rounded px-3 py-2 font-mono text-sm text-console-text placeholder:text-console-muted focus:outline-none focus:border-console-accent"
-              placeholder="••••••••"
-              required
-              minLength={6}
-            />
-          </div>
+          {!isForgotPassword && (
+            <div>
+              <label className="block text-console-muted font-mono text-xs mb-1">
+                Senha
+              </label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full bg-console-input border border-console-border rounded px-3 py-2 font-mono text-sm text-console-text placeholder:text-console-muted focus:outline-none focus:border-console-accent"
+                placeholder="••••••••"
+                required
+                minLength={6}
+              />
+            </div>
+          )}
 
           <button
             type="submit"
@@ -100,16 +125,26 @@ export const AuthForm = forwardRef<HTMLDivElement, AuthFormProps>(function AuthF
             ) : (
               <UserPlus className="w-4 h-4" />
             )}
-            {isLogin ? "Entrar" : "Cadastrar"}
+            {isForgotPassword ? "Enviar link" : isLogin ? "Entrar" : "Cadastrar"}
           </button>
         </form>
 
-        <div className="mt-4 text-center">
+        <div className="mt-4 text-center space-y-2">
+          {isLogin && !isForgotPassword && (
+            <button
+              type="button"
+              onClick={() => setIsForgotPassword(true)}
+              className="text-console-muted font-mono text-xs hover:text-console-accent hover:underline block mx-auto"
+            >
+              Esqueceu a senha?
+            </button>
+          )}
           <button
-            onClick={() => setIsLogin(!isLogin)}
+            type="button"
+            onClick={() => { setIsLogin(!isLogin); setIsForgotPassword(false); }}
             className="text-console-accent font-mono text-xs hover:underline"
           >
-            {isLogin ? "Não tem conta? Cadastre-se" : "Já tem conta? Entrar"}
+            {isForgotPassword ? "Voltar ao login" : isLogin ? "Não tem conta? Cadastre-se" : "Já tem conta? Entrar"}
           </button>
         </div>
       </div>
