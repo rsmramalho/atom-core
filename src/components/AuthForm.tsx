@@ -16,7 +16,30 @@ export const AuthForm = forwardRef<HTMLDivElement, AuthFormProps>(function AuthF
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isForgotPassword, setIsForgotPassword] = useState(false);
   const { toast } = useToast();
+
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) {
+      toast({ title: "Informe o e-mail", description: "Digite seu e-mail para recuperar a senha.", variant: "destructive" });
+      return;
+    }
+    setIsLoading(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+      if (error) throw error;
+      toast({ title: "E-mail enviado", description: "Verifique sua caixa de entrada para redefinir a senha." });
+      setIsForgotPassword(false);
+    } catch (error) {
+      const authError = error as AuthError;
+      toast({ title: "Erro", description: authError.message, variant: "destructive" });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
