@@ -1,6 +1,7 @@
 import { Component, ReactNode } from 'react';
 import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { reportError } from '@/lib/error-reporting';
 
 interface ErrorBoundaryProps {
   children: ReactNode;
