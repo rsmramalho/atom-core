@@ -133,8 +133,24 @@ ls dist/pwa-icons/
 | Table | RLS Enabled | Policies Verified |
 |-------|-------------|-------------------|
 | `items` | ☐ | ☐ |
+| `profiles` | ☐ | ☐ |
+| `project_members` | ☐ | ☐ |
+| `project_invites` | ☐ | ☐ |
+| `project_activities` | ☐ | ☐ |
+| `push_subscriptions` | ☐ | ☐ |
 | `onboarding_progress` | ☐ | ☐ |
 | `onboarding_analytics` | ☐ | ☐ |
+
+### Cascade Deletes
+
+- [ ] Deleting a project cascades to `project_members`
+- [ ] Deleting a project cascades to `project_invites`
+- [ ] Deleting a project cascades to `project_activities`
+
+### Profiles Auto-Create
+
+- [ ] Trigger `on_auth_user_created` fires on new signup
+- [ ] Profile row created with correct `id` and `email`
 
 ### Edge Functions
 
