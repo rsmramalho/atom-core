@@ -159,7 +159,7 @@ export function AppNavigation() {
               </Button>
             </SheetTrigger>
             <SheetContent side="left" className="w-64 p-0">
-              <div className="flex flex-col h-full">
+              <nav aria-label="Menu principal" className="flex flex-col h-full">
                 <div className="p-6 border-b border-border">
                   <h1 className="text-xl font-bold text-primary">MindMate</h1>
                   <VersionTooltip>
@@ -167,7 +167,7 @@ export function AppNavigation() {
                   </VersionTooltip>
                 </div>
 
-                <nav className="flex-1 p-4 space-y-1">
+                <div className="flex-1 p-4 space-y-1">
                   <NavItemList onItemClick={() => setMobileMenuOpen(false)} wrapper={MobileSheetClose} />
                 </nav>
 
