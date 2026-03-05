@@ -7,6 +7,23 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [4.0.0-alpha.28] - 2026-03-05 🧪 E2E SHARING TESTS
+
+> **Testes E2E completos** para o fluxo de compartilhamento de projetos
+
+### Adicionado
+
+#### Testes E2E de Compartilhamento (`e2e/authenticated/project-sharing.auth.spec.ts`)
+- **10 cenários** cobrindo criação de convites (Editor/Viewer), aceitação, deleção e permissões
+- **Guardas de Viewer** — verifica banner read-only, FAB oculto e bloqueio de context menu
+- **Gestão de membros** — valida badge Owner/Você e restrição para não-owners
+
+#### Testes E2E Cross-User (`e2e/authenticated/project-sharing-crossuser.auth.spec.ts`)
+- **Fluxo Editor completo** — Owner cria projeto + convite, segundo usuário aceita, owner confirma email na lista de membros
+- **Fluxo Viewer completo** — Convite com role Viewer, segundo usuário vê restrições read-only, owner confirma badge Viewer
+
+---
+
 ## [4.0.0-alpha.27] - 2026-03-05 🧠 AI INSIGHTS & UX POLISH
 
 > **Fase 7 & 8** - Resumo semanal com IA, busca global, dark/light mode, drag-and-drop, skeletons
