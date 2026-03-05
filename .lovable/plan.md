@@ -1,83 +1,79 @@
 
 
-# Auditoria Completa & Roadmap — MindMate v4.0.0-alpha.26
+# Roadmap Alpha.28 → Beta: O que falta
 
-## Estado Atual
-
-**Versão:** v4.0.0-alpha.26 (2026-03-04)
-**Stack:** React 18 + Vite + Tailwind + Lovable Cloud + PWA
-**Arquitetura:** Single Table Design (tabela `items`) com 7 tipos de item
-
-### Funcionalidades Implementadas
-- Parsing Engine com tokens inteligentes
-- Dashboard operacional (Focus, Today, Overdue, Ritual)
-- Projetos com state machine + progresso híbrido (auto/milestone/manual)
-- Colaboração multi-usuário (Owner/Editor/Viewer) com links de convite
-- Activity Feed em tempo real por projeto
-- Sistema de Rituais (manhã/meio-dia/noite) com habits
-- Calendário mensal/semanal com drag-and-drop
-- Journal/Reflexões com prompts guiados
-- Listas rápidas estilo Google Keep
-- Recurrence Engine (RRULE)
-- Analytics com gráficos (recharts)
-- PWA completo com offline sync + push notifications
-- Onboarding (welcome, tour, checklist)
-- Command Palette + keyboard shortcuts
-- Landing page de marketing
+Baseado na análise do codebase atual, aqui esta o gap entre o estado alpha e um release beta estavel.
 
 ---
 
-## Problemas Encontrados
+## Estado Atual (alpha.28)
 
-### 1. Violação da Zero Any Policy (CRÍTICO)
-O projeto mantém uma política de zero `any`, mas há **5 ocorrências** em código de produção:
-
-| Arquivo | Linha | Ocorrência |
-|---------|-------|------------|
-| `useProjectMembers.ts` | 41 | `(row: any)` no map de membros |
-| `useProjectMembers.ts` | 88 | `as any` no insert de invite role |
-| `useProjectMembers.ts` | 134 | `as any` no update de member role |
-| `usePushNotifications.ts` | 49, 80, 123 | `as any` no pushManager |
-
-### 2. Console Logs em Produção
-125 ocorrências de `console.log/warn/error` em 11 arquivos. A maioria são `warn/error` em catch blocks (aceitável), mas devem ser auditados para remover os desnecessários.
-
-### 3. RLS: Sem DELETE para items de projetos compartilhados
-A tabela `items` tem policies para SELECT, INSERT e UPDATE em projetos compartilhados, mas **não tem DELETE policy** para membros. Editores não conseguem excluir itens de projetos compartilhados.
-
-### 4. Viewer Role incompleto no DB
-O enum `member_role` no banco tem `owner | editor`, mas o código TypeScript referencia `viewer`. A policy de UPDATE permite apenas `editor` e `viewer` no check, mas o enum pode não incluir `viewer`.
-
-### 5. `useProjectMembers` — `invitesQuery` usa `as unknown as`
-Linha 59: cast forçado que pode mascarar incompatibilidades de tipo.
-
-### 6. Query sem limit
-`useAtomItems` faz `select("*")` sem `.limit()`. Com muitos itens, vai bater no limite de 1000 rows do Supabase silenciosamente.
+**Implementado:**
+- 9 engines funcionais (Parsing, Inbox, Dashboard, Calendar, Ritual, Journal, Lists, Recurrence, MacroPicker)
+- Colaboracao (Owner/Editor/Viewer + convites + Activity Feed)
+- PWA completo (offline sync, push notifications, install prompts)
+- Auth centralizado, Command Palette, Dark/Light mode
+- AI Weekly Summary (Gemini Flash)
+- E2E tests (sharing, role-change, role-downgrade, member-removal)
+- Zero console.log, zero TODO/FIXME
 
 ---
 
-## Roadmap Proposto
+## Gap para Beta - 5 Blocos
 
-### Fase 7: Hardening & Type Safety (Próxima)
-1. **Eliminar `any` em `useProjectMembers.ts`** — Tipar o resultado do join com profiles e usar tipos corretos para enums do DB
-2. **Eliminar `as any` em `usePushNotifications.ts`** — Usar interface `PushManager` com type assertion segura
-3. **Adicionar DELETE policy para items em projetos compartilhados** — Permitir que editors deletem itens
-4. **Verificar enum `member_role`** — Confirmar que `viewer` existe no DB, adicionar migration se necessário
-5. **Adicionar `.limit()` ou paginação** em `useAtomItems` para projetos com muitos itens
+### 1. Estabilidade e Error Handling
+- **Password reset flow** -- nao existe pagina/fluxo de "Esqueci minha senha"
+- **Error boundaries por rota** -- existe global mas erros em uma pagina derrubam tudo
+- **Tratamento de sessao expirada** -- redirect gracioso quando token expira mid-session
+- **Rate limiting no client** -- proteção contra submissões duplicadas (double-click)
 
-### Fase 8: UX & Polish
-6. **Busca global** — Filtrar itens por título/tag em todas as views
-7. **Drag-and-drop na WorkArea** — Reordenar tasks dentro de projetos
-8. **Dark/Light mode toggle** acessível na sidebar (já tem next-themes instalado)
-9. **Skeleton loading** para ProjectDetail (já existe para outros)
+### 2. Dados e Integridade
+- **Profiles sync** -- tabela `profiles` existe mas nao ha trigger `on_auth_user_created` para popular automaticamente
+- **Cascade deletes** -- ao deletar projeto, garantir que `project_members`, `project_invites`, `project_activities` sao limpos
+- **Validação de dados no client** -- formularios sem validação Zod (Quick Add Task, Quick Add Milestone, etc.)
 
-### Fase 9: Inteligência
-10. **AI Summary** — Resumo semanal automático usando Lovable AI (Gemini Flash)
-11. **Smart suggestions** — Sugerir próxima ação baseado em padrões de uso
-12. **Natural language input** melhorado com AI para parsing de datas complexas
+### 3. Segurança
+- **Auditoria RLS completa** -- verificar todas as policies das 7 tabelas contra cenarios de escalação
+- **assetlinks.json placeholder** -- `COLE_AQUI_O_SHA256_DO_SEU_KEYSTORE` em produção
+- **CORS/CSP headers** -- nao ha Content Security Policy configurado
+- **Email de contato** -- `privacy@mindmate.app` na pagina Privacy e um placeholder
 
-### Fase 10: Escala
-13. **Paginação real** para items (cursor-based)
-14. **Realtime subscriptions** para projetos compartilhados (ver edições de outros membros ao vivo)
-15. **Export PDF** de projetos com progresso e milestones
+### 4. UX e Polish
+- **Loading states consistentes** -- algumas paginas usam skeleton, outras nao (Inbox, Journal, Lists)
+- **Empty states completos** -- verificar cobertura em todas as paginas
+- **Mobile responsiveness audit** -- testes visuais existem mas nao cobrem todos os breakpoints
+- **Acessibilidade (a11y)** -- aria-labels, focus management, screen reader compat
+- **Feedback de ações** -- confirmação visual apos delete, complete, etc.
+
+### 5. Documentação e Deploy
+- **DEPLOYMENT_CHECKLIST.md desatualizado** -- referencia alpha.22
+- **EXECUTIVE_SUMMARY.md desatualizado** -- referencia alpha.22, falta colaboração, push, AI
+- **ARCHITECTURE.md + FULL_DOCUMENTATION.md** -- precisam sync (memoria do projeto confirma)
+- **Testes unitarios** -- cobertura dos hooks principais (useAtomItems, useProjectMembers)
+
+---
+
+## Priorização Sugerida para Beta
+
+| Prioridade | Item | Esforço |
+|------------|------|---------|
+| P0 | Password reset flow | Pequeno |
+| P0 | Profiles auto-create trigger | Pequeno |
+| P0 | Auditoria RLS | Medio |
+| P1 | Sessao expirada handling | Pequeno |
+| P1 | Validação Zod nos formularios | Medio |
+| P1 | Skeletons/loading states uniformes | Medio |
+| P1 | Docs sync (Architecture, Executive Summary, Checklist) | Medio |
+| P2 | Error boundaries por rota | Pequeno |
+| P2 | a11y audit e fixes | Grande |
+| P2 | CSP headers | Pequeno |
+| P2 | Remover placeholder assetlinks.json | Pequeno |
+
+---
+
+## Resumo
+
+Para beta, o foco e **estabilidade > segurança > polish**. As features core ja existem. O que falta e garantir que nao quebram em edge cases (sessao expirada, double submit, dados orfaos), que a segurança esta auditada (RLS, CSP), e que a experiencia e consistente (loading states, error handling, password reset). Documentação precisa ser sincronizada com o estado real do codigo.
+
+Posso começar implementando qualquer bloco -- recomendo atacar P0 primeiro (password reset + profiles trigger + auditoria RLS).
 
