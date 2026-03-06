@@ -1,7 +1,7 @@
 # MindMate - Atom Engine 4.0
 ## Resumo Executivo
 
-**Versão:** 4.0.0-beta.0 | **Status:** Beta | **Data:** 2026-03-05
+**Versão:** 4.0.0-beta.1 | **Status:** Beta | **Data:** 2026-03-06
 
 ---
 
