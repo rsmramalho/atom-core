@@ -170,7 +170,8 @@ src/
     └── functions/
         ├── send-push-notification/ # Push via VAPID/WebCrypto (alpha.25)
         ├── check-due-tasks/        # Cron: verifica tarefas vencidas (alpha.25)
-        └── weekly-summary/         # ⭐ AI summary via Gemini Flash (beta)
+        ├── weekly-summary/         # ⭐ AI summary via Gemini Flash (beta)
+        └── report-error/           # ⭐ Error tracking em produção (beta.1)
 ```
 
 ---
