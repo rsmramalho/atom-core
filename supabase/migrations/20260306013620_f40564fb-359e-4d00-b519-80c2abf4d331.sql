@@ -1,0 +1,1 @@
+CREATE POLICY "Authenticated users can view error logs" ON public.error_logs FOR SELECT TO authenticated USING (true);
