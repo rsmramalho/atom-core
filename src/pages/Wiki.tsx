@@ -20,6 +20,7 @@ interface TocItem {
   id: string;
   label: string;
   icon: React.ElementType;
+  keywords: string[];
 }
 
 const tocItems: TocItem[] = [
