@@ -422,7 +422,7 @@ export default function AdminErrorLogs() {
                                 {log.url && (
                                   <span className="text-xs text-muted-foreground flex items-center gap-1">
                                     <Globe className="h-3 w-3" />
-                                    {new URL(log.url).pathname}
+                                    {(() => { try { return new URL(log.url).pathname; } catch { return log.url; } })()}
                                   </span>
                                 )}
                               </div>
