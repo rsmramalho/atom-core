@@ -53,7 +53,7 @@ type ProjectStatus = 'draft' | 'active' | 'paused' | 'completed' | 'archived';
 
 **Tabela principal `items`** com campos opcionais por tipo. Milestones são tasks com tag `#milestone`.
 
-**Tabelas auxiliares:** `profiles`, `project_members`, `project_invites`, `project_activities`, `push_subscriptions`, `onboarding_progress`, `onboarding_analytics`.
+**Tabelas auxiliares:** `profiles`, `project_members`, `project_invites`, `project_activities`, `push_subscriptions`, `onboarding_progress`, `onboarding_analytics`, `error_logs`.
 
 ### Arquitetura (beta.0)
 
