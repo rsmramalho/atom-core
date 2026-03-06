@@ -425,6 +425,9 @@ src/
 │   ├── useSwipe.ts                 # Touch/swipe gestures
 │   ├── useDebugConsole.ts          # Controle do console
 │   ├── useEngineLogger.ts          # Sistema de logs (Zustand)
+│   ├── useProjectMembers.ts        # ⭐ CRUD membros e convites (alpha.26)
+│   ├── useProjectRole.ts           # ⭐ Role do usuário no projeto (alpha.27)
+│   ├── useProjectActivities.ts     # ⭐ Activity feed em tempo real (alpha.27)
 │   └── use-toast.ts                # Toasts do sistema
 │
 ├── lib/
