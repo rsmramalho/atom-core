@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { useNavigate } from "react-router-dom";
+import { PageLoader } from "@/components/shared";
 import {
   AlertTriangle,
   ArrowLeft,
@@ -50,6 +51,8 @@ interface ErrorLog {
 
 export default function AdminErrorLogs() {
   const navigate = useNavigate();
+  const [authChecked, setAuthChecked] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [logs, setLogs] = useState<ErrorLog[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -58,6 +61,18 @@ export default function AdminErrorLogs() {
   const [dateFilter, setDateFilter] = useState<string>("7d");
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [autoRefresh, setAutoRefresh] = useState(true);
+
+  // Auth guard
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!session) {
+        navigate("/", { replace: true });
+      } else {
+        setIsAuthenticated(true);
+      }
+      setAuthChecked(true);
+    });
+  }, [navigate]);
 
   const fetchLogs = async () => {
     setLoading(true);
@@ -171,6 +186,10 @@ export default function AdminErrorLogs() {
         return "secondary";
     }
   };
+
+  if (!authChecked || !isAuthenticated) {
+    return <PageLoader message="Verificando autenticação..." />;
+  }
 
   return (
     <div className="min-h-screen bg-background text-foreground">
