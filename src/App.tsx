@@ -186,7 +186,16 @@ function AnimatedRoutes() {
             </LayoutRoute>
           }
         />
-        
+        <Route
+          path="/wiki"
+          element={
+            <LayoutRoute>
+              <Suspense fallback={<PageLoader message="Carregando wiki..." />}>
+                <Wiki />
+              </Suspense>
+            </LayoutRoute>
+          }
+        />
         {/* Invite acceptance */}
         <Route
           path="/invite/:code"
