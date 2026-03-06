@@ -235,6 +235,32 @@ export default function AdminErrorLogs() {
       </header>
 
       <main className="container mx-auto px-4 py-6 space-y-6">
+        {/* Spike Alert Banner */}
+        <AnimatePresence>
+          {stats.lastHour >= 5 && (
+            <motion.div
+              key="spike-alert"
+              initial={{ opacity: 0, y: -12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -12 }}
+              className="flex items-center gap-3 rounded-lg border border-destructive/50 bg-destructive/10 px-4 py-3"
+            >
+              <AlertTriangle className="h-5 w-5 text-destructive shrink-0" />
+              <div className="flex-1">
+                <p className="text-sm font-semibold text-destructive">
+                  ⚠️ Spike de erros detectado
+                </p>
+                <p className="text-xs text-destructive/80">
+                  {stats.lastHour} erros na última hora (limite: 5). Investigue imediatamente.
+                </p>
+              </div>
+              <Badge variant="destructive" className="text-xs">
+                {stats.lastHour} erros/h
+              </Badge>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* Stats Cards */}
         <div className="grid grid-cols-3 gap-4">
           <Card className="bg-card border-border">
