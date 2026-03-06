@@ -1,83 +1,99 @@
 
 
-# Auditoria Completa & Roadmap — MindMate v4.0.0-alpha.26
+# Audit Report & Documentation Sync — MindMate v4.0.0-beta.1
 
-## Estado Atual
+## Discrepancies Found
 
-**Versão:** v4.0.0-alpha.26 (2026-03-04)
-**Stack:** React 18 + Vite + Tailwind + Lovable Cloud + PWA
-**Arquitetura:** Single Table Design (tabela `items`) com 7 tipos de item
+### 1. Version Mismatch Across All Docs (CRITICAL)
 
-### Funcionalidades Implementadas
-- Parsing Engine com tokens inteligentes
-- Dashboard operacional (Focus, Today, Overdue, Ritual)
-- Projetos com state machine + progresso híbrido (auto/milestone/manual)
-- Colaboração multi-usuário (Owner/Editor/Viewer) com links de convite
-- Activity Feed em tempo real por projeto
-- Sistema de Rituais (manhã/meio-dia/noite) com habits
-- Calendário mensal/semanal com drag-and-drop
-- Journal/Reflexões com prompts guiados
-- Listas rápidas estilo Google Keep
-- Recurrence Engine (RRULE)
-- Analytics com gráficos (recharts)
-- PWA completo com offline sync + push notifications
-- Onboarding (welcome, tour, checklist)
-- Command Palette + keyboard shortcuts
-- Landing page de marketing
+| Document | Current Version | Should Be |
+|----------|----------------|-----------|
+| `ARCHITECTURE.md` line 5 | `4.0.0-beta.0` | `4.0.0-beta.1` |
+| `FULL_DOCUMENTATION.md` line 4 | `4.0.0-beta.0` | `4.0.0-beta.1` |
+| `EXECUTIVE_SUMMARY.md` line 4 | `4.0.0-beta.0` | `4.0.0-beta.1` |
+| `CHANGELOG.md` | Has beta.1 entry | OK |
+
+### 2. ARCHITECTURE.md — Outdated Roadmap (line 676-683)
+
+Lists "Error boundaries por rota" and "a11y audit completo" as **not done**, but both were completed in beta.1. Also missing:
+- `error_logs` table in schema
+- `report-error` edge function in directory tree
+- `error-reporting.ts` in lib listing
+- `useProjectActivities.ts` and `useProjectRole.ts` hooks missing from hooks listing
+
+### 3. FULL_DOCUMENTATION.md — Severely Outdated (lines 1797-1852)
+
+The "Status de Implementação" section at the bottom still lists "Colaboração multi-usuário" as **not done** (line 1850), despite being implemented since alpha.26. Missing all beta.1 additions:
+- Error tracking system
+- Production error monitoring
+- Collaboration features (marked as todo)
+- AI Weekly Summary (not listed)
+- Password Reset (not listed)
+- Zod Validation (not listed)
+
+Also missing from directory tree (line 430-462):
+- `validation.ts` in lib/
+- `error-reporting.ts` in lib/
+- `InviteAccept.tsx` and `ResetPassword.tsx` in pages/
+- Edge functions directory incomplete (missing `report-error`)
+
+### 4. CONTRIBUTING.md — Missing Engines & Tables (lines 74-103)
+
+Engine table only lists 6 engines (Parsing, Inbox, MacroPicker, Dashboard, Ritual, Project). Missing: Calendar, Reflection, List, Recurrence, Notification, Offline. Database section lists only 3 tables — missing `project_members`, `project_invites`, `project_activities`, `push_subscriptions`, `error_logs`.
+
+### 5. API.md — Missing Hooks & Components
+
+Missing documentation for:
+- `useProjectMembers` / `useProjectRole` / `useProjectActivities` hooks
+- `useCurrentUser` / `getCurrentUserId`
+- Error tracking API (`reportError`, `initErrorTracking`)
+- `ShareProjectModal`, `ActivityPane` components
+
+### 6. Console Logs Audit
+
+130 occurrences across 12 files. All are `console.error` or `console.warn` in catch blocks — acceptable for error handling. No stray `console.log` in production code. **No cleanup needed.**
+
+### 7. Zero Any Policy: PASSING
+
+Only 1 occurrence of `as any` in test file (`architecture-audit.test.ts` line 463) — intentional edge case test. Production code is clean.
 
 ---
 
-## Problemas Encontrados
+## Plan
 
-### 1. Violação da Zero Any Policy (CRÍTICO)
-O projeto mantém uma política de zero `any`, mas há **5 ocorrências** em código de produção:
+### Task 1: Update version to beta.1 in all docs
+- `ARCHITECTURE.md` line 5: version + status string
+- `FULL_DOCUMENTATION.md` line 4: version + status string
+- `EXECUTIVE_SUMMARY.md` line 4: version string
 
-| Arquivo | Linha | Ocorrência |
-|---------|-------|------------|
-| `useProjectMembers.ts` | 41 | `(row: any)` no map de membros |
-| `useProjectMembers.ts` | 88 | `as any` no insert de invite role |
-| `useProjectMembers.ts` | 134 | `as any` no update de member role |
-| `usePushNotifications.ts` | 49, 80, 123 | `as any` no pushManager |
+### Task 2: Update ARCHITECTURE.md
+- Add `error_logs` table to schema section
+- Add `report-error` edge function to directory tree
+- Add `error-reporting.ts` to lib listing
+- Add missing hooks (`useProjectActivities`, `useProjectRole`)
+- Fix roadmap: mark "Error boundaries por rota" and "a11y audit" as done
+- Add error tracking to roadmap completed items
 
-### 2. Console Logs em Produção
-125 ocorrências de `console.log/warn/error` em 11 arquivos. A maioria são `warn/error` em catch blocks (aceitável), mas devem ser auditados para remover os desnecessários.
+### Task 3: Update FULL_DOCUMENTATION.md
+- Update directory tree: add `validation.ts`, `error-reporting.ts`, `InviteAccept.tsx`, `ResetPassword.tsx`, `report-error/` edge function
+- Update "Status de Implementação" section: mark collaboration, AI summary, password reset, Zod validation, error tracking as done
+- Add `error_logs` table documentation
+- Add error tracking to Features section
 
-### 3. RLS: Sem DELETE para items de projetos compartilhados
-A tabela `items` tem policies para SELECT, INSERT e UPDATE em projetos compartilhados, mas **não tem DELETE policy** para membros. Editores não conseguem excluir itens de projetos compartilhados.
+### Task 4: Update EXECUTIVE_SUMMARY.md
+- Add `report-error` to Edge Functions table
+- Add `error_logs` to auxiliary tables mention
+- Add Error Tracking to Features Principais list
 
-### 4. Viewer Role incompleto no DB
-O enum `member_role` no banco tem `owner | editor`, mas o código TypeScript referencia `viewer`. A policy de UPDATE permite apenas `editor` e `viewer` no check, mas o enum pode não incluir `viewer`.
+### Task 5: Update CONTRIBUTING.md
+- Expand engine table to include all 12 engines
+- Add missing tables to database section
 
-### 5. `useProjectMembers` — `invitesQuery` usa `as unknown as`
-Linha 59: cast forçado que pode mascarar incompatibilidades de tipo.
+### Task 6: Update API.md
+- Add `useProjectMembers`, `useProjectActivities`, `useProjectRole` hooks
+- Add `useCurrentUser` / `getCurrentUserId` API
+- Add error tracking API reference
+- Add `/invite/:code` and `/reset-password` to routes table
 
-### 6. Query sem limit
-`useAtomItems` faz `select("*")` sem `.limit()`. Com muitos itens, vai bater no limite de 1000 rows do Supabase silenciosamente.
-
----
-
-## Roadmap Proposto
-
-### Fase 7: Hardening & Type Safety (Próxima)
-1. **Eliminar `any` em `useProjectMembers.ts`** — Tipar o resultado do join com profiles e usar tipos corretos para enums do DB
-2. **Eliminar `as any` em `usePushNotifications.ts`** — Usar interface `PushManager` com type assertion segura
-3. **Adicionar DELETE policy para items em projetos compartilhados** — Permitir que editors deletem itens
-4. **Verificar enum `member_role`** — Confirmar que `viewer` existe no DB, adicionar migration se necessário
-5. **Adicionar `.limit()` ou paginação** em `useAtomItems` para projetos com muitos itens
-
-### Fase 8: UX & Polish
-6. **Busca global** — Filtrar itens por título/tag em todas as views
-7. **Drag-and-drop na WorkArea** — Reordenar tasks dentro de projetos
-8. **Dark/Light mode toggle** acessível na sidebar (já tem next-themes instalado)
-9. **Skeleton loading** para ProjectDetail (já existe para outros)
-
-### Fase 9: Inteligência
-10. **AI Summary** — Resumo semanal automático usando Lovable AI (Gemini Flash)
-11. **Smart suggestions** — Sugerir próxima ação baseado em padrões de uso
-12. **Natural language input** melhorado com AI para parsing de datas complexas
-
-### Fase 10: Escala
-13. **Paginação real** para items (cursor-based)
-14. **Realtime subscriptions** para projetos compartilhados (ver edições de outros membros ao vivo)
-15. **Export PDF** de projetos com progresso e milestones
+All changes are documentation-only. No code changes needed. The codebase itself is clean.
 
