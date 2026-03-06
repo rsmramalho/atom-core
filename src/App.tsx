@@ -189,11 +189,11 @@ function AnimatedRoutes() {
         <Route
           path="/wiki"
           element={
-            <LayoutRoute>
+            <ImmersiveRoute>
               <Suspense fallback={<PageLoader message="Carregando wiki..." />}>
                 <Wiki />
               </Suspense>
-            </LayoutRoute>
+            </ImmersiveRoute>
           }
         />
         {/* Invite acceptance */}
