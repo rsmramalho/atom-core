@@ -51,6 +51,8 @@ interface ErrorLog {
 
 export default function AdminErrorLogs() {
   const navigate = useNavigate();
+  const [authChecked, setAuthChecked] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [logs, setLogs] = useState<ErrorLog[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
