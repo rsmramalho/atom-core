@@ -30,6 +30,7 @@ const Privacy = lazy(() => import("./pages/Privacy"));
 const Landing = lazy(() => import("./pages/Landing"));
 const InviteAccept = lazy(() => import("./pages/InviteAccept"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
+const AdminErrorLogs = lazy(() => import("./pages/AdminErrorLogs"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -204,6 +205,18 @@ function AnimatedRoutes() {
             <ImmersiveRoute>
               <Suspense fallback={<PageLoader />}>
                 <ResetPassword />
+              </Suspense>
+            </ImmersiveRoute>
+          }
+        />
+
+        {/* Admin */}
+        <Route
+          path="/admin/errors"
+          element={
+            <ImmersiveRoute>
+              <Suspense fallback={<PageLoader message="Carregando logs..." />}>
+                <AdminErrorLogs />
               </Suspense>
             </ImmersiveRoute>
           }
