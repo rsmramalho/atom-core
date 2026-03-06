@@ -25,6 +25,7 @@ const Journal = lazy(() => import("./pages/Journal"));
 const Calendar = lazy(() => import("./pages/Calendar"));
 const Lists = lazy(() => import("./pages/Lists"));
 const Analytics = lazy(() => import("./pages/Analytics"));
+const Wiki = lazy(() => import("./pages/Wiki"));
 const Install = lazy(() => import("./pages/Install"));
 const Privacy = lazy(() => import("./pages/Privacy"));
 const Landing = lazy(() => import("./pages/Landing"));

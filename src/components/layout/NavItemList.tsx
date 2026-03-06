@@ -1,5 +1,5 @@
 import { NavLink } from "@/components/NavLink";
-import { Home, FolderKanban, Inbox, ListChecks, Calendar, BookOpen, BarChart3 } from "lucide-react";
+import { Home, FolderKanban, Inbox, ListChecks, Calendar, BookOpen, BarChart3, BookMarked } from "lucide-react";
 
 export const navItems = [
   { title: "Home", url: "/app", icon: Home },
@@ -9,6 +9,7 @@ export const navItems = [
   { title: "Calendário", url: "/calendar", icon: Calendar },
   { title: "Diário", url: "/journal", icon: BookOpen },
   { title: "Estatísticas", url: "/analytics", icon: BarChart3 },
+  { title: "Wiki", url: "/wiki", icon: BookMarked },
 ];
 
 interface NavItemListProps {
