@@ -1,12 +1,13 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { 
   BookOpen, Atom, Rocket, Inbox, LayoutDashboard, FolderKanban, 
   Calendar, Sun, Sunset, Moon, BookMarked, ListChecks, Repeat, 
   BarChart3, Keyboard, Users, Wifi, HelpCircle, ChevronRight,
-  Menu, X, Hash, AtSign, ArrowRight
+  Menu, X, Hash, AtSign, ArrowRight, Search
 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Input } from "@/components/ui/input";
 import {
   Accordion,
   AccordionContent,
@@ -19,17 +20,18 @@ interface TocItem {
   id: string;
   label: string;
   icon: React.ElementType;
+  keywords: string[];
 }
 
 const tocItems: TocItem[] = [
-  { id: "manifesto", label: "Manifesto", icon: BookOpen },
-  { id: "arquitetura", label: "Arquitetura Atom", icon: Atom },
-  { id: "funcionalidades", label: "Funcionalidades", icon: Rocket },
-  { id: "como-usar", label: "Como Usar", icon: ArrowRight },
-  { id: "atalhos", label: "Atalhos de Teclado", icon: Keyboard },
-  { id: "colaboracao", label: "Colaboração", icon: Users },
-  { id: "pwa", label: "PWA & Offline", icon: Wifi },
-  { id: "faq", label: "FAQ", icon: HelpCircle },
+  { id: "manifesto", label: "Manifesto", icon: BookOpen, keywords: ["filosofia", "capturar", "organizar", "refletir", "agnóstico", "metodologia", "open source", "gratuito", "pilares"] },
+  { id: "arquitetura", label: "Arquitetura Atom", icon: Atom, keywords: ["single table", "items", "type", "project_id", "parent_id", "milestone", "weight", "progresso", "state machine", "draft", "active", "hierarquia"] },
+  { id: "funcionalidades", label: "Funcionalidades", icon: Rocket, keywords: ["parsing", "token", "inbox", "dashboard", "projeto", "calendário", "ritual", "journal", "lista", "recorrência", "analytics", "hábito", "tag", "módulo", "@hoje", "@amanha", "rrule", "heatmap", "streak"] },
+  { id: "como-usar", label: "Como Usar", icon: ArrowRight, keywords: ["conta", "captura", "fluxo", "passo", "novos usuários", "guia"] },
+  { id: "atalhos", label: "Atalhos de Teclado", icon: Keyboard, keywords: ["shortcut", "⌘", "ctrl", "command palette", "teclado", "navegação"] },
+  { id: "colaboracao", label: "Colaboração", icon: Users, keywords: ["owner", "editor", "viewer", "convite", "role", "compartilhar", "activity", "membro"] },
+  { id: "pwa", label: "PWA & Offline", icon: Wifi, keywords: ["instalação", "offline", "push", "notificação", "sync", "ios", "android", "desktop"] },
+  { id: "faq", label: "FAQ", icon: HelpCircle, keywords: ["gratuito", "seguro", "exportar", "dados", "tags", "dispositivos", "conexão"] },
 ];
 
 function SectionTitle({ id, icon: Icon, children }: { id: string; icon: React.ElementType; children: React.ReactNode }) {
@@ -102,16 +104,39 @@ function ShortcutTable({ shortcuts }: { shortcuts: { keys: string; action: strin
 
 export default function Wiki() {
   const [tocOpen, setTocOpen] = useState(false);
+  const [search, setSearch] = useState("");
+
+  const filteredToc = useMemo(() => {
+    if (!search.trim()) return tocItems;
+    const q = search.toLowerCase();
+    return tocItems.filter(
+      (item) =>
+        item.label.toLowerCase().includes(q) ||
+        item.keywords.some((k) => k.toLowerCase().includes(q))
+    );
+  }, [search]);
 
   const scrollTo = (id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
     setTocOpen(false);
   };
 
-  const sidebar = (
+  const sidebarContent = (
     <nav className="space-y-1">
       <p className="text-xs font-medium tracking-widest uppercase text-muted-foreground mb-3 px-2">Índice</p>
-      {tocItems.map((item) => (
+      <div className="relative px-1 mb-3">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+        <Input
+          placeholder="Buscar na wiki..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="pl-8 h-8 text-xs bg-muted/30 border-border/50"
+        />
+      </div>
+      {filteredToc.length === 0 && (
+        <p className="text-xs text-muted-foreground px-2 py-2">Nenhuma seção encontrada.</p>
+      )}
+      {filteredToc.map((item) => (
         <button
           key={item.id}
           onClick={() => scrollTo(item.id)}
@@ -133,7 +158,7 @@ export default function Wiki() {
       {/* Desktop sidebar */}
       <aside className="hidden lg:block w-56 shrink-0 border-r border-border/50 p-4 sticky top-0 h-screen">
         <ScrollArea className="h-full">
-          {sidebar}
+          {sidebarContent}
         </ScrollArea>
       </aside>
 
@@ -149,7 +174,7 @@ export default function Wiki() {
       {/* Mobile TOC overlay */}
       {tocOpen && (
         <div className="lg:hidden fixed inset-0 z-40 bg-background/95 backdrop-blur-sm p-6 pt-12">
-          <ScrollArea className="h-full">{sidebar}</ScrollArea>
+          <ScrollArea className="h-full">{sidebarContent}</ScrollArea>
         </div>
       )}
 
