@@ -1,57 +1,55 @@
 
 
-## Phase 8: UX & Polish
+## Wiki / Manual Completo do MindMate
 
-Phase 7 is done -- all `any` casts eliminated, DELETE policy for shared items exists, `viewer` enum added, `.limit(2000)` in place. Moving to the next phase.
-
-### Phase 8 consists of 4 items:
+Criar uma página `/wiki` acessível dentro do app (autenticado) que serve como manual completo e contextual do MindMate, organizada em seções navegáveis.
 
 ---
 
-### 1. Global Search (Command Palette Enhancement)
+### Estrutura da Wiki
 
-The project already has a `CommandPalette.tsx`. Enhance it to search items by title and tags across all views.
+A página será um documento rico com navegação por âncoras, dividido em:
 
-**Changes:**
-- `src/components/layout/CommandPalette.tsx` -- Add a "Search items" section that queries `useAtomItems` data, filtering by title/tags. Show results grouped by type (task, note, project, etc.). Clicking a result navigates to the relevant view or opens the item.
+1. **Manifesto** — Filosofia do MindMate: capturar sem fricção, organizar sem rigidez, refletir com propósito. Agnóstico de metodologia (GTD, Pomodoro, Bullet Journal — use o que funcionar).
 
----
+2. **Arquitetura Atom** — Explicação do Single Table Design: todos os tipos (task, habit, note, reflection, project, resource, list) numa tabela `items`. Milestones = tasks com tag `#milestone`. Hierarquia via `parent_id` e `project_id`.
 
-### 2. Drag-and-Drop in WorkArea
+3. **Guia de Funcionalidades** — Cada engine explicada com exemplos práticos:
+   - Parsing Engine (tokens `@hoje`, `@amanha`, `#tags`, `#mod_work`)
+   - Inbox (captura rápida)
+   - Dashboard (Focus, Today, Ritual Banner)
+   - Projetos (state machine, progresso híbrido, 4 abas)
+   - Calendário (mensal/semanal, drag-and-drop)
+   - Ritual (3 períodos, check-in, reflexão)
+   - Journal (prompts guiados, busca, exportação)
+   - Listas (estilo Keep, cores, checklist)
+   - Recorrência (RRULE)
+   - Analytics (métricas de produtividade)
 
-Reorder tasks within projects using the already-installed `@dnd-kit` library.
+4. **Como Usar** — Guia prático passo-a-passo para novos usuários: criar conta → capturar no inbox → organizar em projetos → rituais diários → journaling → analytics.
 
-**Changes:**
-- `src/components/project-sheet/WorkAreaPane.tsx` -- Wrap task list with `DndContext` + `SortableContext`. Each task card becomes a `useSortable` item. On drag end, update `order_index` for affected items via `updateItem`.
-- Database migration -- Ensure `order_index` is respected in queries (already exists on `items` table).
+5. **Atalhos de Teclado** — Tabela completa de shortcuts.
 
----
+6. **Colaboração** — Roles (Owner/Editor/Viewer), convites, activity feed.
 
-### 3. Dark/Light Mode Toggle
+7. **PWA & Offline** — Instalação, sync offline, notificações push.
 
-`next-themes` is already installed and the `Toaster` component uses `useTheme()`. Add a visible toggle in the sidebar.
-
-**Changes:**
-- `src/components/layout/SidebarActions.tsx` -- Add a Sun/Moon icon button that calls `setTheme()` to cycle between light/dark/system.
-- No other changes needed -- Tailwind's dark mode classes are already in use throughout the app.
-
----
-
-### 4. ProjectDetail Skeleton Loading
-
-Skeleton loaders exist for other pages but not for `ProjectDetail`.
-
-**Changes:**
-- `src/components/projects/ProjectDetailSkeleton.tsx` -- Already exists (listed in files). Verify it's used in `ProjectDetail.tsx` during loading states. If not, wire it up.
+8. **FAQ** — Perguntas frequentes sobre uso.
 
 ---
 
-### Implementation Order
+### Implementação Técnica
 
-1. Dark/Light mode toggle (smallest change, immediate visual impact)
-2. ProjectDetail skeleton (quick win)
-3. Global search in Command Palette
-4. Drag-and-drop in WorkArea (most complex)
+**Arquivo novo:** `src/pages/Wiki.tsx`
+- Componente com scroll suave e sidebar de navegação (table of contents)
+- Usa `Accordion` para seções colapsáveis em mobile
+- Conteúdo estático (sem fetch ao banco)
+- Responsivo: sidebar fixa no desktop, collapsed no mobile
+- Estilo consistente com o app (Tailwind + design system existente)
 
-### Estimated file changes: 4-5 files
+**Rota:** Adicionar `/wiki` no `App.tsx` como `LayoutRoute` (dentro do AppLayout, requer auth)
+
+**Navegação:** Adicionar link "Wiki" no `NavItemList.tsx` com ícone `BookOpen`
+
+**Estimativa:** 2 arquivos editados + 1 novo (`Wiki.tsx`)
 
