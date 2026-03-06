@@ -18,6 +18,7 @@ export function LandingNav() {
         <div className="hidden md:flex items-center gap-6">
           <a href="#features" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Features</a>
           <a href="#benefits" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Benefits</a>
+          <Link to="/wiki" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Wiki</Link>
           <a href="#cta" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Começar</a>
         </div>
         
