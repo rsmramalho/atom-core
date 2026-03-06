@@ -30,6 +30,7 @@ const Privacy = lazy(() => import("./pages/Privacy"));
 const Landing = lazy(() => import("./pages/Landing"));
 const InviteAccept = lazy(() => import("./pages/InviteAccept"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
+const AdminErrorLogs = lazy(() => import("./pages/AdminErrorLogs"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
