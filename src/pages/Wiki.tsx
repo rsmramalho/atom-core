@@ -1,12 +1,13 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { 
   BookOpen, Atom, Rocket, Inbox, LayoutDashboard, FolderKanban, 
   Calendar, Sun, Sunset, Moon, BookMarked, ListChecks, Repeat, 
   BarChart3, Keyboard, Users, Wifi, HelpCircle, ChevronRight,
-  Menu, X, Hash, AtSign, ArrowRight
+  Menu, X, Hash, AtSign, ArrowRight, Search
 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Input } from "@/components/ui/input";
 import {
   Accordion,
   AccordionContent,
