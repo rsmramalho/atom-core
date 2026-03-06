@@ -1,0 +1,1 @@
+CREATE POLICY "Authenticated users can delete error logs" ON public.error_logs FOR DELETE TO authenticated USING (true);
