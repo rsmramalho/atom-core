@@ -80,6 +80,7 @@ App.tsx (QueryClient: staleTime 5min, retry 2)
 - **Keyboard-First:** Atalhos globais (⌘K, ⌘H, ⌘I, ⌘P, ⌘J, etc.)
 - **Onboarding:** Welcome modal + tour guiado + checklist gamificado
 - **Zod Validation:** Formulários validados com schemas centralizados
+- **Error Tracking:** Captura de crashes em produção via Edge Function + error_logs
 
 ### Qualidade de Código
 
