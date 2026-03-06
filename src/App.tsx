@@ -210,6 +210,18 @@ function AnimatedRoutes() {
           }
         />
 
+        {/* Admin */}
+        <Route
+          path="/admin/errors"
+          element={
+            <ImmersiveRoute>
+              <Suspense fallback={<PageLoader message="Carregando logs..." />}>
+                <AdminErrorLogs />
+              </Suspense>
+            </ImmersiveRoute>
+          }
+        />
+
         {/* Catch-all */}
         <Route path="*" element={<ImmersiveRoute><NotFound /></ImmersiveRoute>} />
       </Routes>
