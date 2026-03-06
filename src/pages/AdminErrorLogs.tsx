@@ -14,6 +14,7 @@ import {
   Monitor,
   RefreshCw,
   Search,
+  Trash2,
   X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -34,6 +35,18 @@ import {
 } from "@/components/ui/collapsible";
 import { Skeleton } from "@/components/ui/skeleton";
 import { motion, AnimatePresence } from "framer-motion";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
 
 interface ErrorLog {
   id: string;
@@ -61,6 +74,27 @@ export default function AdminErrorLogs() {
   const [dateFilter, setDateFilter] = useState<string>("7d");
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [autoRefresh, setAutoRefresh] = useState(true);
+  const [purging, setPurging] = useState(false);
+  const [purgeDays, setPurgeDays] = useState<string>("30");
+
+  const handlePurge = async () => {
+    setPurging(true);
+    try {
+      const cutoff = new Date(Date.now() - Number(purgeDays) * 24 * 60 * 60 * 1000).toISOString();
+      const { error, count } = await supabase
+        .from("error_logs")
+        .delete({ count: "exact" })
+        .lt("created_at", cutoff);
+      if (error) throw error;
+      toast.success(`${count ?? 0} erros removidos com sucesso`);
+      fetchLogs();
+    } catch (err) {
+      console.error("Purge failed:", err);
+      toast.error("Falha ao limpar erros");
+    } finally {
+      setPurging(false);
+    }
+  };
 
   // Auth guard
   useEffect(() => {
@@ -230,6 +264,39 @@ export default function AdminErrorLogs() {
               <RefreshCw className="h-3.5 w-3.5" />
               Refresh
             </Button>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="outline" size="sm" className="gap-1.5 text-xs text-destructive border-destructive/30 hover:bg-destructive/10">
+                  <Trash2 className="h-3.5 w-3.5" />
+                  Limpar
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Limpar erros antigos</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Isso irá deletar permanentemente todos os erros mais antigos que o período selecionado.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <Select value={purgeDays} onValueChange={setPurgeDays}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="1">Mais de 1 dia</SelectItem>
+                    <SelectItem value="7">Mais de 7 dias</SelectItem>
+                    <SelectItem value="30">Mais de 30 dias</SelectItem>
+                    <SelectItem value="90">Mais de 90 dias</SelectItem>
+                  </SelectContent>
+                </Select>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                  <AlertDialogAction onClick={handlePurge} disabled={purging} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                    {purging ? "Limpando..." : "Confirmar exclusão"}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
         </div>
       </header>
