@@ -74,6 +74,27 @@ export default function AdminErrorLogs() {
   const [dateFilter, setDateFilter] = useState<string>("7d");
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [autoRefresh, setAutoRefresh] = useState(true);
+  const [purging, setPurging] = useState(false);
+  const [purgeDays, setPurgeDays] = useState<string>("30");
+
+  const handlePurge = async () => {
+    setPurging(true);
+    try {
+      const cutoff = new Date(Date.now() - Number(purgeDays) * 24 * 60 * 60 * 1000).toISOString();
+      const { error, count } = await supabase
+        .from("error_logs")
+        .delete({ count: "exact" })
+        .lt("created_at", cutoff);
+      if (error) throw error;
+      toast.success(`${count ?? 0} erros removidos com sucesso`);
+      fetchLogs();
+    } catch (err) {
+      console.error("Purge failed:", err);
+      toast.error("Falha ao limpar erros");
+    } finally {
+      setPurging(false);
+    }
+  };
 
   // Auth guard
   useEffect(() => {
