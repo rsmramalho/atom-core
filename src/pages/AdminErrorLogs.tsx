@@ -96,11 +96,21 @@ export default function AdminErrorLogs() {
     }
   };
 
-  // Auth guard
+  // Auth + admin role guard
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (!session) {
         navigate("/", { replace: true });
+        setAuthChecked(true);
+        return;
+      }
+      // Check admin role via has_role function
+      const { data: isAdmin } = await supabase.rpc("has_role", {
+        _user_id: session.user.id,
+        _role: "admin",
+      });
+      if (!isAdmin) {
+        navigate("/app", { replace: true });
       } else {
         setIsAuthenticated(true);
       }
