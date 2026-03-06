@@ -174,7 +174,7 @@ export default function Wiki() {
       {/* Mobile TOC overlay */}
       {tocOpen && (
         <div className="lg:hidden fixed inset-0 z-40 bg-background/95 backdrop-blur-sm p-6 pt-12">
-          <ScrollArea className="h-full">{sidebar}</ScrollArea>
+          <ScrollArea className="h-full">{sidebarContent}</ScrollArea>
         </div>
       )}
 
