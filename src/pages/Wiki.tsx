@@ -23,14 +23,14 @@ interface TocItem {
 }
 
 const tocItems: TocItem[] = [
-  { id: "manifesto", label: "Manifesto", icon: BookOpen },
-  { id: "arquitetura", label: "Arquitetura Atom", icon: Atom },
-  { id: "funcionalidades", label: "Funcionalidades", icon: Rocket },
-  { id: "como-usar", label: "Como Usar", icon: ArrowRight },
-  { id: "atalhos", label: "Atalhos de Teclado", icon: Keyboard },
-  { id: "colaboracao", label: "Colaboração", icon: Users },
-  { id: "pwa", label: "PWA & Offline", icon: Wifi },
-  { id: "faq", label: "FAQ", icon: HelpCircle },
+  { id: "manifesto", label: "Manifesto", icon: BookOpen, keywords: ["filosofia", "capturar", "organizar", "refletir", "agnóstico", "metodologia", "open source", "gratuito", "pilares"] },
+  { id: "arquitetura", label: "Arquitetura Atom", icon: Atom, keywords: ["single table", "items", "type", "project_id", "parent_id", "milestone", "weight", "progresso", "state machine", "draft", "active", "hierarquia"] },
+  { id: "funcionalidades", label: "Funcionalidades", icon: Rocket, keywords: ["parsing", "token", "inbox", "dashboard", "projeto", "calendário", "ritual", "journal", "lista", "recorrência", "analytics", "hábito", "tag", "módulo", "@hoje", "@amanha", "rrule", "heatmap", "streak"] },
+  { id: "como-usar", label: "Como Usar", icon: ArrowRight, keywords: ["conta", "captura", "fluxo", "passo", "novos usuários", "guia"] },
+  { id: "atalhos", label: "Atalhos de Teclado", icon: Keyboard, keywords: ["shortcut", "⌘", "ctrl", "command palette", "teclado", "navegação"] },
+  { id: "colaboracao", label: "Colaboração", icon: Users, keywords: ["owner", "editor", "viewer", "convite", "role", "compartilhar", "activity", "membro"] },
+  { id: "pwa", label: "PWA & Offline", icon: Wifi, keywords: ["instalação", "offline", "push", "notificação", "sync", "ios", "android", "desktop"] },
+  { id: "faq", label: "FAQ", icon: HelpCircle, keywords: ["gratuito", "seguro", "exportar", "dados", "tags", "dispositivos", "conexão"] },
 ];
 
 function SectionTitle({ id, icon: Icon, children }: { id: string; icon: React.ElementType; children: React.ReactNode }) {
