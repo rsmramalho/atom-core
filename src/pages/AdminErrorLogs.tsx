@@ -187,6 +187,10 @@ export default function AdminErrorLogs() {
     }
   };
 
+  if (!authChecked || !isAuthenticated) {
+    return <PageLoader message="Verificando autenticação..." />;
+  }
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       {/* Header */}
