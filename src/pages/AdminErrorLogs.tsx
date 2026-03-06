@@ -62,6 +62,18 @@ export default function AdminErrorLogs() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [autoRefresh, setAutoRefresh] = useState(true);
 
+  // Auth guard
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!session) {
+        navigate("/", { replace: true });
+      } else {
+        setIsAuthenticated(true);
+      }
+      setAuthChecked(true);
+    });
+  }, [navigate]);
+
   const fetchLogs = async () => {
     setLoading(true);
     try {
