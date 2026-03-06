@@ -264,6 +264,39 @@ export default function AdminErrorLogs() {
               <RefreshCw className="h-3.5 w-3.5" />
               Refresh
             </Button>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="outline" size="sm" className="gap-1.5 text-xs text-destructive border-destructive/30 hover:bg-destructive/10">
+                  <Trash2 className="h-3.5 w-3.5" />
+                  Limpar
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Limpar erros antigos</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Isso irá deletar permanentemente todos os erros mais antigos que o período selecionado.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <Select value={purgeDays} onValueChange={setPurgeDays}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="1">Mais de 1 dia</SelectItem>
+                    <SelectItem value="7">Mais de 7 dias</SelectItem>
+                    <SelectItem value="30">Mais de 30 dias</SelectItem>
+                    <SelectItem value="90">Mais de 90 dias</SelectItem>
+                  </SelectContent>
+                </Select>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                  <AlertDialogAction onClick={handlePurge} disabled={purging} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                    {purging ? "Limpando..." : "Confirmar exclusão"}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
         </div>
       </header>
