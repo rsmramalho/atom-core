@@ -293,6 +293,8 @@ import { TodayList } from "@/components/dashboard/TodayList";
 | `/analytics` | Analytics.tsx | ✅ | ✅ | Métricas de produtividade |
 | `/install` | Install.tsx | ❌ | ❌ | Guia de instalação PWA |
 | `/privacy` | Privacy.tsx | ❌ | ❌ | Política de privacidade |
+| `/invite/:code` | InviteAccept.tsx | ❌* | ❌ | Aceitar convite de projeto |
+| `/reset-password` | ResetPassword.tsx | ❌* | ❌ | Redefinir senha |
 
 ---
 
