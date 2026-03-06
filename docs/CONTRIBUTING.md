@@ -81,8 +81,14 @@ Os engines são a lógica central do sistema:
 | Inbox | `pages/Inbox.tsx` | Captura de itens |
 | MacroPicker | `components/inbox/MacroPickerModal.tsx` | Promoção de itens |
 | Dashboard | `hooks/useDashboardData.ts` | Filtros e agregação |
+| Calendar | `pages/Calendar.tsx` + `components/calendar/*` | Visualização temporal |
 | Ritual | `hooks/useRitual.ts` | Lógica de rituais |
 | Project | `hooks/useProjectProgress.ts` | Cálculo de progresso |
+| Reflection | `pages/Journal.tsx` + `components/journal/*` | Journaling e reflexões |
+| List | `pages/Lists.tsx` + `components/lists/*` | Listas rápidas |
+| Recurrence | `lib/recurrence-engine.ts` | RRULE projection |
+| Notification | `hooks/useNotifications.ts` | Lembretes via Web API |
+| Offline | `lib/offline-queue.ts` + `hooks/useOfflineSync.ts` | PWA offline sync |
 
 ### Modelo de Dados
 
