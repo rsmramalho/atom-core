@@ -104,16 +104,39 @@ function ShortcutTable({ shortcuts }: { shortcuts: { keys: string; action: strin
 
 export default function Wiki() {
   const [tocOpen, setTocOpen] = useState(false);
+  const [search, setSearch] = useState("");
+
+  const filteredToc = useMemo(() => {
+    if (!search.trim()) return tocItems;
+    const q = search.toLowerCase();
+    return tocItems.filter(
+      (item) =>
+        item.label.toLowerCase().includes(q) ||
+        item.keywords.some((k) => k.toLowerCase().includes(q))
+    );
+  }, [search]);
 
   const scrollTo = (id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
     setTocOpen(false);
   };
 
-  const sidebar = (
+  const sidebarContent = (
     <nav className="space-y-1">
       <p className="text-xs font-medium tracking-widest uppercase text-muted-foreground mb-3 px-2">Índice</p>
-      {tocItems.map((item) => (
+      <div className="relative px-1 mb-3">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+        <Input
+          placeholder="Buscar na wiki..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="pl-8 h-8 text-xs bg-muted/30 border-border/50"
+        />
+      </div>
+      {filteredToc.length === 0 && (
+        <p className="text-xs text-muted-foreground px-2 py-2">Nenhuma seção encontrada.</p>
+      )}
+      {filteredToc.map((item) => (
         <button
           key={item.id}
           onClick={() => scrollTo(item.id)}
