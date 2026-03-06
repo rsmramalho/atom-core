@@ -158,7 +158,7 @@ export default function Wiki() {
       {/* Desktop sidebar */}
       <aside className="hidden lg:block w-56 shrink-0 border-r border-border/50 p-4 sticky top-0 h-screen">
         <ScrollArea className="h-full">
-          {sidebar}
+          {sidebarContent}
         </ScrollArea>
       </aside>
 
