@@ -81,8 +81,14 @@ Os engines são a lógica central do sistema:
 | Inbox | `pages/Inbox.tsx` | Captura de itens |
 | MacroPicker | `components/inbox/MacroPickerModal.tsx` | Promoção de itens |
 | Dashboard | `hooks/useDashboardData.ts` | Filtros e agregação |
+| Calendar | `pages/Calendar.tsx` + `components/calendar/*` | Visualização temporal |
 | Ritual | `hooks/useRitual.ts` | Lógica de rituais |
 | Project | `hooks/useProjectProgress.ts` | Cálculo de progresso |
+| Reflection | `pages/Journal.tsx` + `components/journal/*` | Journaling e reflexões |
+| List | `pages/Lists.tsx` + `components/lists/*` | Listas rápidas |
+| Recurrence | `lib/recurrence-engine.ts` | RRULE projection |
+| Notification | `hooks/useNotifications.ts` | Lembretes via Web API |
+| Offline | `lib/offline-queue.ts` + `hooks/useOfflineSync.ts` | PWA offline sync |
 
 ### Modelo de Dados
 
@@ -98,8 +104,14 @@ type ProjectStatus = 'draft' | 'active' | 'paused' | 'completed' | 'archived';
 ### Banco de Dados (Single Table Design)
 
 - Tabela `items`: Todos os tipos de itens (incluindo milestones como tasks com tag #milestone)
+- Tabela `profiles`: Email e metadados do usuário (auto-create via trigger)
+- Tabela `project_members`: Membros de projetos com roles (owner/editor/viewer)
+- Tabela `project_invites`: Links de convite com expiração e limite de uso
+- Tabela `project_activities`: Feed de atividades em projetos
+- Tabela `push_subscriptions`: Endpoints de push notifications
 - Tabela `onboarding_progress`: Progresso de onboarding do usuário
 - Tabela `onboarding_analytics`: Eventos de analytics do onboarding
+- Tabela `error_logs`: Captura de erros em produção (acesso via service_role)
 - RLS habilitado em todas as tabelas
 
 ---

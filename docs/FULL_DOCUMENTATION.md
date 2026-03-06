@@ -1,9 +1,9 @@
 # MindMate - Atom Engine 4.0
 # Documentação Completa Consolidada
 
-**Versão:** 4.0.0-beta.0  
-**Data:** 2026-03-05  
-**Status:** ✅ **Beta** - Collaboration + Push + AI + Zod Validation
+**Versão:** 4.0.0-beta.1  
+**Data:** 2026-03-06  
+**Status:** ✅ **Beta** - Collaboration + Push + AI + Zod Validation + Error Tracking
 
 > Esta versão representa o marco estável do Atom Engine 4.0, com todas as funcionalidades core
 > implementadas e testadas. Refatoração arquitetural completa: auth centralizada, Landing componentizada (9 seções),
@@ -425,6 +425,9 @@ src/
 │   ├── useSwipe.ts                 # Touch/swipe gestures
 │   ├── useDebugConsole.ts          # Controle do console
 │   ├── useEngineLogger.ts          # Sistema de logs (Zustand)
+│   ├── useProjectMembers.ts        # ⭐ CRUD membros e convites (alpha.26)
+│   ├── useProjectRole.ts           # ⭐ Role do usuário no projeto (alpha.27)
+│   ├── useProjectActivities.ts     # ⭐ Activity feed em tempo real (alpha.27)
 │   └── use-toast.ts                # Toasts do sistema
 │
 ├── lib/
@@ -435,6 +438,8 @@ src/
 │   ├── journal-export.ts           # Export MD/JSON/PDF
 │   ├── offline-queue.ts            # IndexedDB queue
 │   ├── local-cache.ts              # localStorage cache
+│   ├── validation.ts               # ⭐ Zod schemas para formulários (beta)
+│   ├── error-reporting.ts          # ⭐ Error tracking em produção (beta.1)
 │   └── utils.ts                    # Utilitários (cn, etc)
 │
 ├── types/
@@ -455,10 +460,19 @@ src/
 │   ├── Analytics.tsx               # Dashboard de métricas
 │   ├── Install.tsx                 # Guia de instalação PWA
 │   ├── Privacy.tsx                 # Política de privacidade
+│   ├── InviteAccept.tsx            # ⭐ Aceitar convite de projeto (alpha.26)
+│   ├── ResetPassword.tsx           # ⭐ Redefinir senha (beta)
 │   └── NotFound.tsx                # 404
 │
-└── integrations/
-    └── supabase/                   # Cliente Supabase (auto-gerado)
+├── integrations/
+│   └── supabase/                   # Cliente Supabase (auto-gerado)
+│
+└── supabase/
+    └── functions/
+        ├── send-push-notification/ # Push via VAPID/WebCrypto (alpha.25)
+        ├── check-due-tasks/        # Cron: verifica tarefas vencidas (alpha.25)
+        ├── weekly-summary/         # ⭐ AI summary via Gemini Flash (beta)
+        └── report-error/           # ⭐ Error tracking em produção (beta.1)
 ```
 
 ## Arquitetura de Autenticação (alpha.23)
@@ -1846,9 +1860,19 @@ Depois: getCurrentUserId() (leitura de cache sync, fallback getSession)
 - [x] **Code Audit - useMemo fix + AuthForm i18n** ⭐ alpha.24
 - [x] **Push Notifications - VAPID + Service Worker + Edge Functions** ⭐ alpha.25
 
+- [x] **Colaboração Multi-Usuário** - Roles, convites, activity feed ⭐ alpha.26-28
+- [x] **AI Weekly Summary** - Gemini Flash via Edge Function ⭐ alpha.27
+- [x] **Password Reset** - Fluxo completo de recuperação ⭐ beta
+- [x] **Zod Validation** - Schemas centralizados para formulários ⭐ beta
+- [x] **Error Boundaries por Rota** - Crash isolation ⭐ beta.1
+- [x] **a11y Audit** - ARIA labels, landmarks, pinch-to-zoom ⭐ beta.1
+- [x] **Error Tracking** - Captura de crashes em produção ⭐ beta.1
+
 ## 🔲 Próximas Etapas
-- [ ] Colaboração multi-usuário
+- [ ] CSP headers
 - [ ] Widgets nativos (Android/iOS)
+- [ ] API pública
+- [ ] Temas customizáveis
 
 ---
 

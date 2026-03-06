@@ -1,7 +1,7 @@
 # MindMate - Atom Engine 4.0
 ## Resumo Executivo
 
-**Versão:** 4.0.0-beta.0 | **Status:** Beta | **Data:** 2026-03-05
+**Versão:** 4.0.0-beta.1 | **Status:** Beta | **Data:** 2026-03-06
 
 ---
 
@@ -53,7 +53,7 @@ type ProjectStatus = 'draft' | 'active' | 'paused' | 'completed' | 'archived';
 
 **Tabela principal `items`** com campos opcionais por tipo. Milestones são tasks com tag `#milestone`.
 
-**Tabelas auxiliares:** `profiles`, `project_members`, `project_invites`, `project_activities`, `push_subscriptions`, `onboarding_progress`, `onboarding_analytics`.
+**Tabelas auxiliares:** `profiles`, `project_members`, `project_invites`, `project_activities`, `push_subscriptions`, `onboarding_progress`, `onboarding_analytics`, `error_logs`.
 
 ### Arquitetura (beta.0)
 
@@ -80,6 +80,7 @@ App.tsx (QueryClient: staleTime 5min, retry 2)
 - **Keyboard-First:** Atalhos globais (⌘K, ⌘H, ⌘I, ⌘P, ⌘J, etc.)
 - **Onboarding:** Welcome modal + tour guiado + checklist gamificado
 - **Zod Validation:** Formulários validados com schemas centralizados
+- **Error Tracking:** Captura de crashes em produção via Edge Function + error_logs
 
 ### Qualidade de Código
 
@@ -125,6 +126,7 @@ App.tsx (QueryClient: staleTime 5min, retry 2)
 | `send-push-notification` | Push via VAPID/WebCrypto |
 | `check-due-tasks` | Cron: verifica tarefas vencidas |
 | `weekly-summary` | AI weekly summary via Gemini Flash |
+| `report-error` | Error tracking em produção (JWT-free) |
 
 ### Segurança (Beta)
 

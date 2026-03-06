@@ -2,9 +2,9 @@
 
 ## Arquitetura do Sistema
 
-**Versão:** 4.0.0-beta.0  
-**Data:** 2026-03-05  
-**Status:** Beta - Collaboration + Push + AI + Zod Validation
+**Versão:** 4.0.0-beta.1  
+**Data:** 2026-03-06  
+**Status:** Beta - Collaboration + Push + AI + Zod Validation + Error Tracking
 
 ---
 
@@ -124,6 +124,9 @@ src/
 │   ├── useSwipe.ts                 # Touch/swipe gestures
 │   ├── useDebugConsole.ts          # Controle do console
 │   ├── useEngineLogger.ts          # Sistema de logs (Zustand)
+│   ├── useProjectMembers.ts        # ⭐ CRUD membros e convites (alpha.26)
+│   ├── useProjectRole.ts           # ⭐ Role do usuário no projeto (alpha.27)
+│   ├── useProjectActivities.ts     # ⭐ Activity feed em tempo real (alpha.27)
 │   └── use-toast.ts                # Toasts do sistema
 │
 ├── lib/
@@ -135,6 +138,7 @@ src/
 │   ├── offline-queue.ts            # IndexedDB queue
 │   ├── local-cache.ts              # localStorage cache
 │   ├── validation.ts               # ⭐ Zod schemas para formulários (beta)
+│   ├── error-reporting.ts          # ⭐ Error tracking em produção (beta.1)
 │   └── utils.ts                    # Utilitários (cn, etc)
 │
 ├── types/
@@ -166,7 +170,8 @@ src/
     └── functions/
         ├── send-push-notification/ # Push via VAPID/WebCrypto (alpha.25)
         ├── check-due-tasks/        # Cron: verifica tarefas vencidas (alpha.25)
-        └── weekly-summary/         # ⭐ AI summary via Gemini Flash (beta)
+        ├── weekly-summary/         # ⭐ AI summary via Gemini Flash (beta)
+        └── report-error/           # ⭐ Error tracking em produção (beta.1)
 ```
 
 ---
@@ -270,6 +275,23 @@ Todos os tipos de itens em uma única tabela (Doc B.3, B.9).
 | `event_type` | text | Tipo do evento |
 | `event_data` | jsonb | Dados do evento |
 | `created_at` | timestamptz | Timestamp |
+
+#### `error_logs` ⭐ beta.1
+| Coluna | Tipo | Descrição |
+|--------|------|-----------|
+| `id` | uuid | Chave primária |
+| `user_id` | uuid | ID do usuário (nullable) |
+| `error_message` | text | Mensagem do erro |
+| `error_stack` | text | Stack trace |
+| `component_stack` | text | React component stack |
+| `error_type` | text | Tipo do erro (unhandled, boundary, promise) |
+| `url` | text | URL onde ocorreu |
+| `user_agent` | text | User agent do browser |
+| `app_version` | text | Versão do app |
+| `metadata` | jsonb | Dados adicionais |
+| `created_at` | timestamptz | Timestamp |
+
+> Acesso restrito a `service_role` via RLS. Edge Function `report-error` insere com `verify_jwt = false`.
 
 ### Database Functions (RLS Helpers)
 
@@ -673,10 +695,12 @@ export function asTypedRow(row: ItemsRow): TypedItemsRow;
 - [x] **Zod Validation** - Schemas centralizados para formulários (beta)
 - [x] **Lists Skeleton** - Loading state consistente (beta)
 
+- [x] **Error Boundaries por Rota** - Crash isolation (beta.1)
+- [x] **a11y Audit** - ARIA labels, landmarks, pinch-to-zoom (beta.1)
+- [x] **Error Tracking** - Captura de crashes em produção (beta.1)
+
 ### 🔲 Próximas Etapas
 
-- [ ] Error boundaries por rota
-- [ ] a11y audit completo
 - [ ] CSP headers
 - [ ] Widgets nativos (Android/iOS)
 - [ ] API pública
