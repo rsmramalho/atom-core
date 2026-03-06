@@ -1,83 +1,57 @@
 
 
-# Auditoria Completa & Roadmap — MindMate v4.0.0-alpha.26
+## Phase 8: UX & Polish
 
-## Estado Atual
+Phase 7 is done -- all `any` casts eliminated, DELETE policy for shared items exists, `viewer` enum added, `.limit(2000)` in place. Moving to the next phase.
 
-**Versão:** v4.0.0-alpha.26 (2026-03-04)
-**Stack:** React 18 + Vite + Tailwind + Lovable Cloud + PWA
-**Arquitetura:** Single Table Design (tabela `items`) com 7 tipos de item
-
-### Funcionalidades Implementadas
-- Parsing Engine com tokens inteligentes
-- Dashboard operacional (Focus, Today, Overdue, Ritual)
-- Projetos com state machine + progresso híbrido (auto/milestone/manual)
-- Colaboração multi-usuário (Owner/Editor/Viewer) com links de convite
-- Activity Feed em tempo real por projeto
-- Sistema de Rituais (manhã/meio-dia/noite) com habits
-- Calendário mensal/semanal com drag-and-drop
-- Journal/Reflexões com prompts guiados
-- Listas rápidas estilo Google Keep
-- Recurrence Engine (RRULE)
-- Analytics com gráficos (recharts)
-- PWA completo com offline sync + push notifications
-- Onboarding (welcome, tour, checklist)
-- Command Palette + keyboard shortcuts
-- Landing page de marketing
+### Phase 8 consists of 4 items:
 
 ---
 
-## Problemas Encontrados
+### 1. Global Search (Command Palette Enhancement)
 
-### 1. Violação da Zero Any Policy (CRÍTICO)
-O projeto mantém uma política de zero `any`, mas há **5 ocorrências** em código de produção:
+The project already has a `CommandPalette.tsx`. Enhance it to search items by title and tags across all views.
 
-| Arquivo | Linha | Ocorrência |
-|---------|-------|------------|
-| `useProjectMembers.ts` | 41 | `(row: any)` no map de membros |
-| `useProjectMembers.ts` | 88 | `as any` no insert de invite role |
-| `useProjectMembers.ts` | 134 | `as any` no update de member role |
-| `usePushNotifications.ts` | 49, 80, 123 | `as any` no pushManager |
-
-### 2. Console Logs em Produção
-125 ocorrências de `console.log/warn/error` em 11 arquivos. A maioria são `warn/error` em catch blocks (aceitável), mas devem ser auditados para remover os desnecessários.
-
-### 3. RLS: Sem DELETE para items de projetos compartilhados
-A tabela `items` tem policies para SELECT, INSERT e UPDATE em projetos compartilhados, mas **não tem DELETE policy** para membros. Editores não conseguem excluir itens de projetos compartilhados.
-
-### 4. Viewer Role incompleto no DB
-O enum `member_role` no banco tem `owner | editor`, mas o código TypeScript referencia `viewer`. A policy de UPDATE permite apenas `editor` e `viewer` no check, mas o enum pode não incluir `viewer`.
-
-### 5. `useProjectMembers` — `invitesQuery` usa `as unknown as`
-Linha 59: cast forçado que pode mascarar incompatibilidades de tipo.
-
-### 6. Query sem limit
-`useAtomItems` faz `select("*")` sem `.limit()`. Com muitos itens, vai bater no limite de 1000 rows do Supabase silenciosamente.
+**Changes:**
+- `src/components/layout/CommandPalette.tsx` -- Add a "Search items" section that queries `useAtomItems` data, filtering by title/tags. Show results grouped by type (task, note, project, etc.). Clicking a result navigates to the relevant view or opens the item.
 
 ---
 
-## Roadmap Proposto
+### 2. Drag-and-Drop in WorkArea
 
-### Fase 7: Hardening & Type Safety (Próxima)
-1. **Eliminar `any` em `useProjectMembers.ts`** — Tipar o resultado do join com profiles e usar tipos corretos para enums do DB
-2. **Eliminar `as any` em `usePushNotifications.ts`** — Usar interface `PushManager` com type assertion segura
-3. **Adicionar DELETE policy para items em projetos compartilhados** — Permitir que editors deletem itens
-4. **Verificar enum `member_role`** — Confirmar que `viewer` existe no DB, adicionar migration se necessário
-5. **Adicionar `.limit()` ou paginação** em `useAtomItems` para projetos com muitos itens
+Reorder tasks within projects using the already-installed `@dnd-kit` library.
 
-### Fase 8: UX & Polish
-6. **Busca global** — Filtrar itens por título/tag em todas as views
-7. **Drag-and-drop na WorkArea** — Reordenar tasks dentro de projetos
-8. **Dark/Light mode toggle** acessível na sidebar (já tem next-themes instalado)
-9. **Skeleton loading** para ProjectDetail (já existe para outros)
+**Changes:**
+- `src/components/project-sheet/WorkAreaPane.tsx` -- Wrap task list with `DndContext` + `SortableContext`. Each task card becomes a `useSortable` item. On drag end, update `order_index` for affected items via `updateItem`.
+- Database migration -- Ensure `order_index` is respected in queries (already exists on `items` table).
 
-### Fase 9: Inteligência
-10. **AI Summary** — Resumo semanal automático usando Lovable AI (Gemini Flash)
-11. **Smart suggestions** — Sugerir próxima ação baseado em padrões de uso
-12. **Natural language input** melhorado com AI para parsing de datas complexas
+---
 
-### Fase 10: Escala
-13. **Paginação real** para items (cursor-based)
-14. **Realtime subscriptions** para projetos compartilhados (ver edições de outros membros ao vivo)
-15. **Export PDF** de projetos com progresso e milestones
+### 3. Dark/Light Mode Toggle
+
+`next-themes` is already installed and the `Toaster` component uses `useTheme()`. Add a visible toggle in the sidebar.
+
+**Changes:**
+- `src/components/layout/SidebarActions.tsx` -- Add a Sun/Moon icon button that calls `setTheme()` to cycle between light/dark/system.
+- No other changes needed -- Tailwind's dark mode classes are already in use throughout the app.
+
+---
+
+### 4. ProjectDetail Skeleton Loading
+
+Skeleton loaders exist for other pages but not for `ProjectDetail`.
+
+**Changes:**
+- `src/components/projects/ProjectDetailSkeleton.tsx` -- Already exists (listed in files). Verify it's used in `ProjectDetail.tsx` during loading states. If not, wire it up.
+
+---
+
+### Implementation Order
+
+1. Dark/Light mode toggle (smallest change, immediate visual impact)
+2. ProjectDetail skeleton (quick win)
+3. Global search in Command Palette
+4. Drag-and-drop in WorkArea (most complex)
+
+### Estimated file changes: 4-5 files
 
