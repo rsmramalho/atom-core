@@ -363,3 +363,79 @@ const { handlers, swipeState } = useSwipe({
 | `Ctrl+Shift+E` | Debug Console |
 | `/` | Focar busca (Journal) ⭐ NOVO |
 | `⌘Enter` / `Ctrl+Enter` | Salvar reflexão (no composer) ⭐ NOVO |
+
+---
+
+## Hooks de Colaboração ⭐ beta
+
+### useProjectMembers
+
+CRUD de membros e convites de projetos compartilhados.
+
+```typescript
+const {
+  members,          // ProjectMember[]
+  invites,          // ProjectInvite[]
+  isLoading,
+  isOwner,          // (userId: string) => boolean
+  ensureOwner,      // () => Promise<void>
+  createInvite,     // (params?: { maxUses?: number; role?: "editor" | "viewer" }) => Promise<ProjectInvite>
+  removeMember,     // (memberId: string) => Promise<void>
+  deleteInvite,     // (inviteId: string) => Promise<void>
+  updateMemberRole, // ({ memberId, role }) => Promise<void>
+} = useProjectMembers(projectId);
+```
+
+### useProjectRole
+
+Retorna o role do usuário atual em um projeto.
+
+```typescript
+const { role, isViewer, isEditor, isOwner, isMember } = useProjectRole(projectId);
+```
+
+### useProjectActivities
+
+Activity feed em tempo real via Supabase Realtime.
+
+```typescript
+const { data: activities, isLoading } = useProjectActivities(projectId);
+
+// Log de atividade
+import { logProjectActivity } from "@/hooks/useProjectActivities";
+await logProjectActivity(projectId, "task_created", "Minha task", { priority: "high" });
+```
+
+### useCurrentUser
+
+Cache síncrono do usuário autenticado.
+
+```typescript
+import { useCurrentUser, getCurrentUserId } from "@/hooks/useCurrentUser";
+
+const user = useCurrentUser();           // User | null (reativo)
+const userId = await getCurrentUserId(); // string (throws se não auth)
+```
+
+---
+
+## Error Tracking API ⭐ beta.1
+
+### reportError
+
+Envia erro para a Edge Function `report-error`.
+
+```typescript
+import { reportError, initErrorTracking } from "@/lib/error-reporting";
+
+// Inicializar handlers globais (chamado uma vez no main.tsx)
+initErrorTracking();
+
+// Report manual
+reportError({
+  message: "Algo deu errado",
+  stack: error.stack,
+  type: "custom",
+  url: window.location.href,
+});
+```

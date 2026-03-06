@@ -126,6 +126,7 @@ App.tsx (QueryClient: staleTime 5min, retry 2)
 | `send-push-notification` | Push via VAPID/WebCrypto |
 | `check-due-tasks` | Cron: verifica tarefas vencidas |
 | `weekly-summary` | AI weekly summary via Gemini Flash |
+| `report-error` | Error tracking em produção (JWT-free) |
 
 ### Segurança (Beta)
 

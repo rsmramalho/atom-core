@@ -695,10 +695,12 @@ export function asTypedRow(row: ItemsRow): TypedItemsRow;
 - [x] **Zod Validation** - Schemas centralizados para formulários (beta)
 - [x] **Lists Skeleton** - Loading state consistente (beta)
 
+- [x] **Error Boundaries por Rota** - Crash isolation (beta.1)
+- [x] **a11y Audit** - ARIA labels, landmarks, pinch-to-zoom (beta.1)
+- [x] **Error Tracking** - Captura de crashes em produção (beta.1)
+
 ### 🔲 Próximas Etapas
 
-- [ ] Error boundaries por rota
-- [ ] a11y audit completo
 - [ ] CSP headers
 - [ ] Widgets nativos (Android/iOS)
 - [ ] API pública

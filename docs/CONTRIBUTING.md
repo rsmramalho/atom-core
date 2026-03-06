@@ -104,8 +104,14 @@ type ProjectStatus = 'draft' | 'active' | 'paused' | 'completed' | 'archived';
 ### Banco de Dados (Single Table Design)
 
 - Tabela `items`: Todos os tipos de itens (incluindo milestones como tasks com tag #milestone)
+- Tabela `profiles`: Email e metadados do usuário (auto-create via trigger)
+- Tabela `project_members`: Membros de projetos com roles (owner/editor/viewer)
+- Tabela `project_invites`: Links de convite com expiração e limite de uso
+- Tabela `project_activities`: Feed de atividades em projetos
+- Tabela `push_subscriptions`: Endpoints de push notifications
 - Tabela `onboarding_progress`: Progresso de onboarding do usuário
 - Tabela `onboarding_analytics`: Eventos de analytics do onboarding
+- Tabela `error_logs`: Captura de erros em produção (acesso via service_role)
 - RLS habilitado em todas as tabelas
 
 ---

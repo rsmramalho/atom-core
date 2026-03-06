@@ -1860,9 +1860,19 @@ Depois: getCurrentUserId() (leitura de cache sync, fallback getSession)
 - [x] **Code Audit - useMemo fix + AuthForm i18n** ⭐ alpha.24
 - [x] **Push Notifications - VAPID + Service Worker + Edge Functions** ⭐ alpha.25
 
+- [x] **Colaboração Multi-Usuário** - Roles, convites, activity feed ⭐ alpha.26-28
+- [x] **AI Weekly Summary** - Gemini Flash via Edge Function ⭐ alpha.27
+- [x] **Password Reset** - Fluxo completo de recuperação ⭐ beta
+- [x] **Zod Validation** - Schemas centralizados para formulários ⭐ beta
+- [x] **Error Boundaries por Rota** - Crash isolation ⭐ beta.1
+- [x] **a11y Audit** - ARIA labels, landmarks, pinch-to-zoom ⭐ beta.1
+- [x] **Error Tracking** - Captura de crashes em produção ⭐ beta.1
+
 ## 🔲 Próximas Etapas
-- [ ] Colaboração multi-usuário
+- [ ] CSP headers
 - [ ] Widgets nativos (Android/iOS)
+- [ ] API pública
+- [ ] Temas customizáveis
 
 ---
 
