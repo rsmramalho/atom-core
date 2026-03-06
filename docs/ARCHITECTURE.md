@@ -276,6 +276,23 @@ Todos os tipos de itens em uma única tabela (Doc B.3, B.9).
 | `event_data` | jsonb | Dados do evento |
 | `created_at` | timestamptz | Timestamp |
 
+#### `error_logs` ⭐ beta.1
+| Coluna | Tipo | Descrição |
+|--------|------|-----------|
+| `id` | uuid | Chave primária |
+| `user_id` | uuid | ID do usuário (nullable) |
+| `error_message` | text | Mensagem do erro |
+| `error_stack` | text | Stack trace |
+| `component_stack` | text | React component stack |
+| `error_type` | text | Tipo do erro (unhandled, boundary, promise) |
+| `url` | text | URL onde ocorreu |
+| `user_agent` | text | User agent do browser |
+| `app_version` | text | Versão do app |
+| `metadata` | jsonb | Dados adicionais |
+| `created_at` | timestamptz | Timestamp |
+
+> Acesso restrito a `service_role` via RLS. Edge Function `report-error` insere com `verify_jwt = false`.
+
 ### Database Functions (RLS Helpers)
 
 | Função | Descrição |
