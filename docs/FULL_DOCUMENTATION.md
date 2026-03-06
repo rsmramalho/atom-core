@@ -460,10 +460,19 @@ src/
 │   ├── Analytics.tsx               # Dashboard de métricas
 │   ├── Install.tsx                 # Guia de instalação PWA
 │   ├── Privacy.tsx                 # Política de privacidade
+│   ├── InviteAccept.tsx            # ⭐ Aceitar convite de projeto (alpha.26)
+│   ├── ResetPassword.tsx           # ⭐ Redefinir senha (beta)
 │   └── NotFound.tsx                # 404
 │
-└── integrations/
-    └── supabase/                   # Cliente Supabase (auto-gerado)
+├── integrations/
+│   └── supabase/                   # Cliente Supabase (auto-gerado)
+│
+└── supabase/
+    └── functions/
+        ├── send-push-notification/ # Push via VAPID/WebCrypto (alpha.25)
+        ├── check-due-tasks/        # Cron: verifica tarefas vencidas (alpha.25)
+        ├── weekly-summary/         # ⭐ AI summary via Gemini Flash (beta)
+        └── report-error/           # ⭐ Error tracking em produção (beta.1)
 ```
 
 ## Arquitetura de Autenticação (alpha.23)
