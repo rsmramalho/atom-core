@@ -556,7 +556,64 @@ export default function AdminErrorLogs() {
             </Card>
           </div>
 
-          {/* Filters */}
+          {/* Error Timeline Chart */}
+          <Card className="bg-card border-border">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2 text-muted-foreground mb-4">
+                <Globe className="h-4 w-4" />
+                <span className="text-sm font-medium">Evolução de erros</span>
+              </div>
+              <div className="h-56">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={errorTimeline}>
+                    <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+                    <XAxis
+                      dataKey="label"
+                      tick={{ fontSize: 11 }}
+                      className="fill-muted-foreground"
+                      tickLine={false}
+                    />
+                    <YAxis
+                      allowDecimals={false}
+                      tick={{ fontSize: 11 }}
+                      className="fill-muted-foreground"
+                      tickLine={false}
+                      width={30}
+                    />
+                    <RechartsTooltip
+                      contentStyle={{
+                        backgroundColor: "hsl(var(--card))",
+                        border: "1px solid hsl(var(--border))",
+                        borderRadius: "8px",
+                        fontSize: "12px",
+                        color: "hsl(var(--foreground))",
+                      }}
+                    />
+                    <Legend iconSize={10} wrapperStyle={{ fontSize: "12px" }} />
+                    <Line
+                      type="monotone"
+                      dataKey="routing"
+                      name="🧭 Routing"
+                      stroke="hsl(var(--destructive))"
+                      strokeWidth={2}
+                      dot={false}
+                      activeDot={{ r: 4 }}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="outros"
+                      name="Outros"
+                      stroke="hsl(var(--primary))"
+                      strokeWidth={2}
+                      dot={false}
+                      activeDot={{ r: 4 }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+
           <Card className="bg-card border-border">
             <CardContent className="p-4">
               <div className="flex items-center gap-2 text-muted-foreground mb-3">
