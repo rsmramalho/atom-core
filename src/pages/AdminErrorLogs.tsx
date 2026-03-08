@@ -262,6 +262,53 @@ export default function AdminErrorLogs() {
     return { total: logs.length, last24h: last24h.length, lastHour: lastHour.length, routing24h };
   }, [logs]);
 
+  const errorTimeline = useMemo(() => {
+    // Determine granularity based on dateFilter
+    const useHourly = dateFilter === "1h" || dateFilter === "24h";
+    const now = new Date();
+    const buckets = new Map<string, { routing: number; other: number }>();
+
+    if (useHourly) {
+      const hours = dateFilter === "1h" ? 1 : 24;
+      for (let i = hours; i >= 0; i--) {
+        const t = new Date(now.getTime() - i * 60 * 60 * 1000);
+        const key = format(startOfHour(t), "HH:mm");
+        buckets.set(key, { routing: 0, other: 0 });
+      }
+      logs.forEach((l) => {
+        const d = new Date(l.created_at);
+        const key = format(startOfHour(d), "HH:mm");
+        if (buckets.has(key)) {
+          const b = buckets.get(key)!;
+          if (l.error_type === "routing") b.routing++;
+          else b.other++;
+        }
+      });
+    } else {
+      const days = dateFilter === "7d" ? 7 : dateFilter === "30d" ? 30 : 14;
+      for (let i = days; i >= 0; i--) {
+        const t = subDays(now, i);
+        const key = format(startOfDay(t), "dd/MM");
+        buckets.set(key, { routing: 0, other: 0 });
+      }
+      logs.forEach((l) => {
+        const d = new Date(l.created_at);
+        const key = format(startOfDay(d), "dd/MM");
+        if (buckets.has(key)) {
+          const b = buckets.get(key)!;
+          if (l.error_type === "routing") b.routing++;
+          else b.other++;
+        }
+      });
+    }
+
+    return Array.from(buckets.entries()).map(([label, counts]) => ({
+      label,
+      routing: counts.routing,
+      outros: counts.other,
+    }));
+  }, [logs, dateFilter]);
+
   const getTypeBadgeVariant = (type: string | null) => {
     switch (type) {
       case "react_error_boundary":
