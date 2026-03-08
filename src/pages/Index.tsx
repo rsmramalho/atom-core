@@ -5,6 +5,7 @@ import { useRitual } from "@/hooks/useRitual";
 import { RitualBanner } from "@/components/dashboard/RitualBanner";
 import { FocusBlock } from "@/components/dashboard/FocusBlock";
 import { TodayList } from "@/components/dashboard/TodayList";
+import { SmartSuggestions } from "@/components/dashboard/SmartSuggestions";
 import { EmptyDashboard } from "@/components/empty-states";
 import { Confetti } from "@/components/shared";
 import { Button } from "@/components/ui/button";
@@ -26,6 +27,7 @@ export default function Index() {
   const prevPendingCountRef = useRef<number | null>(null);
 
   const {
+    items,
     isLoading,
     focusItems,
     overdueItems,
@@ -115,6 +117,9 @@ export default function Index() {
           currentSlot={currentSlot} 
           onToggle={toggleComplete} 
         />
+
+        {/* Smart Suggestions */}
+        <SmartSuggestions items={items} />
 
         {/* Focus Block */}
         <FocusBlock 

@@ -1,49 +1,83 @@
 
 
-## Próximo Passo: Smart Suggestions — Sugerir próxima ação no Dashboard
+# Auditoria Completa & Roadmap — MindMate v4.0.0-alpha.26
 
-As Fases 7 e 8 do roadmap já estão completas. O AI Summary (Fase 9, item 10) também está implementado. O próximo item pendente é o **item 11: Smart Suggestions**.
+## Estado Atual
 
-### O que será construído
+**Versão:** v4.0.0-alpha.26 (2026-03-04)
+**Stack:** React 18 + Vite + Tailwind + Lovable Cloud + PWA
+**Arquitetura:** Single Table Design (tabela `items`) com 7 tipos de item
 
-Um componente **SmartSuggestions** no Dashboard que analisa os dados do usuário e sugere 2-3 ações concretas baseadas em padrões de uso. Exemplos:
-- "Você tem 4 tarefas atrasadas — que tal resolver a mais antiga?"
-- "Seu hábito 'Meditação' tem streak de 5 dias — não quebre hoje!"
-- "O projeto 'App v2' está em 80% — faltam só 2 tasks"
-- "Nenhuma reflexão esta semana — escreva uma no Journal"
+### Funcionalidades Implementadas
+- Parsing Engine com tokens inteligentes
+- Dashboard operacional (Focus, Today, Overdue, Ritual)
+- Projetos com state machine + progresso híbrido (auto/milestone/manual)
+- Colaboração multi-usuário (Owner/Editor/Viewer) com links de convite
+- Activity Feed em tempo real por projeto
+- Sistema de Rituais (manhã/meio-dia/noite) com habits
+- Calendário mensal/semanal com drag-and-drop
+- Journal/Reflexões com prompts guiados
+- Listas rápidas estilo Google Keep
+- Recurrence Engine (RRULE)
+- Analytics com gráficos (recharts)
+- PWA completo com offline sync + push notifications
+- Onboarding (welcome, tour, checklist)
+- Command Palette + keyboard shortcuts
+- Landing page de marketing
 
-### Abordagem
+---
 
-**Heurísticas locais (sem AI)** — rápido, sem custo, sem latência:
+## Problemas Encontrados
 
-1. **Criar `src/lib/smart-suggestions.ts`** — Motor de sugestões com regras heurísticas:
-   - Tarefas atrasadas mais antigas → sugerir resolver
-   - Hábitos com streak alto → sugerir não quebrar
-   - Projetos próximos de 100% → sugerir finalizar
-   - Sem reflexões na semana → sugerir Journal
-   - Itens com tag `#focus` parados há dias → sugerir ação
-   - Inbox com muitos itens → sugerir triagem
+### 1. Violação da Zero Any Policy (CRÍTICO)
+O projeto mantém uma política de zero `any`, mas há **5 ocorrências** em código de produção:
 
-2. **Criar `src/components/dashboard/SmartSuggestions.tsx`** — Card com ícone de lâmpada, lista de 2-3 sugestões com botões de ação (navegar para a view relevante ou executar ação direta)
+| Arquivo | Linha | Ocorrência |
+|---------|-------|------------|
+| `useProjectMembers.ts` | 41 | `(row: any)` no map de membros |
+| `useProjectMembers.ts` | 88 | `as any` no insert de invite role |
+| `useProjectMembers.ts` | 134 | `as any` no update de member role |
+| `usePushNotifications.ts` | 49, 80, 123 | `as any` no pushManager |
 
-3. **Integrar no `src/pages/Index.tsx`** — Adicionar o componente entre o FocusBlock e TodayList
+### 2. Console Logs em Produção
+125 ocorrências de `console.log/warn/error` em 11 arquivos. A maioria são `warn/error` em catch blocks (aceitável), mas devem ser auditados para remover os desnecessários.
 
-### Estrutura das sugestões
+### 3. RLS: Sem DELETE para items de projetos compartilhados
+A tabela `items` tem policies para SELECT, INSERT e UPDATE em projetos compartilhados, mas **não tem DELETE policy** para membros. Editores não conseguem excluir itens de projetos compartilhados.
 
-```text
-interface Suggestion {
-  id: string;
-  icon: LucideIcon;
-  message: string;
-  action: { label: string; path?: string; itemId?: string };
-  priority: number;  // higher = more relevant
-}
+### 4. Viewer Role incompleto no DB
+O enum `member_role` no banco tem `owner | editor`, mas o código TypeScript referencia `viewer`. A policy de UPDATE permite apenas `editor` e `viewer` no check, mas o enum pode não incluir `viewer`.
 
-generateSuggestions(items: AtomItem[]) → Suggestion[] (top 3 by priority)
-```
+### 5. `useProjectMembers` — `invitesQuery` usa `as unknown as`
+Linha 59: cast forçado que pode mascarar incompatibilidades de tipo.
 
-### Arquivos alterados
-- **Novo:** `src/lib/smart-suggestions.ts` — lógica de geração de sugestões
-- **Novo:** `src/components/dashboard/SmartSuggestions.tsx` — componente visual
-- **Editado:** `src/pages/Index.tsx` — montar o componente no dashboard
+### 6. Query sem limit
+`useAtomItems` faz `select("*")` sem `.limit()`. Com muitos itens, vai bater no limite de 1000 rows do Supabase silenciosamente.
+
+---
+
+## Roadmap Proposto
+
+### Fase 7: Hardening & Type Safety (Próxima)
+1. **Eliminar `any` em `useProjectMembers.ts`** — Tipar o resultado do join com profiles e usar tipos corretos para enums do DB
+2. **Eliminar `as any` em `usePushNotifications.ts`** — Usar interface `PushManager` com type assertion segura
+3. **Adicionar DELETE policy para items em projetos compartilhados** — Permitir que editors deletem itens
+4. **Verificar enum `member_role`** — Confirmar que `viewer` existe no DB, adicionar migration se necessário
+5. **Adicionar `.limit()` ou paginação** em `useAtomItems` para projetos com muitos itens
+
+### Fase 8: UX & Polish
+6. **Busca global** — Filtrar itens por título/tag em todas as views
+7. **Drag-and-drop na WorkArea** — Reordenar tasks dentro de projetos
+8. **Dark/Light mode toggle** acessível na sidebar (já tem next-themes instalado)
+9. **Skeleton loading** para ProjectDetail (já existe para outros)
+
+### Fase 9: Inteligência
+10. **AI Summary** — Resumo semanal automático usando Lovable AI (Gemini Flash)
+11. **Smart suggestions** — Sugerir próxima ação baseado em padrões de uso
+12. **Natural language input** melhorado com AI para parsing de datas complexas
+
+### Fase 10: Escala
+13. **Paginação real** para items (cursor-based)
+14. **Realtime subscriptions** para projetos compartilhados (ver edições de outros membros ao vivo)
+15. **Export PDF** de projetos com progresso e milestones
 
