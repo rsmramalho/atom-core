@@ -458,6 +458,15 @@ export default function AdminErrorLogs() {
                 <RefreshCw className="h-3.5 w-3.5" />
                 <span className="hidden sm:inline">Refresh</span>
               </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleExportCSV}
+                className="gap-1.5 text-xs"
+              >
+                <Download className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">CSV</span>
+              </Button>
               <AlertDialog>
                 <AlertDialogTrigger asChild>
                   <Button
