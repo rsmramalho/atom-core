@@ -5,6 +5,7 @@ import { useRitual } from "@/hooks/useRitual";
 import { RitualBanner } from "@/components/dashboard/RitualBanner";
 import { FocusBlock } from "@/components/dashboard/FocusBlock";
 import { TodayList } from "@/components/dashboard/TodayList";
+import { SmartSuggestions } from "@/components/dashboard/SmartSuggestions";
 import { EmptyDashboard } from "@/components/empty-states";
 import { Confetti } from "@/components/shared";
 import { Button } from "@/components/ui/button";
