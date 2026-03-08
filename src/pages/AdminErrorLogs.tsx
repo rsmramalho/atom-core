@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { formatDistanceToNow, format } from "date-fns";
+import { formatDistanceToNow, format, subDays, startOfDay, startOfHour } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { useNavigate } from "react-router-dom";
 import { PageLoader } from "@/components/shared";
@@ -56,6 +56,16 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { toast } from "sonner";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip as RechartsTooltip,
+  ResponsiveContainer,
+  Legend,
+} from "recharts";
 
 interface ErrorLog {
   id: string;
@@ -251,6 +261,53 @@ export default function AdminErrorLogs() {
     const routing24h = last24h.filter((l) => l.error_type === "routing").length;
     return { total: logs.length, last24h: last24h.length, lastHour: lastHour.length, routing24h };
   }, [logs]);
+
+  const errorTimeline = useMemo(() => {
+    // Determine granularity based on dateFilter
+    const useHourly = dateFilter === "1h" || dateFilter === "24h";
+    const now = new Date();
+    const buckets = new Map<string, { routing: number; other: number }>();
+
+    if (useHourly) {
+      const hours = dateFilter === "1h" ? 1 : 24;
+      for (let i = hours; i >= 0; i--) {
+        const t = new Date(now.getTime() - i * 60 * 60 * 1000);
+        const key = format(startOfHour(t), "HH:mm");
+        buckets.set(key, { routing: 0, other: 0 });
+      }
+      logs.forEach((l) => {
+        const d = new Date(l.created_at);
+        const key = format(startOfHour(d), "HH:mm");
+        if (buckets.has(key)) {
+          const b = buckets.get(key)!;
+          if (l.error_type === "routing") b.routing++;
+          else b.other++;
+        }
+      });
+    } else {
+      const days = dateFilter === "7d" ? 7 : dateFilter === "30d" ? 30 : 14;
+      for (let i = days; i >= 0; i--) {
+        const t = subDays(now, i);
+        const key = format(startOfDay(t), "dd/MM");
+        buckets.set(key, { routing: 0, other: 0 });
+      }
+      logs.forEach((l) => {
+        const d = new Date(l.created_at);
+        const key = format(startOfDay(d), "dd/MM");
+        if (buckets.has(key)) {
+          const b = buckets.get(key)!;
+          if (l.error_type === "routing") b.routing++;
+          else b.other++;
+        }
+      });
+    }
+
+    return Array.from(buckets.entries()).map(([label, counts]) => ({
+      label,
+      routing: counts.routing,
+      outros: counts.other,
+    }));
+  }, [logs, dateFilter]);
 
   const getTypeBadgeVariant = (type: string | null) => {
     switch (type) {
@@ -499,7 +556,64 @@ export default function AdminErrorLogs() {
             </Card>
           </div>
 
-          {/* Filters */}
+          {/* Error Timeline Chart */}
+          <Card className="bg-card border-border">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2 text-muted-foreground mb-4">
+                <Globe className="h-4 w-4" />
+                <span className="text-sm font-medium">Evolução de erros</span>
+              </div>
+              <div className="h-56">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={errorTimeline}>
+                    <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+                    <XAxis
+                      dataKey="label"
+                      tick={{ fontSize: 11 }}
+                      className="fill-muted-foreground"
+                      tickLine={false}
+                    />
+                    <YAxis
+                      allowDecimals={false}
+                      tick={{ fontSize: 11 }}
+                      className="fill-muted-foreground"
+                      tickLine={false}
+                      width={30}
+                    />
+                    <RechartsTooltip
+                      contentStyle={{
+                        backgroundColor: "hsl(var(--card))",
+                        border: "1px solid hsl(var(--border))",
+                        borderRadius: "8px",
+                        fontSize: "12px",
+                        color: "hsl(var(--foreground))",
+                      }}
+                    />
+                    <Legend iconSize={10} wrapperStyle={{ fontSize: "12px" }} />
+                    <Line
+                      type="monotone"
+                      dataKey="routing"
+                      name="🧭 Routing"
+                      stroke="hsl(var(--destructive))"
+                      strokeWidth={2}
+                      dot={false}
+                      activeDot={{ r: 4 }}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="outros"
+                      name="Outros"
+                      stroke="hsl(var(--primary))"
+                      strokeWidth={2}
+                      dot={false}
+                      activeDot={{ r: 4 }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+
           <Card className="bg-card border-border">
             <CardContent className="p-4">
               <div className="flex items-center gap-2 text-muted-foreground mb-3">
