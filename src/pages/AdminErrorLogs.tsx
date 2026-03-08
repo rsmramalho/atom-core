@@ -243,12 +243,13 @@ export default function AdminErrorLogs() {
       (l) =>
         new Date(l.created_at).getTime() >
         now.getTime() - 24 * 60 * 60 * 1000
-    ).length;
+    );
     const lastHour = logs.filter(
       (l) =>
         new Date(l.created_at).getTime() > now.getTime() - 60 * 60 * 1000
-    ).length;
-    return { total: logs.length, last24h, lastHour };
+    );
+    const routing24h = last24h.filter((l) => l.error_type === "routing").length;
+    return { total: logs.length, last24h: last24h.length, lastHour: lastHour.length, routing24h };
   }, [logs]);
 
   const getTypeBadgeVariant = (type: string | null) => {
