@@ -622,7 +622,7 @@ export default function AdminErrorLogs() {
                                       )}
                                       className="text-xs"
                                     >
-                                      {log.error_type || "unknown"}
+                                      {getTypeLabel(log.error_type)}
                                     </Badge>
                                     {log.app_version && (
                                       <Badge
