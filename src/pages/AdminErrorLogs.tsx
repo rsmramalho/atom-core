@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { formatDistanceToNow, format } from "date-fns";
+import { formatDistanceToNow, format, subDays, startOfDay, startOfHour } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { useNavigate } from "react-router-dom";
 import { PageLoader } from "@/components/shared";
