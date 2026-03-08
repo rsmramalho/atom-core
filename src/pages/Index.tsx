@@ -118,6 +118,9 @@ export default function Index() {
           onToggle={toggleComplete} 
         />
 
+        {/* Smart Suggestions */}
+        <SmartSuggestions items={items} />
+
         {/* Focus Block */}
         <FocusBlock 
           items={focusItems} 
