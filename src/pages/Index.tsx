@@ -27,6 +27,7 @@ export default function Index() {
   const prevPendingCountRef = useRef<number | null>(null);
 
   const {
+    items,
     isLoading,
     focusItems,
     overdueItems,
