@@ -111,10 +111,16 @@ export function InstallPrompt() {
                     <Button size="sm" variant="ghost" onClick={handleDismiss}>
                       Agora não
                     </Button>
-                    <Button size="sm" variant="ghost" asChild className="ml-auto p-2">
-                      <Link to="/install" onClick={handleDismiss}>
-                        <HelpCircle className="h-4 w-4" />
-                      </Link>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="ml-auto p-2"
+                      onClick={() => {
+                        handleDismiss();
+                        window.location.href = "/install";
+                      }}
+                    >
+                      <HelpCircle className="h-4 w-4" />
                     </Button>
                   </div>
                 </div>
