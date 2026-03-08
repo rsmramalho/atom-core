@@ -11,6 +11,7 @@ import {
   Bug,
   ChevronDown,
   Clock,
+  Download,
   Filter,
   Globe,
   Monitor,
@@ -360,6 +361,31 @@ export default function AdminErrorLogs() {
     }
   };
 
+  const handleExportCSV = useCallback(() => {
+    if (filteredLogs.length === 0) {
+      toast.error("Nenhum log para exportar");
+      return;
+    }
+    const headers = ["created_at", "error_type", "error_message", "url", "app_version", "user_id"];
+    const escapeCSV = (val: string | null | undefined) => {
+      if (val == null) return "";
+      const str = String(val).replace(/"/g, '""');
+      return str.includes(",") || str.includes('"') || str.includes("\n") ? `"${str}"` : str;
+    };
+    const rows = filteredLogs.map((l) =>
+      headers.map((h) => escapeCSV(l[h as keyof ErrorLog] as string)).join(",")
+    );
+    const csv = [headers.join(","), ...rows].join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `error-logs-${format(new Date(), "yyyy-MM-dd-HHmm")}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success(`${filteredLogs.length} logs exportados`);
+  }, [filteredLogs]);
+
   if (!authChecked || !isAuthenticated) {
     return <PageLoader message="Verificando autenticação..." />;
   }
@@ -431,6 +457,15 @@ export default function AdminErrorLogs() {
               >
                 <RefreshCw className="h-3.5 w-3.5" />
                 <span className="hidden sm:inline">Refresh</span>
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleExportCSV}
+                className="gap-1.5 text-xs"
+              >
+                <Download className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">CSV</span>
               </Button>
               <AlertDialog>
                 <AlertDialogTrigger asChild>
