@@ -248,9 +248,9 @@ const App = () => (
             <OnboardingProvider>
               <Toaster />
               <Sonner />
-              <InstallPrompt />
-              <NetworkStatusIndicator />
               <BrowserRouter>
+                <InstallPrompt />
+                <NetworkStatusIndicator />
                 <AnimatedRoutes />
               </BrowserRouter>
             </OnboardingProvider>
