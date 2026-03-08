@@ -70,18 +70,53 @@ export async function reportError(
   });
 }
 
+/** Report a routing/navigation error with dedicated fingerprint */
+export async function reportRoutingError(
+  error: Error | string,
+  metadata?: Record<string, unknown>
+) {
+  const userId = await getCurrentUserId();
+  const message = error instanceof Error ? error.message : error;
+  const stack = error instanceof Error ? error.stack : undefined;
+
+  enqueue({
+    error_message: message,
+    error_stack: stack,
+    url: window.location.href,
+    user_agent: navigator.userAgent,
+    app_version: APP_VERSION,
+    error_type: "routing",
+    metadata: {
+      ...metadata,
+      pathname: window.location.pathname,
+      search: window.location.search,
+      hash: window.location.hash,
+    },
+    user_id: userId,
+  });
+}
+
 /** Initialize global error handlers — call once in main.tsx */
 export function initErrorTracking() {
   // Uncaught errors
   window.addEventListener("error", async (event) => {
     const userId = await getCurrentUserId();
+
+    // Detect routing-related errors by message pattern
+    const msg = event.message || "";
+    const isRoutingError =
+      /basename|router|route|navigation|navigate/i.test(msg);
+
     enqueue({
-      error_message: event.message || "Unknown error",
+      error_message: msg || "Unknown error",
       error_stack: event.error?.stack,
       url: window.location.href,
       user_agent: navigator.userAgent,
       app_version: APP_VERSION,
-      error_type: "uncaught",
+      error_type: isRoutingError ? "routing" : "uncaught",
+      metadata: isRoutingError
+        ? { pathname: window.location.pathname, autoDetected: true }
+        : undefined,
       user_id: userId,
     });
   });
@@ -90,16 +125,24 @@ export function initErrorTracking() {
   window.addEventListener("unhandledrejection", async (event) => {
     const userId = await getCurrentUserId();
     const reason = event.reason;
+    const message =
+      reason instanceof Error
+        ? reason.message
+        : String(reason ?? "Unhandled promise rejection");
+
+    const isRoutingError =
+      /basename|router|route|navigation|navigate/i.test(message);
+
     enqueue({
-      error_message:
-        reason instanceof Error
-          ? reason.message
-          : String(reason ?? "Unhandled promise rejection"),
+      error_message: message,
       error_stack: reason instanceof Error ? reason.stack : undefined,
       url: window.location.href,
       user_agent: navigator.userAgent,
       app_version: APP_VERSION,
-      error_type: "unhandled_rejection",
+      error_type: isRoutingError ? "routing" : "unhandled_rejection",
+      metadata: isRoutingError
+        ? { pathname: window.location.pathname, autoDetected: true }
+        : undefined,
       user_id: userId,
     });
   });

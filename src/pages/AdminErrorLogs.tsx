@@ -254,11 +254,30 @@ export default function AdminErrorLogs() {
   const getTypeBadgeVariant = (type: string | null) => {
     switch (type) {
       case "react_error_boundary":
+      case "boundary":
+        return "destructive" as const;
+      case "routing":
         return "destructive" as const;
       case "unhandled_rejection":
         return "outline" as const;
       default:
         return "secondary" as const;
+    }
+  };
+
+  const getTypeLabel = (type: string | null) => {
+    switch (type) {
+      case "routing":
+        return "🧭 routing";
+      case "boundary":
+      case "react_error_boundary":
+        return "🛑 boundary";
+      case "uncaught":
+        return "⚡ uncaught";
+      case "unhandled_rejection":
+        return "💥 rejection";
+      default:
+        return type ?? "unknown";
     }
   };
 
@@ -603,7 +622,7 @@ export default function AdminErrorLogs() {
                                       )}
                                       className="text-xs"
                                     >
-                                      {log.error_type || "unknown"}
+                                      {getTypeLabel(log.error_type)}
                                     </Badge>
                                     {log.app_version && (
                                       <Badge
