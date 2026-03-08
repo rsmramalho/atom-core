@@ -450,7 +450,7 @@ export default function AdminErrorLogs() {
           </AnimatePresence>
 
           {/* Stats Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             <Card className="bg-card border-border">
               <CardContent className="p-4 flex items-center gap-3">
                 <div className="p-2 rounded-lg bg-destructive/10">
@@ -483,6 +483,17 @@ export default function AdminErrorLogs() {
                 <div>
                   <p className="text-2xl font-bold">{stats.lastHour}</p>
                   <p className="text-xs text-muted-foreground">Última hora</p>
+                </div>
+              </CardContent>
+            </Card>
+            <Card className={`border-border ${stats.routing24h > 0 ? "bg-destructive/5 border-destructive/30" : "bg-card"}`}>
+              <CardContent className="p-4 flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-destructive/10">
+                  <Globe className="h-5 w-5 text-destructive" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold">{stats.routing24h}</p>
+                  <p className="text-xs text-muted-foreground">🧭 Routing 24h</p>
                 </div>
               </CardContent>
             </Card>
