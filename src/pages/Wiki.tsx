@@ -7,8 +7,14 @@ import {
   BarChart3, Keyboard, Users, Wifi, HelpCircle, ChevronRight,
   Menu, X, Hash, AtSign, ArrowRight, Search, ArrowUp, Sparkles,
   ChevronUp, BookText, Layers, Play, Lightbulb, History,
-  GraduationCap, Briefcase, UsersRound, Heart, Zap, Target
+  GraduationCap, Briefcase, UsersRound, Heart, Zap, Target,
+  Bell, Database, Dumbbell
 } from "lucide-react";
+import {
+  DashboardSection, InboxSection, ProjectsSection, ListsSection,
+  CalendarSection, JournalSection, RitualsSection, AnalyticsSection,
+  ModulesSection, CommandPaletteSection, NotificationsSection, BackupCacheSection,
+} from "@/data/wiki-sections";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -33,6 +39,21 @@ const tocItems: TocItem[] = [
   { id: "manifesto", label: "Manifesto", icon: BookOpen, keywords: ["filosofia", "capturar", "organizar", "refletir", "agnóstico", "metodologia", "open source", "gratuito", "pilares"] },
   { id: "arquitetura", label: "Arquitetura Atom", icon: Atom, keywords: ["single table", "items", "type", "project_id", "parent_id", "milestone", "weight", "progresso", "state machine", "draft", "active", "hierarquia"] },
   { id: "funcionalidades", label: "Funcionalidades", icon: Rocket, keywords: ["parsing", "token", "inbox", "dashboard", "projeto", "calendário", "ritual", "journal", "lista", "recorrência", "analytics", "hábito", "tag", "módulo", "@hoje", "@amanha", "rrule", "heatmap", "streak"] },
+  // ── Super Manual: Telas Detalhadas ──
+  { id: "tela-dashboard", label: "📊 Dashboard", icon: LayoutDashboard, keywords: ["home", "focus", "today", "ritual banner", "sugestões", "confetti", "empty state"] },
+  { id: "tela-inbox", label: "📥 Inbox", icon: Inbox, keywords: ["captura", "parsing", "macropicker", "processar", "promover", "gtd"] },
+  { id: "tela-projetos", label: "📁 Projetos", icon: FolderKanban, keywords: ["workarea", "milestones", "notas", "atividade", "status", "compartilhar", "fab", "drag"] },
+  { id: "tela-listas", label: "📋 Listas", icon: ListChecks, keywords: ["keep", "checklist", "cores", "duplicar", "quick add"] },
+  { id: "tela-calendario", label: "📅 Calendário", icon: Calendar, keywords: ["mês", "semana", "drag", "overdue", "day detail", "filtro"] },
+  { id: "tela-journal", label: "📔 Diário", icon: BookMarked, keywords: ["reflexão", "composer", "prompts", "exportar", "markdown", "feed"] },
+  { id: "tela-rituais", label: "🌅 Rituais", icon: Sun, keywords: ["aurora", "zênite", "crepúsculo", "streak", "heatmap", "confetti", "check-in"] },
+  { id: "tela-analytics", label: "📈 Analytics", icon: BarChart3, keywords: ["resumo", "gráfico", "tendência", "weekly summary", "ai"] },
+  // ── Super Manual: Seções Complementares ──
+  { id: "modulos-detalhe", label: "🧩 Módulos", icon: Dumbbell, keywords: ["work", "body", "mind", "family", "geral", "#mod_", "herança", "badge"] },
+  { id: "command-palette", label: "⌨️ Command Palette", icon: Keyboard, keywords: ["⌘k", "busca global", "navegação", "atalho"] },
+  { id: "notificacoes", label: "🔔 Notificações", icon: Bell, keywords: ["push", "reminder", "due date", "atividade"] },
+  { id: "backup-cache", label: "💾 Backup & Cache", icon: Database, keywords: ["offline", "sync", "indexeddb", "export", "rls", "segurança"] },
+  // ── Seções originais ──
   { id: "playground", label: "Token Playground", icon: Play, keywords: ["parsing", "testar", "demo", "interativo", "token", "ao vivo"] },
   { id: "rituais-demo", label: "Rituais Demo", icon: Sun, keywords: ["aurora", "zênite", "crepúsculo", "slot", "manhã", "noite"] },
   { id: "casos-de-uso", label: "Casos de Uso", icon: Target, keywords: ["estudante", "freelancer", "equipe", "bem-estar", "cenário"] },
@@ -663,6 +684,44 @@ export default function Wiki() {
               </AccordionItem>
             </Accordion>
           </AnimatedSection>
+
+          {/* ====== SUPER MANUAL: TELAS DETALHADAS ====== */}
+          <SectionTitle id="tela-dashboard" icon={LayoutDashboard} gradient="from-emerald-500 to-teal-600 border-emerald-500/30">Dashboard (Home)</SectionTitle>
+          <AnimatedSection><DashboardSection /></AnimatedSection>
+
+          <SectionTitle id="tela-inbox" icon={Inbox} gradient="from-blue-500 to-indigo-600 border-blue-500/30">Inbox — Captura & Processamento</SectionTitle>
+          <AnimatedSection><InboxSection /></AnimatedSection>
+
+          <SectionTitle id="tela-projetos" icon={FolderKanban} gradient="from-violet-500 to-purple-600 border-violet-500/30">Projetos — Organização Completa</SectionTitle>
+          <AnimatedSection><ProjectsSection /></AnimatedSection>
+
+          <SectionTitle id="tela-listas" icon={ListChecks} gradient="from-pink-500 to-rose-600 border-pink-500/30">Listas — Cards Visuais</SectionTitle>
+          <AnimatedSection><ListsSection /></AnimatedSection>
+
+          <SectionTitle id="tela-calendario" icon={Calendar} gradient="from-cyan-500 to-blue-600 border-cyan-500/30">Calendário — Visão Temporal</SectionTitle>
+          <AnimatedSection><CalendarSection /></AnimatedSection>
+
+          <SectionTitle id="tela-journal" icon={BookMarked} gradient="from-amber-500 to-yellow-600 border-amber-500/30">Diário (Journal) — Reflexão</SectionTitle>
+          <AnimatedSection><JournalSection /></AnimatedSection>
+
+          <SectionTitle id="tela-rituais" icon={Sun} gradient="from-orange-500 to-amber-600 border-orange-500/30">Rituais — Consistência Diária</SectionTitle>
+          <AnimatedSection><RitualsSection /></AnimatedSection>
+
+          <SectionTitle id="tela-analytics" icon={BarChart3} gradient="from-green-500 to-lime-600 border-green-500/30">Analytics — Estatísticas</SectionTitle>
+          <AnimatedSection><AnalyticsSection /></AnimatedSection>
+
+          {/* ====== SUPER MANUAL: SEÇÕES COMPLEMENTARES ====== */}
+          <SectionTitle id="modulos-detalhe" icon={Dumbbell} gradient="from-blue-500 to-purple-600 border-blue-500/30">Módulos em Detalhe</SectionTitle>
+          <AnimatedSection><ModulesSection /></AnimatedSection>
+
+          <SectionTitle id="command-palette" icon={Keyboard} gradient="from-slate-500 to-zinc-600 border-slate-500/30">Command Palette & Navegação</SectionTitle>
+          <AnimatedSection><CommandPaletteSection /></AnimatedSection>
+
+          <SectionTitle id="notificacoes" icon={Bell} gradient="from-red-500 to-orange-600 border-red-500/30">Notificações & Push</SectionTitle>
+          <AnimatedSection><NotificationsSection /></AnimatedSection>
+
+          <SectionTitle id="backup-cache" icon={Database} gradient="from-gray-500 to-slate-600 border-gray-500/30">Backup & Cache</SectionTitle>
+          <AnimatedSection><BackupCacheSection /></AnimatedSection>
 
           {/* ====== TOKEN PLAYGROUND ====== */}
           <SectionTitle id="playground" icon={Play} gradient="from-green-500 to-emerald-600 border-green-500/30">Token Playground</SectionTitle>
