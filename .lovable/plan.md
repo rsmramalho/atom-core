@@ -1,83 +1,57 @@
 
 
-# Auditoria Completa & Roadmap — MindMate v4.0.0-alpha.26
+## Plano: Super Manual Wiki — Documentação Completa de Cada Tela, Função e Módulo
 
-## Estado Atual
+### Situação Atual
+A Wiki já tem ~1037 linhas cobrindo: Manifesto, Arquitetura Atom, grid de funcionalidades (resumido), Token Playground, Rituais Demo, Casos de Uso, Dicas, Como Usar, Atalhos, Colaboração, PWA, Glossário, Diagrama, Changelog e FAQ.
 
-**Versão:** v4.0.0-alpha.26 (2026-03-04)
-**Stack:** React 18 + Vite + Tailwind + Lovable Cloud + PWA
-**Arquitetura:** Single Table Design (tabela `items`) com 7 tipos de item
+**O que falta** — cobertura detalhada tela-a-tela e funcionalidade-a-funcionalidade. As features atuais são descritas superficialmente em cards de 1 linha. O usuário quer um manual completo.
 
-### Funcionalidades Implementadas
-- Parsing Engine com tokens inteligentes
-- Dashboard operacional (Focus, Today, Overdue, Ritual)
-- Projetos com state machine + progresso híbrido (auto/milestone/manual)
-- Colaboração multi-usuário (Owner/Editor/Viewer) com links de convite
-- Activity Feed em tempo real por projeto
-- Sistema de Rituais (manhã/meio-dia/noite) com habits
-- Calendário mensal/semanal com drag-and-drop
-- Journal/Reflexões com prompts guiados
-- Listas rápidas estilo Google Keep
-- Recurrence Engine (RRULE)
-- Analytics com gráficos (recharts)
-- PWA completo com offline sync + push notifications
-- Onboarding (welcome, tour, checklist)
-- Command Palette + keyboard shortcuts
-- Landing page de marketing
+### O que será adicionado
 
----
+**8 novas seções detalhadas** (uma por tela do app), substituindo/expandindo o grid resumido atual:
 
-## Problemas Encontrados
+1. **Dashboard (Home)** — Focus Block (o que é, como itens chegam via `#focus`), Today List (overdue + due today), Ritual Banner (link com slot ativo), Smart Suggestions (heurísticas), empty state, confetti ao completar tudo
 
-### 1. Violação da Zero Any Policy (CRÍTICO)
-O projeto mantém uma política de zero `any`, mas há **5 ocorrências** em código de produção:
+2. **Inbox** — Captura rápida com Parsing Engine, auto-tag `#inbox`, swipe para MacroPicker, fluxo Inbox→Projeto, filtros, skeleton loading, validação Zod
 
-| Arquivo | Linha | Ocorrência |
-|---------|-------|------------|
-| `useProjectMembers.ts` | 41 | `(row: any)` no map de membros |
-| `useProjectMembers.ts` | 88 | `as any` no insert de invite role |
-| `useProjectMembers.ts` | 134 | `as any` no update de member role |
-| `usePushNotifications.ts` | 49, 80, 123 | `as any` no pushManager |
+3. **Projetos** — Criação, status lifecycle (draft→archived), 4 abas (WorkArea com drag-and-drop, Milestones com peso 3x, Notes, Activity Feed), progress modes (auto/milestone/manual), compartilhamento (roles, convites, membros), ProjectFab, settings
 
-### 2. Console Logs em Produção
-125 ocorrências de `console.log/warn/error` em 11 arquivos. A maioria são `warn/error` em catch blocks (aceitável), mas devem ser auditados para remover os desnecessários.
+4. **Listas** — Cards estilo Keep, cores personalizáveis, checklist integrado, duplicação, quick-add modal, progresso visual
 
-### 3. RLS: Sem DELETE para items de projetos compartilhados
-A tabela `items` tem policies para SELECT, INSERT e UPDATE em projetos compartilhados, mas **não tem DELETE policy** para membros. Editores não conseguem excluir itens de projetos compartilhados.
+5. **Calendário** — Views mês/semana, drag-and-drop entre dias (DroppableDayCell), filtros por tipo/módulo, seção Overdue, DayDetailSheet
 
-### 4. Viewer Role incompleto no DB
-O enum `member_role` no banco tem `owner | editor`, mas o código TypeScript referencia `viewer`. A policy de UPDATE permite apenas `editor` e `viewer` no check, mas o enum pode não incluir `viewer`.
+6. **Diário (Journal)** — Composer com prompts reflexivos, feed cronológico, filtros, exportação Markdown, integration com ritual slots
 
-### 5. `useProjectMembers` — `invitesQuery` usa `as unknown as`
-Linha 59: cast forçado que pode mascarar incompatibilidades de tipo.
+7. **Rituais** — Aurora/Zênite/Crepúsculo detalhado, check-in visual, confetti, streak tracking, completion_log, heatmap
 
-### 6. Query sem limit
-`useAtomItems` faz `select("*")` sem `.limit()`. Com muitos itens, vai bater no limite de 1000 rows do Supabase silenciosamente.
+8. **Estatísticas (Analytics)** — Weekly Summary (AI), gráficos por tipo/módulo, streak badges, heatmap de atividade, tendências semana-a-semana
 
----
+**Seções complementares expandidas:**
 
-## Roadmap Proposto
+9. **Módulos em Detalhe** — Work, Body, Mind, Family + Geral. Como usar `#mod_xxx`, herança via MacroPicker, ModuleBadge visual
 
-### Fase 7: Hardening & Type Safety (Próxima)
-1. **Eliminar `any` em `useProjectMembers.ts`** — Tipar o resultado do join com profiles e usar tipos corretos para enums do DB
-2. **Eliminar `as any` em `usePushNotifications.ts`** — Usar interface `PushManager` com type assertion segura
-3. **Adicionar DELETE policy para items em projetos compartilhados** — Permitir que editors deletem itens
-4. **Verificar enum `member_role`** — Confirmar que `viewer` existe no DB, adicionar migration se necessário
-5. **Adicionar `.limit()` ou paginação** em `useAtomItems` para projetos com muitos itens
+10. **Command Palette & Navegação** — `⌘K`, busca global, filtros, navegação por atalhos
 
-### Fase 8: UX & Polish
-6. **Busca global** — Filtrar itens por título/tag em todas as views
-7. **Drag-and-drop na WorkArea** — Reordenar tasks dentro de projetos
-8. **Dark/Light mode toggle** acessível na sidebar (já tem next-themes instalado)
-9. **Skeleton loading** para ProjectDetail (já existe para outros)
+11. **Notificações & Push** — Configuração, due-date reminders, atividade em projetos compartilhados
 
-### Fase 9: Inteligência
-10. **AI Summary** — Resumo semanal automático usando Lovable AI (Gemini Flash)
-11. **Smart suggestions** — Sugerir próxima ação baseado em padrões de uso
-12. **Natural language input** melhorado com AI para parsing de datas complexas
+12. **Backup & Cache** — Export/import JSON, limpar cache, sync status, pending operations
 
-### Fase 10: Escala
-13. **Paginação real** para items (cursor-based)
-14. **Realtime subscriptions** para projetos compartilhados (ver edições de outros membros ao vivo)
-15. **Export PDF** de projetos com progresso e milestones
+### Abordagem Técnica
+
+O arquivo Wiki.tsx já está com ~1037 linhas. Para manter organizado:
+
+- **Extrair conteúdo para `src/data/wiki-sections.tsx`** — Novo arquivo com os dados/JSX das seções, exportando componentes por seção. Mantém Wiki.tsx como shell de layout (~300 linhas)
+- **Expandir `tocItems`** com as 8 novas seções de telas + 4 complementares
+- **Cada seção de tela** terá: descrição, screenshot-style mockup (ASCII ou visual cards), lista de ações disponíveis, tokens relevantes, dicas específicas
+- **Manter interatividade** — Accordion para detalhes densos, mesmos patterns visuais (FeatureCard, SubSection, CodeToken, TokenTable)
+
+### Estrutura de Arquivos
+
+- **Novo:** `src/data/wiki-sections.tsx` — Componentes de conteúdo para cada seção (Dashboard, Inbox, Projetos, etc.)
+- **Editado:** `src/pages/Wiki.tsx` — Importa seções do novo arquivo, expande tocItems, adiciona novas seções ao render
+
+### Escopo estimado
+
+~12 novas seções detalhadas com ~400-600 linhas de conteúdo no arquivo de dados, reorganização do Wiki.tsx para importar modularmente.
 
