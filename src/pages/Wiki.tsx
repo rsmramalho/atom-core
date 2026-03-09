@@ -54,6 +54,7 @@ const tocItems: TocItem[] = [
   { id: "command-palette", label: "⌨️ Command Palette", icon: Keyboard, keywords: ["⌘k", "busca global", "navegação", "atalho"] },
   { id: "notificacoes", label: "🔔 Notificações", icon: Bell, keywords: ["push", "reminder", "due date", "atividade"] },
   { id: "backup-cache", label: "💾 Backup & Cache", icon: Database, keywords: ["offline", "sync", "indexeddb", "export", "rls", "segurança"] },
+  { id: "onboarding", label: "🚀 Onboarding", icon: UserPlus, keywords: ["welcome", "tour", "checklist", "primeiro uso", "boas-vindas", "gamificação"] },
   // ── Seções originais ──
   { id: "playground", label: "Token Playground", icon: Play, keywords: ["parsing", "testar", "demo", "interativo", "token", "ao vivo"] },
   { id: "rituais-demo", label: "Rituais Demo", icon: Sun, keywords: ["aurora", "zênite", "crepúsculo", "slot", "manhã", "noite"] },
