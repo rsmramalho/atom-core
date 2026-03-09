@@ -602,7 +602,88 @@ export function BackupCacheSection() {
         </div>
       </div>
 
-      <Tip>O código é 100% open source. Faça fork e hospede sua própria instância para controle total dos dados.</Tip>
+    <Tip>O código é 100% open source. Faça fork e hospede sua própria instância para controle total dos dados.</Tip>
+  </div>
+  );
+}
+
+// ── 13. Onboarding — Primeiro Uso ──
+
+export function OnboardingSection() {
+  return (
+    <div className="space-y-4 text-sm text-muted-foreground">
+      <p>
+        O sistema de <strong className="text-foreground">onboarding</strong> guia novos usuários em 3 etapas progressivas, garantindo que cada recurso do MindMate seja apresentado de forma natural e não-intrusiva.
+      </p>
+
+      <div className="rounded-xl border border-border/50 bg-card/30 p-4 space-y-3">
+        <h4 className="font-semibold text-foreground flex items-center gap-2">
+          <MessageSquare className="h-4 w-4 text-primary" /> 1. Welcome Modal — Boas-vindas
+        </h4>
+        <p>Exibido automaticamente no primeiro login. Composto por <strong className="text-foreground">6 slides</strong> interativos:</p>
+        <ol className="list-decimal list-inside ml-2 space-y-1">
+          <li><strong className="text-foreground">Boas-vindas</strong> — apresentação do MindMate e sua filosofia</li>
+          <li><strong className="text-foreground">Captura rápida</strong> — como o Inbox e o Parsing Engine funcionam</li>
+          <li><strong className="text-foreground">Projetos</strong> — visão geral de organização por projetos</li>
+          <li><strong className="text-foreground">Rituais</strong> — como configurar hábitos diários (Aurora, Zênite, Crepúsculo)</li>
+          <li><strong className="text-foreground">Módulos</strong> — Work, Body, Mind, Family e herança automática</li>
+          <li><strong className="text-foreground">Começar</strong> — CTA para iniciar a jornada</li>
+        </ol>
+        <Tip>O modal só aparece uma vez. O progresso é salvo na tabela <CodeToken>onboarding_progress</CodeToken> para funcionar em múltiplos dispositivos.</Tip>
+      </div>
+
+      <div className="rounded-xl border border-border/50 bg-card/30 p-4 space-y-3">
+        <h4 className="font-semibold text-foreground flex items-center gap-2">
+          <Map className="h-4 w-4 text-primary" /> 2. Tour Overlay — Visita Guiada
+        </h4>
+        <p>Após o Welcome Modal, um <strong className="text-foreground">tour de 5 passos</strong> guia o usuário pelas rotas principais:</p>
+        <ActionList actions={[
+          { icon: LayoutDashboard, label: "Dashboard", desc: "Visão geral do dia — Focus Block, Today List e Ritual Banner" },
+          { icon: Inbox, label: "Inbox", desc: "Captura rápida com linguagem natural e tokens inteligentes" },
+          { icon: FolderKanban, label: "Projetos", desc: "Organização por projetos com status, milestones e colaboração" },
+          { icon: Calendar, label: "Calendário", desc: "Visualização mensal/semanal com drag-and-drop" },
+          { icon: BookMarked, label: "Diário", desc: "Reflexões diárias com prompts e exportação" },
+        ]} />
+        <p>Cada passo destaca a área relevante com um <strong className="text-foreground">overlay escuro</strong> e um tooltip explicativo. O usuário pode pular o tour a qualquer momento.</p>
+      </div>
+
+      <div className="rounded-xl border border-border/50 bg-card/30 p-4 space-y-3">
+        <h4 className="font-semibold text-foreground flex items-center gap-2">
+          <Trophy className="h-4 w-4 text-primary" /> 3. Checklist Gamificada — Primeiros Passos
+        </h4>
+        <p>Um <strong className="text-foreground">checklist flutuante</strong> aparece no canto inferior com missões iniciais para o usuário completar:</p>
+        <ul className="list-disc list-inside ml-2 space-y-1">
+          <li><strong className="text-foreground">Criar sua primeira tarefa</strong> no Inbox</li>
+          <li><strong className="text-foreground">Criar um projeto</strong> para organizar tarefas</li>
+          <li><strong className="text-foreground">Configurar um ritual</strong> (hábito recorrente)</li>
+          <li><strong className="text-foreground">Escrever uma reflexão</strong> no Diário</li>
+          <li><strong className="text-foreground">Explorar o Command Palette</strong> com ⌘K</li>
+        </ul>
+        <p>Cada item completado atualiza a <strong className="text-foreground">barra de progresso</strong>. Ao concluir todos, um efeito de <strong className="text-foreground">confetti</strong> é disparado e o checklist pode ser ocultado.</p>
+      </div>
+
+      <div className="rounded-xl border border-border/50 bg-card/30 p-4 space-y-2">
+        <h4 className="font-semibold text-foreground flex items-center gap-2">
+          <Database className="h-4 w-4 text-primary" /> Persistência
+        </h4>
+        <p>Todo o progresso de onboarding é salvo na tabela <CodeToken>onboarding_progress</CodeToken>:</p>
+        <ul className="list-disc list-inside ml-2 space-y-1">
+          <li><CodeToken>has_completed_welcome</CodeToken> — se o Welcome Modal já foi visto</li>
+          <li><CodeToken>has_completed_tour</CodeToken> — se o Tour foi finalizado ou pulado</li>
+          <li><CodeToken>checklist_progress</CodeToken> — JSON com status de cada missão</li>
+          <li><CodeToken>show_checklist</CodeToken> — se o checklist ainda deve ser exibido</li>
+        </ul>
+        <p>Isso garante que o onboarding funciona de forma <strong className="text-foreground">consistente entre dispositivos</strong> — se o usuário completou o tour no desktop, não verá novamente no mobile.</p>
+      </div>
+
+      <div className="rounded-xl border border-border/50 bg-card/30 p-4 space-y-2">
+        <h4 className="font-semibold text-foreground flex items-center gap-2">
+          <Bookmark className="h-4 w-4 text-primary" /> Escopo & Performance
+        </h4>
+        <p>Os componentes de onboarding (<CodeToken>WelcomeModal</CodeToken>, <CodeToken>TourOverlay</CodeToken>, <CodeToken>FirstStepsChecklist</CodeToken>) são carregados <strong className="text-foreground">apenas dentro do AppLayout</strong> — ou seja, somente para usuários autenticados. Isso evita impacto na performance da landing page pública.</p>
+      </div>
+
+      <Tip>Se quiser rever o tour, limpe o progresso de onboarding nas configurações (em desenvolvimento).</Tip>
     </div>
   );
 }

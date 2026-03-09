@@ -725,6 +725,9 @@ export default function Wiki() {
           <SectionTitle id="backup-cache" icon={Database} gradient="from-gray-500 to-slate-600 border-gray-500/30">Backup & Cache</SectionTitle>
           <AnimatedSection><BackupCacheSection /></AnimatedSection>
 
+          <SectionTitle id="onboarding" icon={UserPlus} gradient="from-teal-500 to-cyan-600 border-teal-500/30">Onboarding — Primeiro Uso</SectionTitle>
+          <AnimatedSection><OnboardingSection /></AnimatedSection>
+
           {/* ====== TOKEN PLAYGROUND ====== */}
           <SectionTitle id="playground" icon={Play} gradient="from-green-500 to-emerald-600 border-green-500/30">Token Playground</SectionTitle>
           <AnimatedSection>
