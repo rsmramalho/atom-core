@@ -398,14 +398,22 @@ export default function AdminErrorLogs() {
       toast.error("Nenhum log para exportar");
       return;
     }
-    const headers = ["created_at", "error_type", "error_message", "url", "app_version", "user_id"];
+    const headers = Object.keys(csvColumns).filter((k) => csvColumns[k]);
+    if (headers.length === 0) {
+      toast.error("Selecione ao menos uma coluna");
+      return;
+    }
     const escapeCSV = (val: string | null | undefined) => {
       if (val == null) return "";
       const str = String(val).replace(/"/g, '""');
       return str.includes(",") || str.includes('"') || str.includes("\n") ? `"${str}"` : str;
     };
     const rows = filteredLogs.map((l) =>
-      headers.map((h) => escapeCSV(l[h as keyof ErrorLog] as string)).join(",")
+      headers.map((h) => {
+        const value = l[h as keyof ErrorLog];
+        if (h === "metadata" && value != null) return escapeCSV(JSON.stringify(value));
+        return escapeCSV(value as string);
+      }).join(",")
     );
     const csv = [headers.join(","), ...rows].join("\n");
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
@@ -415,8 +423,8 @@ export default function AdminErrorLogs() {
     a.download = `error-logs-${format(new Date(), "yyyy-MM-dd-HHmm")}.csv`;
     a.click();
     URL.revokeObjectURL(url);
-    toast.success(`${filteredLogs.length} logs exportados`);
-  }, [filteredLogs]);
+    toast.success(`${filteredLogs.length} logs exportados (${headers.length} colunas)`);
+  }, [filteredLogs, csvColumns]);
 
   if (!authChecked || !isAuthenticated) {
     return <PageLoader message="Verificando autenticação..." />;
