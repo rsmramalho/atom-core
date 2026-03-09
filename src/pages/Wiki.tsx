@@ -7,8 +7,14 @@ import {
   BarChart3, Keyboard, Users, Wifi, HelpCircle, ChevronRight,
   Menu, X, Hash, AtSign, ArrowRight, Search, ArrowUp, Sparkles,
   ChevronUp, BookText, Layers, Play, Lightbulb, History,
-  GraduationCap, Briefcase, UsersRound, Heart, Zap, Target
+  GraduationCap, Briefcase, UsersRound, Heart, Zap, Target,
+  Bell, Database, Dumbbell
 } from "lucide-react";
+import {
+  DashboardSection, InboxSection, ProjectsSection, ListsSection,
+  CalendarSection, JournalSection, RitualsSection, AnalyticsSection,
+  ModulesSection, CommandPaletteSection, NotificationsSection, BackupCacheSection,
+} from "@/data/wiki-sections";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
