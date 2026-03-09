@@ -8,12 +8,13 @@ import {
   Menu, X, Hash, AtSign, ArrowRight, Search, ArrowUp, Sparkles,
   ChevronUp, BookText, Layers, Play, Lightbulb, History,
   GraduationCap, Briefcase, UsersRound, Heart, Zap, Target,
-  Bell, Database, Dumbbell
+   Bell, Database, Dumbbell, UserPlus
 } from "lucide-react";
 import {
   DashboardSection, InboxSection, ProjectsSection, ListsSection,
   CalendarSection, JournalSection, RitualsSection, AnalyticsSection,
   ModulesSection, CommandPaletteSection, NotificationsSection, BackupCacheSection,
+  OnboardingSection,
 } from "@/data/wiki-sections";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
@@ -53,6 +54,7 @@ const tocItems: TocItem[] = [
   { id: "command-palette", label: "⌨️ Command Palette", icon: Keyboard, keywords: ["⌘k", "busca global", "navegação", "atalho"] },
   { id: "notificacoes", label: "🔔 Notificações", icon: Bell, keywords: ["push", "reminder", "due date", "atividade"] },
   { id: "backup-cache", label: "💾 Backup & Cache", icon: Database, keywords: ["offline", "sync", "indexeddb", "export", "rls", "segurança"] },
+  { id: "onboarding", label: "🚀 Onboarding", icon: UserPlus, keywords: ["welcome", "tour", "checklist", "primeiro uso", "boas-vindas", "gamificação"] },
   // ── Seções originais ──
   { id: "playground", label: "Token Playground", icon: Play, keywords: ["parsing", "testar", "demo", "interativo", "token", "ao vivo"] },
   { id: "rituais-demo", label: "Rituais Demo", icon: Sun, keywords: ["aurora", "zênite", "crepúsculo", "slot", "manhã", "noite"] },
@@ -722,6 +724,9 @@ export default function Wiki() {
 
           <SectionTitle id="backup-cache" icon={Database} gradient="from-gray-500 to-slate-600 border-gray-500/30">Backup & Cache</SectionTitle>
           <AnimatedSection><BackupCacheSection /></AnimatedSection>
+
+          <SectionTitle id="onboarding" icon={UserPlus} gradient="from-teal-500 to-cyan-600 border-teal-500/30">Onboarding — Primeiro Uso</SectionTitle>
+          <AnimatedSection><OnboardingSection /></AnimatedSection>
 
           {/* ====== TOKEN PLAYGROUND ====== */}
           <SectionTitle id="playground" icon={Play} gradient="from-green-500 to-emerald-600 border-green-500/30">Token Playground</SectionTitle>
