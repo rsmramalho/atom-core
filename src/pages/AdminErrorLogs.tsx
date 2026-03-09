@@ -101,7 +101,36 @@ export default function AdminErrorLogs() {
   const [purging, setPurging] = useState(false);
   const [purgeDays, setPurgeDays] = useState<string>("30");
   const [showScrollTop, setShowScrollTop] = useState(false);
+  const [csvColumns, setCsvColumns] = useState<Record<string, boolean>>({
+    created_at: true,
+    error_type: true,
+    error_message: true,
+    error_stack: false,
+    component_stack: false,
+    url: true,
+    app_version: true,
+    user_id: true,
+    user_agent: false,
+    metadata: false,
+  });
   const mainRef = useRef<HTMLElement>(null);
+
+  const CSV_COLUMN_LABELS: Record<string, string> = {
+    created_at: "Data",
+    error_type: "Tipo",
+    error_message: "Mensagem",
+    error_stack: "Stack Trace",
+    component_stack: "Component Stack",
+    url: "URL",
+    app_version: "Versão",
+    user_id: "User ID",
+    user_agent: "User Agent",
+    metadata: "Metadata (JSON)",
+  };
+
+  const toggleCsvColumn = (col: string) => {
+    setCsvColumns((prev) => ({ ...prev, [col]: !prev[col] }));
+  };
 
   // Scroll-to-top listener
   useEffect(() => {
