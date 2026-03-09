@@ -14,6 +14,7 @@ import {
   DashboardSection, InboxSection, ProjectsSection, ListsSection,
   CalendarSection, JournalSection, RitualsSection, AnalyticsSection,
   ModulesSection, CommandPaletteSection, NotificationsSection, BackupCacheSection,
+  OnboardingSection,
 } from "@/data/wiki-sections";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
