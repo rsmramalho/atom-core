@@ -498,15 +498,40 @@ export default function AdminErrorLogs() {
                 <RefreshCw className="h-3.5 w-3.5" />
                 <span className="hidden sm:inline">Refresh</span>
               </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleExportCSV}
-                className="gap-1.5 text-xs"
-              >
-                <Download className="h-3.5 w-3.5" />
-                <span className="hidden sm:inline">CSV</span>
-              </Button>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="gap-1.5 text-xs"
+                  >
+                    <Columns3 className="h-3.5 w-3.5" />
+                    <span className="hidden sm:inline">Colunas</span>
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-56 p-3" align="end">
+                  <p className="text-xs font-medium text-muted-foreground mb-2">Colunas do CSV</p>
+                  <div className="space-y-2">
+                    {Object.keys(csvColumns).map((col) => (
+                      <label key={col} className="flex items-center gap-2 cursor-pointer text-sm">
+                        <Checkbox
+                          checked={csvColumns[col]}
+                          onCheckedChange={() => toggleCsvColumn(col)}
+                        />
+                        {CSV_COLUMN_LABELS[col] || col}
+                      </label>
+                    ))}
+                  </div>
+                  <Button
+                    size="sm"
+                    className="w-full mt-3 gap-1.5"
+                    onClick={handleExportCSV}
+                  >
+                    <Download className="h-3.5 w-3.5" />
+                    Exportar CSV
+                  </Button>
+                </PopoverContent>
+              </Popover>
               <AlertDialog>
                 <AlertDialogTrigger asChild>
                   <Button
