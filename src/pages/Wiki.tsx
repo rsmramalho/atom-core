@@ -34,6 +34,7 @@ interface TocItem {
   label: string;
   icon: React.ElementType;
   keywords: string[];
+  content?: string; // full-text searchable content for deep search
 }
 
 const tocItems: TocItem[] = [
