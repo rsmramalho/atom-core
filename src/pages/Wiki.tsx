@@ -8,7 +8,7 @@ import {
   Menu, X, Hash, AtSign, ArrowRight, Search, ArrowUp, Sparkles,
   ChevronUp, BookText, Layers, Play, Lightbulb, History,
   GraduationCap, Briefcase, UsersRound, Heart, Zap, Target,
-  Bell, Database, Dumbbell
+   Bell, Database, Dumbbell, UserPlus
 } from "lucide-react";
 import {
   DashboardSection, InboxSection, ProjectsSection, ListsSection,
