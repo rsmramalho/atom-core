@@ -11,6 +11,7 @@ import {
   Bug,
   ChevronDown,
   Clock,
+  Columns3,
   Download,
   Filter,
   Globe,
