@@ -11,6 +11,7 @@ import {
   Bug,
   ChevronDown,
   Clock,
+  Columns3,
   Download,
   Filter,
   Globe,
@@ -56,6 +57,8 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import {
   LineChart,
@@ -98,7 +101,36 @@ export default function AdminErrorLogs() {
   const [purging, setPurging] = useState(false);
   const [purgeDays, setPurgeDays] = useState<string>("30");
   const [showScrollTop, setShowScrollTop] = useState(false);
+  const [csvColumns, setCsvColumns] = useState<Record<string, boolean>>({
+    created_at: true,
+    error_type: true,
+    error_message: true,
+    error_stack: false,
+    component_stack: false,
+    url: true,
+    app_version: true,
+    user_id: true,
+    user_agent: false,
+    metadata: false,
+  });
   const mainRef = useRef<HTMLElement>(null);
+
+  const CSV_COLUMN_LABELS: Record<string, string> = {
+    created_at: "Data",
+    error_type: "Tipo",
+    error_message: "Mensagem",
+    error_stack: "Stack Trace",
+    component_stack: "Component Stack",
+    url: "URL",
+    app_version: "Versão",
+    user_id: "User ID",
+    user_agent: "User Agent",
+    metadata: "Metadata (JSON)",
+  };
+
+  const toggleCsvColumn = (col: string) => {
+    setCsvColumns((prev) => ({ ...prev, [col]: !prev[col] }));
+  };
 
   // Scroll-to-top listener
   useEffect(() => {
@@ -366,14 +398,22 @@ export default function AdminErrorLogs() {
       toast.error("Nenhum log para exportar");
       return;
     }
-    const headers = ["created_at", "error_type", "error_message", "url", "app_version", "user_id"];
+    const headers = Object.keys(csvColumns).filter((k) => csvColumns[k]);
+    if (headers.length === 0) {
+      toast.error("Selecione ao menos uma coluna");
+      return;
+    }
     const escapeCSV = (val: string | null | undefined) => {
       if (val == null) return "";
       const str = String(val).replace(/"/g, '""');
       return str.includes(",") || str.includes('"') || str.includes("\n") ? `"${str}"` : str;
     };
     const rows = filteredLogs.map((l) =>
-      headers.map((h) => escapeCSV(l[h as keyof ErrorLog] as string)).join(",")
+      headers.map((h) => {
+        const value = l[h as keyof ErrorLog];
+        if (h === "metadata" && value != null) return escapeCSV(JSON.stringify(value));
+        return escapeCSV(value as string);
+      }).join(",")
     );
     const csv = [headers.join(","), ...rows].join("\n");
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
@@ -383,8 +423,8 @@ export default function AdminErrorLogs() {
     a.download = `error-logs-${format(new Date(), "yyyy-MM-dd-HHmm")}.csv`;
     a.click();
     URL.revokeObjectURL(url);
-    toast.success(`${filteredLogs.length} logs exportados`);
-  }, [filteredLogs]);
+    toast.success(`${filteredLogs.length} logs exportados (${headers.length} colunas)`);
+  }, [filteredLogs, csvColumns]);
 
   if (!authChecked || !isAuthenticated) {
     return <PageLoader message="Verificando autenticação..." />;
@@ -458,15 +498,40 @@ export default function AdminErrorLogs() {
                 <RefreshCw className="h-3.5 w-3.5" />
                 <span className="hidden sm:inline">Refresh</span>
               </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleExportCSV}
-                className="gap-1.5 text-xs"
-              >
-                <Download className="h-3.5 w-3.5" />
-                <span className="hidden sm:inline">CSV</span>
-              </Button>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="gap-1.5 text-xs"
+                  >
+                    <Columns3 className="h-3.5 w-3.5" />
+                    <span className="hidden sm:inline">Colunas</span>
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-56 p-3" align="end">
+                  <p className="text-xs font-medium text-muted-foreground mb-2">Colunas do CSV</p>
+                  <div className="space-y-2">
+                    {Object.keys(csvColumns).map((col) => (
+                      <label key={col} className="flex items-center gap-2 cursor-pointer text-sm">
+                        <Checkbox
+                          checked={csvColumns[col]}
+                          onCheckedChange={() => toggleCsvColumn(col)}
+                        />
+                        {CSV_COLUMN_LABELS[col] || col}
+                      </label>
+                    ))}
+                  </div>
+                  <Button
+                    size="sm"
+                    className="w-full mt-3 gap-1.5"
+                    onClick={handleExportCSV}
+                  >
+                    <Download className="h-3.5 w-3.5" />
+                    Exportar CSV
+                  </Button>
+                </PopoverContent>
+              </Popover>
               <AlertDialog>
                 <AlertDialogTrigger asChild>
                   <Button
