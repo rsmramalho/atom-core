@@ -39,6 +39,21 @@ const tocItems: TocItem[] = [
   { id: "manifesto", label: "Manifesto", icon: BookOpen, keywords: ["filosofia", "capturar", "organizar", "refletir", "agnóstico", "metodologia", "open source", "gratuito", "pilares"] },
   { id: "arquitetura", label: "Arquitetura Atom", icon: Atom, keywords: ["single table", "items", "type", "project_id", "parent_id", "milestone", "weight", "progresso", "state machine", "draft", "active", "hierarquia"] },
   { id: "funcionalidades", label: "Funcionalidades", icon: Rocket, keywords: ["parsing", "token", "inbox", "dashboard", "projeto", "calendário", "ritual", "journal", "lista", "recorrência", "analytics", "hábito", "tag", "módulo", "@hoje", "@amanha", "rrule", "heatmap", "streak"] },
+  // ── Super Manual: Telas Detalhadas ──
+  { id: "tela-dashboard", label: "📊 Dashboard", icon: LayoutDashboard, keywords: ["home", "focus", "today", "ritual banner", "sugestões", "confetti", "empty state"] },
+  { id: "tela-inbox", label: "📥 Inbox", icon: Inbox, keywords: ["captura", "parsing", "macropicker", "processar", "promover", "gtd"] },
+  { id: "tela-projetos", label: "📁 Projetos", icon: FolderKanban, keywords: ["workarea", "milestones", "notas", "atividade", "status", "compartilhar", "fab", "drag"] },
+  { id: "tela-listas", label: "📋 Listas", icon: ListChecks, keywords: ["keep", "checklist", "cores", "duplicar", "quick add"] },
+  { id: "tela-calendario", label: "📅 Calendário", icon: Calendar, keywords: ["mês", "semana", "drag", "overdue", "day detail", "filtro"] },
+  { id: "tela-journal", label: "📔 Diário", icon: BookMarked, keywords: ["reflexão", "composer", "prompts", "exportar", "markdown", "feed"] },
+  { id: "tela-rituais", label: "🌅 Rituais", icon: Sun, keywords: ["aurora", "zênite", "crepúsculo", "streak", "heatmap", "confetti", "check-in"] },
+  { id: "tela-analytics", label: "📈 Analytics", icon: BarChart3, keywords: ["resumo", "gráfico", "tendência", "weekly summary", "ai"] },
+  // ── Super Manual: Seções Complementares ──
+  { id: "modulos-detalhe", label: "🧩 Módulos", icon: Dumbbell, keywords: ["work", "body", "mind", "family", "geral", "#mod_", "herança", "badge"] },
+  { id: "command-palette", label: "⌨️ Command Palette", icon: Keyboard, keywords: ["⌘k", "busca global", "navegação", "atalho"] },
+  { id: "notificacoes", label: "🔔 Notificações", icon: Bell, keywords: ["push", "reminder", "due date", "atividade"] },
+  { id: "backup-cache", label: "💾 Backup & Cache", icon: Database, keywords: ["offline", "sync", "indexeddb", "export", "rls", "segurança"] },
+  // ── Seções originais ──
   { id: "playground", label: "Token Playground", icon: Play, keywords: ["parsing", "testar", "demo", "interativo", "token", "ao vivo"] },
   { id: "rituais-demo", label: "Rituais Demo", icon: Sun, keywords: ["aurora", "zênite", "crepúsculo", "slot", "manhã", "noite"] },
   { id: "casos-de-uso", label: "Casos de Uso", icon: Target, keywords: ["estudante", "freelancer", "equipe", "bem-estar", "cenário"] },
