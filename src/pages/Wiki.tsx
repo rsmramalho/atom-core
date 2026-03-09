@@ -446,14 +446,21 @@ export default function Wiki() {
           key={item.id}
           onClick={() => scrollTo(item.id)}
           className={cn(
-            "w-full flex items-center gap-2.5 px-2 py-2 rounded-lg text-sm transition-colors text-left",
+            "w-full flex flex-col gap-0.5 px-2 py-2 rounded-lg text-sm transition-colors text-left",
             activeSection === item.id
               ? "text-primary bg-primary/10 font-medium"
               : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
           )}
         >
-          <item.icon className="h-4 w-4 shrink-0" />
-          <span>{item.label}</span>
+          <span className="flex items-center gap-2.5">
+            <item.icon className="h-4 w-4 shrink-0" />
+            <span>{item.label}</span>
+          </span>
+          {item.matchSource && (
+            <span className="text-[10px] text-primary/70 pl-6.5 leading-tight truncate">
+              &ldquo;{item.matchSource}&rdquo;
+            </span>
+          )}
         </button>
       ))}
     </nav>
