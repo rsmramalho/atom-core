@@ -402,13 +402,23 @@ export default function Wiki() {
   }, []);
 
   const filteredToc = useMemo(() => {
-    if (!search.trim()) return tocItems;
+    if (!search.trim()) return tocItems.map(item => ({ ...item, matchSource: "" as string }));
     const q = search.toLowerCase();
-    return tocItems.filter(
-      (item) =>
-        item.label.toLowerCase().includes(q) ||
-        item.keywords.some((k) => k.toLowerCase().includes(q))
-    );
+    return tocItems
+      .map((item) => {
+        if (item.label.toLowerCase().includes(q)) return { ...item, matchSource: "" };
+        if (item.keywords.some((k) => k.toLowerCase().includes(q))) return { ...item, matchSource: "" };
+        if (item.content?.toLowerCase().includes(q)) {
+          // Extract snippet around match
+          const idx = item.content.toLowerCase().indexOf(q);
+          const start = Math.max(0, idx - 20);
+          const end = Math.min(item.content.length, idx + q.length + 30);
+          const snippet = (start > 0 ? "…" : "") + item.content.slice(start, end) + (end < item.content.length ? "…" : "");
+          return { ...item, matchSource: snippet };
+        }
+        return null;
+      })
+      .filter(Boolean) as (TocItem & { matchSource: string })[];
   }, [search]);
 
   const scrollTo = (id: string) => {
