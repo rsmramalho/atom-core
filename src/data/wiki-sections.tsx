@@ -6,7 +6,8 @@ import {
   Zap, Target, CheckCircle2, Circle, Sparkles, Eye, ArrowRight,
   Hash, Repeat, Diamond, ListTodo, StickyNote, Activity, Settings,
   Share2, GripVertical, Palette, FileText, Search, Download,
-  Upload, Trash2, Clock, TrendingUp, Flame, Shield
+  Upload, Trash2, Clock, TrendingUp, Flame, Shield, UserPlus,
+  MessageSquare, Map, Trophy, Bookmark
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import {
