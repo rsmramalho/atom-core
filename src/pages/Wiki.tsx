@@ -685,6 +685,44 @@ export default function Wiki() {
             </Accordion>
           </AnimatedSection>
 
+          {/* ====== SUPER MANUAL: TELAS DETALHADAS ====== */}
+          <SectionTitle id="tela-dashboard" icon={LayoutDashboard} gradient="from-emerald-500 to-teal-600 border-emerald-500/30">Dashboard (Home)</SectionTitle>
+          <AnimatedSection><DashboardSection /></AnimatedSection>
+
+          <SectionTitle id="tela-inbox" icon={Inbox} gradient="from-blue-500 to-indigo-600 border-blue-500/30">Inbox — Captura & Processamento</SectionTitle>
+          <AnimatedSection><InboxSection /></AnimatedSection>
+
+          <SectionTitle id="tela-projetos" icon={FolderKanban} gradient="from-violet-500 to-purple-600 border-violet-500/30">Projetos — Organização Completa</SectionTitle>
+          <AnimatedSection><ProjectsSection /></AnimatedSection>
+
+          <SectionTitle id="tela-listas" icon={ListChecks} gradient="from-pink-500 to-rose-600 border-pink-500/30">Listas — Cards Visuais</SectionTitle>
+          <AnimatedSection><ListsSection /></AnimatedSection>
+
+          <SectionTitle id="tela-calendario" icon={Calendar} gradient="from-cyan-500 to-blue-600 border-cyan-500/30">Calendário — Visão Temporal</SectionTitle>
+          <AnimatedSection><CalendarSection /></AnimatedSection>
+
+          <SectionTitle id="tela-journal" icon={BookMarked} gradient="from-amber-500 to-yellow-600 border-amber-500/30">Diário (Journal) — Reflexão</SectionTitle>
+          <AnimatedSection><JournalSection /></AnimatedSection>
+
+          <SectionTitle id="tela-rituais" icon={Sun} gradient="from-orange-500 to-amber-600 border-orange-500/30">Rituais — Consistência Diária</SectionTitle>
+          <AnimatedSection><RitualsSection /></AnimatedSection>
+
+          <SectionTitle id="tela-analytics" icon={BarChart3} gradient="from-green-500 to-lime-600 border-green-500/30">Analytics — Estatísticas</SectionTitle>
+          <AnimatedSection><AnalyticsSection /></AnimatedSection>
+
+          {/* ====== SUPER MANUAL: SEÇÕES COMPLEMENTARES ====== */}
+          <SectionTitle id="modulos-detalhe" icon={Dumbbell} gradient="from-blue-500 to-purple-600 border-blue-500/30">Módulos em Detalhe</SectionTitle>
+          <AnimatedSection><ModulesSection /></AnimatedSection>
+
+          <SectionTitle id="command-palette" icon={Keyboard} gradient="from-slate-500 to-zinc-600 border-slate-500/30">Command Palette & Navegação</SectionTitle>
+          <AnimatedSection><CommandPaletteSection /></AnimatedSection>
+
+          <SectionTitle id="notificacoes" icon={Bell} gradient="from-red-500 to-orange-600 border-red-500/30">Notificações & Push</SectionTitle>
+          <AnimatedSection><NotificationsSection /></AnimatedSection>
+
+          <SectionTitle id="backup-cache" icon={Database} gradient="from-gray-500 to-slate-600 border-gray-500/30">Backup & Cache</SectionTitle>
+          <AnimatedSection><BackupCacheSection /></AnimatedSection>
+
           {/* ====== TOKEN PLAYGROUND ====== */}
           <SectionTitle id="playground" icon={Play} gradient="from-green-500 to-emerald-600 border-green-500/30">Token Playground</SectionTitle>
           <AnimatedSection>
