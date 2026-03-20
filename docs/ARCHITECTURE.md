@@ -2,9 +2,9 @@
 
 ## Arquitetura do Sistema
 
-**Versão:** 4.0.0-beta.1  
-**Data:** 2026-03-06  
-**Status:** Beta - Collaboration + Push + AI + Zod Validation + Error Tracking
+**Versão:** 4.0.0-beta.2  
+**Data:** 2026-03-20  
+**Status:** Beta - Smart Suggestions + Error Dashboard + Wiki Super Manual + Collaboration + Push + AI
 
 ---
 

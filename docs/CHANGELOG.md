@@ -7,6 +7,37 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [4.0.0-beta.2] - 2026-03-20 🧠 SMART SUGGESTIONS & WIKI SUPER MANUAL
+
+> **Smart Suggestions, Error Dashboard avançado, Wiki Super Manual com busca full-text**
+
+### Adicionado
+
+#### Smart Suggestions (Fase 9 - Item 11)
+- **`src/lib/smart-suggestions.ts`** — Motor de sugestões heurísticas (sem IA) com 6 regras:
+  - Tarefas atrasadas mais antigas → sugerir resolver
+  - Hábitos com streak alto → sugerir manter
+  - Projetos próximos de 100% → sugerir finalizar
+  - Sem reflexões na semana → sugerir Journal
+  - Itens `#focus` parados há dias → sugerir ação
+  - Inbox com muitos itens → sugerir triagem
+- **`src/components/dashboard/SmartSuggestions.tsx`** — Card com ícone de lâmpada, animação framer-motion (card + rows staggered), navegação direta para view relevante
+- **Integrado no Dashboard** entre FocusBlock e TodayList
+
+#### Error Dashboard Avançado
+- **Routing Error Monitoring** — Fingerprint separado para erros de roteamento (`error_type: 'routing'`)
+- **Stat Card de Routing** — Contagem de erros de routing nas últimas 24h no dashboard admin
+- **Gráfico de Evolução** — Linha temporal mostrando erros de routing ao longo do tempo (Recharts)
+- **Exportação CSV Avançada** — Seletor de colunas (error_stack, metadata, etc.) antes de exportar
+
+#### Wiki Super Manual
+- **`src/data/wiki-sections.tsx`** — Conteúdo modularizado em componentes por seção (~600 linhas)
+- **12 novas seções detalhadas:** Dashboard, Inbox, Projetos, Listas, Calendário, Diário, Rituais, Estatísticas, Módulos, Command Palette, Notificações, Backup & Sync
+- **Seção Onboarding** — Documentação do fluxo WelcomeModal → TourOverlay → FirstStepsChecklist
+- **Busca Full-Text** — Pesquisa no conteúdo das seções (não apenas títulos), com snippets de resultado destacados
+
+---
+
 ## [4.0.0-beta.1] - 2026-03-05 🎉 BETA RELEASE
 
 > **Transição para Beta** — Todas as tarefas de estabilidade, segurança, validação, documentação e acessibilidade concluídas.
