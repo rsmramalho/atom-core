@@ -135,8 +135,9 @@ App.tsx (QueryClient: staleTime 5min, retry 2)
 | `check-due-tasks` | Cron: verifica tarefas vencidas |
 | `weekly-summary` | AI weekly summary via Gemini Flash |
 | `report-error` | Error tracking em produção (JWT-free) |
+| `check-error-spike` | Detecta picos de erros |
 
-### Segurança (Beta)
+### Edge Functions (5)
 
 - [x] RLS auditado em todas as tabelas
 - [x] Cascade deletes (project → members, invites, activities)
