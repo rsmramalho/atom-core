@@ -101,7 +101,7 @@ App.tsx (QueryClient: staleTime 5min, retry 2)
 | Rota | Descrição |
 |------|-----------|
 | `/` | Landing Page (marketing) |
-| `/app` | Dashboard operacional (Focus/Today/Ritual) |
+| `/app` | Dashboard operacional (Focus/Today/Ritual/Suggestions) |
 | `/inbox` | Captura de itens |
 | `/projects` | Lista de projetos |
 | `/projects/:id` | Project Sheet (4 abas) |
@@ -110,6 +110,8 @@ App.tsx (QueryClient: staleTime 5min, retry 2)
 | `/journal` | Reflexões com prompts |
 | `/lists` | Listas rápidas |
 | `/analytics` | Métricas de produtividade |
+| `/wiki` | Super Manual Wiki |
+| `/admin/errors` | Dashboard de erros (admin) |
 | `/install` | Guia de instalação PWA |
 | `/privacy` | Política de privacidade |
 | `/invite/:code` | Aceitar convite de projeto |
