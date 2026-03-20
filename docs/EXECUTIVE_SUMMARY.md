@@ -137,7 +137,7 @@ App.tsx (QueryClient: staleTime 5min, retry 2)
 | `report-error` | Error tracking em produção (JWT-free) |
 | `check-error-spike` | Detecta picos de erros |
 
-### Edge Functions (5)
+### Segurança (Beta)
 
 - [x] RLS auditado em todas as tabelas
 - [x] Cascade deletes (project → members, invites, activities)

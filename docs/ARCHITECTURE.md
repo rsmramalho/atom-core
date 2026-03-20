@@ -21,6 +21,7 @@ src/
 │   ├── dashboard/
 │   │   ├── FocusBlock.tsx          # Bloco de itens #focus
 │   │   ├── RitualBanner.tsx        # Banner do ritual ativo
+│   │   ├── SmartSuggestions.tsx    # ⭐ Sugestões heurísticas (beta.2)
 │   │   └── TodayList.tsx           # Lista do dia
 │   ├── projects/
 │   │   ├── ProjectCard.tsx         # Card de projeto na lista
