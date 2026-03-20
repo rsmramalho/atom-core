@@ -440,6 +440,7 @@ src/
 │   ├── offline-queue.ts            # IndexedDB queue
 │   ├── local-cache.ts              # localStorage cache
 │   ├── validation.ts               # ⭐ Zod schemas para formulários (beta)
+│   ├── smart-suggestions.ts       # ⭐ Motor de sugestões heurísticas (beta.2)
 │   ├── error-reporting.ts          # ⭐ Error tracking em produção (beta.1)
 │   └── utils.ts                    # Utilitários (cn, etc)
 │
