@@ -419,6 +419,37 @@ const userId = await getCurrentUserId(); // string (throws se não auth)
 
 ---
 
+## Smart Suggestions API ⭐ beta.2
+
+### generateSuggestions
+
+Gera sugestões heurísticas baseadas nos dados do usuário.
+
+```typescript
+import { generateSuggestions, type Suggestion } from "@/lib/smart-suggestions";
+
+interface Suggestion {
+  id: string;
+  icon: LucideIcon;
+  message: string;
+  action: { label: string; path?: string; itemId?: string };
+  priority: number;  // higher = more relevant
+}
+
+const suggestions = generateSuggestions(items); // top 3 by priority
+```
+
+### SmartSuggestions Component
+
+```tsx
+import { SmartSuggestions } from "@/components/dashboard/SmartSuggestions";
+
+<SmartSuggestions items={items} />
+// Renderiza card com animação framer-motion, navegação direta para views
+```
+
+---
+
 ## Error Tracking API ⭐ beta.1
 
 ### reportError

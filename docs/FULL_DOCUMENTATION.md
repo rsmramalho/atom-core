@@ -1,9 +1,9 @@
 # MindMate - Atom Engine 4.0
 # Documentação Completa Consolidada
 
-**Versão:** 4.0.0-beta.1  
-**Data:** 2026-03-06  
-**Status:** ✅ **Beta** - Collaboration + Push + AI + Zod Validation + Error Tracking
+**Versão:** 4.0.0-beta.2  
+**Data:** 2026-03-20  
+**Status:** ✅ **Beta** - Smart Suggestions + Error Dashboard + Wiki Super Manual + Collaboration + Push + AI
 
 > Esta versão representa o marco estável do Atom Engine 4.0, com todas as funcionalidades core
 > implementadas e testadas. Refatoração arquitetural completa: auth centralizada, Landing componentizada (9 seções),
@@ -198,7 +198,40 @@ Sistema de journaling com design zen:
   - JSON (.json) - Dados estruturados
   - PDF (via impressão) - Documento formatado
 
-## 📊 Analytics Dashboard ⭐ NOVO
+## 💡 Smart Suggestions ⭐ beta.2
+
+Motor heurístico que analisa dados do usuário e sugere 2-3 ações concretas no Dashboard:
+
+- **Tarefas atrasadas** → "Você tem N tarefas atrasadas — resolva a mais antiga"
+- **Streak alto** → "Seu hábito X tem streak de N dias — não quebre hoje!"
+- **Projeto quase pronto** → "O projeto X está em N% — faltam só M tasks"
+- **Sem reflexão** → "Nenhuma reflexão esta semana — escreva uma no Journal"
+- **Focus parado** → "Item #focus parado há N dias"
+- **Inbox cheio** → "N itens no inbox — hora de triagem"
+
+Implementado em `src/lib/smart-suggestions.ts` com animações framer-motion no card.
+
+## 🛡️ Error Dashboard Admin ⭐ beta.2
+
+Dashboard completo em `/admin/errors` para monitoramento de erros em produção:
+
+- **Stat Cards** — Total de erros, erros de routing (24h), tipos únicos
+- **Gráfico de Evolução** — Linha temporal de erros de routing (Recharts)
+- **Filtros** — Por tipo (routing, unhandled, etc.), período, busca
+- **Exportação CSV** — Seletor de colunas (error_stack, metadata, etc.)
+- **Fingerprint de Routing** — Erros de roteamento identificados separadamente
+
+## 📖 Wiki Super Manual ⭐ beta.2
+
+Documentação interativa acessível em `/wiki`:
+
+- **12 seções detalhadas** cobrindo cada tela do app (Dashboard, Inbox, Projetos, etc.)
+- **Seção Onboarding** — WelcomeModal, TourOverlay, FirstStepsChecklist
+- **Busca Full-Text** — Pesquisa no conteúdo das seções com snippets destacados
+- **Conteúdo modularizado** em `src/data/wiki-sections.tsx`
+- **Acesso público** (ImmersiveRoute), TOC ativo com IntersectionObserver
+
+## 📊 Analytics Dashboard
 
 Estatísticas e métricas de produtividade:
 
@@ -322,6 +355,7 @@ src/
 │   ├── dashboard/
 │   │   ├── FocusBlock.tsx          # Bloco de itens #focus
 │   │   ├── RitualBanner.tsx        # Banner do ritual ativo
+│   │   ├── SmartSuggestions.tsx    # ⭐ Sugestões heurísticas (beta.2)
 │   │   └── TodayList.tsx           # Lista do dia
 │   ├── calendar/
 │   │   ├── CalendarGrid.tsx        # Grid mensal
@@ -439,6 +473,7 @@ src/
 │   ├── offline-queue.ts            # IndexedDB queue
 │   ├── local-cache.ts              # localStorage cache
 │   ├── validation.ts               # ⭐ Zod schemas para formulários (beta)
+│   ├── smart-suggestions.ts       # ⭐ Motor de sugestões heurísticas (beta.2)
 │   ├── error-reporting.ts          # ⭐ Error tracking em produção (beta.1)
 │   └── utils.ts                    # Utilitários (cn, etc)
 │
@@ -458,11 +493,16 @@ src/
 │   ├── Journal.tsx                 # Página de reflexões
 │   ├── Lists.tsx                   # List Engine
 │   ├── Analytics.tsx               # Dashboard de métricas
-│   ├── Install.tsx                 # Guia de instalação PWA
-│   ├── Privacy.tsx                 # Política de privacidade
+│   ├── AdminErrorLogs.tsx         # ⭐ Dashboard de erros admin (beta.2)
+│   ├── Wiki.tsx                   # ⭐ Super Manual Wiki (beta.2)
+│   ├── Install.tsx                # Guia de instalação PWA
+│   ├── Privacy.tsx                # Política de privacidade
 │   ├── InviteAccept.tsx            # ⭐ Aceitar convite de projeto (alpha.26)
 │   ├── ResetPassword.tsx           # ⭐ Redefinir senha (beta)
 │   └── NotFound.tsx                # 404
+│
+├── data/
+│   └── wiki-sections.tsx           # ⭐ Conteúdo modular do Super Manual (beta.2)
 │
 ├── integrations/
 │   └── supabase/                   # Cliente Supabase (auto-gerado)
@@ -1867,6 +1907,9 @@ Depois: getCurrentUserId() (leitura de cache sync, fallback getSession)
 - [x] **Error Boundaries por Rota** - Crash isolation ⭐ beta.1
 - [x] **a11y Audit** - ARIA labels, landmarks, pinch-to-zoom ⭐ beta.1
 - [x] **Error Tracking** - Captura de crashes em produção ⭐ beta.1
+- [x] **Smart Suggestions** - Motor heurístico de sugestões no Dashboard ⭐ beta.2
+- [x] **Error Dashboard Admin** - `/admin/errors` com gráficos, filtros, CSV ⭐ beta.2
+- [x] **Wiki Super Manual** - 12 seções + busca full-text + onboarding docs ⭐ beta.2
 
 ## 🔲 Próximas Etapas
 - [ ] CSP headers

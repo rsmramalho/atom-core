@@ -2,9 +2,9 @@
 
 ## Arquitetura do Sistema
 
-**Versão:** 4.0.0-beta.1  
-**Data:** 2026-03-06  
-**Status:** Beta - Collaboration + Push + AI + Zod Validation + Error Tracking
+**Versão:** 4.0.0-beta.2  
+**Data:** 2026-03-20  
+**Status:** Beta - Smart Suggestions + Error Dashboard + Wiki Super Manual + Collaboration + Push + AI
 
 ---
 
@@ -21,6 +21,7 @@ src/
 │   ├── dashboard/
 │   │   ├── FocusBlock.tsx          # Bloco de itens #focus
 │   │   ├── RitualBanner.tsx        # Banner do ritual ativo
+│   │   ├── SmartSuggestions.tsx    # ⭐ Sugestões heurísticas (beta.2)
 │   │   └── TodayList.tsx           # Lista do dia
 │   ├── projects/
 │   │   ├── ProjectCard.tsx         # Card de projeto na lista
@@ -138,6 +139,7 @@ src/
 │   ├── offline-queue.ts            # IndexedDB queue
 │   ├── local-cache.ts              # localStorage cache
 │   ├── validation.ts               # ⭐ Zod schemas para formulários (beta)
+│   ├── smart-suggestions.ts       # ⭐ Motor de sugestões heurísticas (beta.2)
 │   ├── error-reporting.ts          # ⭐ Error tracking em produção (beta.1)
 │   └── utils.ts                    # Utilitários (cn, etc)
 │
@@ -157,11 +159,16 @@ src/
 │   ├── Journal.tsx                # Página de reflexões
 │   ├── Lists.tsx                  # List Engine
 │   ├── Analytics.tsx              # Dashboard de métricas
+│   ├── AdminErrorLogs.tsx        # ⭐ Dashboard de erros admin (beta.2)
+│   ├── Wiki.tsx                  # ⭐ Super Manual Wiki (beta.2)
 │   ├── Install.tsx                # Guia de instalação PWA
 │   ├── Privacy.tsx                # Política de privacidade
 │   ├── InviteAccept.tsx           # ⭐ Aceitar convite (beta)
 │   ├── ResetPassword.tsx          # ⭐ Redefinir senha (beta)
 │   └── NotFound.tsx               # 404
+│
+├── data/
+│   └── wiki-sections.tsx          # ⭐ Conteúdo do Super Manual (beta.2)
 │
 ├── integrations/
 │   └── supabase/                   # Cliente Supabase (auto-gerado)
@@ -698,6 +705,9 @@ export function asTypedRow(row: ItemsRow): TypedItemsRow;
 - [x] **Error Boundaries por Rota** - Crash isolation (beta.1)
 - [x] **a11y Audit** - ARIA labels, landmarks, pinch-to-zoom (beta.1)
 - [x] **Error Tracking** - Captura de crashes em produção (beta.1)
+- [x] **Smart Suggestions** - Motor heurístico no Dashboard (beta.2)
+- [x] **Error Dashboard Admin** - Gráficos, filtros, CSV export (beta.2)
+- [x] **Wiki Super Manual** - 12 seções + busca full-text (beta.2)
 
 ### 🔲 Próximas Etapas
 

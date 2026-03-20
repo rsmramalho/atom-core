@@ -1,7 +1,7 @@
 # MindMate - Atom Engine 4.0
 ## Resumo Executivo
 
-**Versão:** 4.0.0-beta.1 | **Status:** Beta | **Data:** 2026-03-06
+**Versão:** 4.0.0-beta.2 | **Status:** Beta | **Data:** 2026-03-20
 
 ---
 
@@ -20,7 +20,7 @@ Sistema de produtividade pessoal com arquitetura modular de engines. Combina ges
 | PWA | vite-plugin-pwa + Service Worker |
 | Validação | Zod |
 
-### Engines Implementados (9)
+### Engines Implementados (12)
 
 | Engine | Função |
 |--------|--------|
@@ -33,6 +33,9 @@ Sistema de produtividade pessoal com arquitetura modular de engines. Combina ges
 | **Reflection** | Journaling com prompts guiados e busca full-text |
 | **List** | Listas rápidas estilo Google Keep |
 | **Recurrence** | Tarefas recorrentes via RRULE |
+| **Smart Suggestions** | Sugestões heurísticas no Dashboard (6 regras) |
+| **Error Dashboard** | Monitoramento admin com gráficos e CSV |
+| **Wiki** | Super Manual interativo com busca full-text |
 
 ### Colaboração Multi-Usuário
 
@@ -81,6 +84,9 @@ App.tsx (QueryClient: staleTime 5min, retry 2)
 - **Onboarding:** Welcome modal + tour guiado + checklist gamificado
 - **Zod Validation:** Formulários validados com schemas centralizados
 - **Error Tracking:** Captura de crashes em produção via Edge Function + error_logs
+- **Smart Suggestions:** Sugestões heurísticas no Dashboard baseadas em padrões de uso
+- **Error Dashboard:** Admin panel com gráficos de evolução, filtros e export CSV
+- **Wiki Super Manual:** 12 seções detalhadas com busca full-text e docs de onboarding
 
 ### Qualidade de Código
 
@@ -95,7 +101,7 @@ App.tsx (QueryClient: staleTime 5min, retry 2)
 | Rota | Descrição |
 |------|-----------|
 | `/` | Landing Page (marketing) |
-| `/app` | Dashboard operacional (Focus/Today/Ritual) |
+| `/app` | Dashboard operacional (Focus/Today/Ritual/Suggestions) |
 | `/inbox` | Captura de itens |
 | `/projects` | Lista de projetos |
 | `/projects/:id` | Project Sheet (4 abas) |
@@ -104,6 +110,8 @@ App.tsx (QueryClient: staleTime 5min, retry 2)
 | `/journal` | Reflexões com prompts |
 | `/lists` | Listas rápidas |
 | `/analytics` | Métricas de produtividade |
+| `/wiki` | Super Manual Wiki |
+| `/admin/errors` | Dashboard de erros (admin) |
 | `/install` | Guia de instalação PWA |
 | `/privacy` | Política de privacidade |
 | `/invite/:code` | Aceitar convite de projeto |
@@ -127,6 +135,7 @@ App.tsx (QueryClient: staleTime 5min, retry 2)
 | `check-due-tasks` | Cron: verifica tarefas vencidas |
 | `weekly-summary` | AI weekly summary via Gemini Flash |
 | `report-error` | Error tracking em produção (JWT-free) |
+| `check-error-spike` | Detecta picos de erros |
 
 ### Segurança (Beta)
 
