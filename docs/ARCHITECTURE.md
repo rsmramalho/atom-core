@@ -159,11 +159,16 @@ src/
 │   ├── Journal.tsx                # Página de reflexões
 │   ├── Lists.tsx                  # List Engine
 │   ├── Analytics.tsx              # Dashboard de métricas
+│   ├── AdminErrorLogs.tsx        # ⭐ Dashboard de erros admin (beta.2)
+│   ├── Wiki.tsx                  # ⭐ Super Manual Wiki (beta.2)
 │   ├── Install.tsx                # Guia de instalação PWA
 │   ├── Privacy.tsx                # Política de privacidade
 │   ├── InviteAccept.tsx           # ⭐ Aceitar convite (beta)
 │   ├── ResetPassword.tsx          # ⭐ Redefinir senha (beta)
 │   └── NotFound.tsx               # 404
+│
+├── data/
+│   └── wiki-sections.tsx          # ⭐ Conteúdo do Super Manual (beta.2)
 │
 ├── integrations/
 │   └── supabase/                   # Cliente Supabase (auto-gerado)
