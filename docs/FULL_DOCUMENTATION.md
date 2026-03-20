@@ -322,6 +322,7 @@ src/
 │   ├── dashboard/
 │   │   ├── FocusBlock.tsx          # Bloco de itens #focus
 │   │   ├── RitualBanner.tsx        # Banner do ritual ativo
+│   │   ├── SmartSuggestions.tsx    # ⭐ Sugestões heurísticas (beta.2)
 │   │   └── TodayList.tsx           # Lista do dia
 │   ├── calendar/
 │   │   ├── CalendarGrid.tsx        # Grid mensal
