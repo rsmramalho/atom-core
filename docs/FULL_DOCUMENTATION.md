@@ -198,7 +198,40 @@ Sistema de journaling com design zen:
   - JSON (.json) - Dados estruturados
   - PDF (via impressão) - Documento formatado
 
-## 📊 Analytics Dashboard ⭐ NOVO
+## 💡 Smart Suggestions ⭐ beta.2
+
+Motor heurístico que analisa dados do usuário e sugere 2-3 ações concretas no Dashboard:
+
+- **Tarefas atrasadas** → "Você tem N tarefas atrasadas — resolva a mais antiga"
+- **Streak alto** → "Seu hábito X tem streak de N dias — não quebre hoje!"
+- **Projeto quase pronto** → "O projeto X está em N% — faltam só M tasks"
+- **Sem reflexão** → "Nenhuma reflexão esta semana — escreva uma no Journal"
+- **Focus parado** → "Item #focus parado há N dias"
+- **Inbox cheio** → "N itens no inbox — hora de triagem"
+
+Implementado em `src/lib/smart-suggestions.ts` com animações framer-motion no card.
+
+## 🛡️ Error Dashboard Admin ⭐ beta.2
+
+Dashboard completo em `/admin/errors` para monitoramento de erros em produção:
+
+- **Stat Cards** — Total de erros, erros de routing (24h), tipos únicos
+- **Gráfico de Evolução** — Linha temporal de erros de routing (Recharts)
+- **Filtros** — Por tipo (routing, unhandled, etc.), período, busca
+- **Exportação CSV** — Seletor de colunas (error_stack, metadata, etc.)
+- **Fingerprint de Routing** — Erros de roteamento identificados separadamente
+
+## 📖 Wiki Super Manual ⭐ beta.2
+
+Documentação interativa acessível em `/wiki`:
+
+- **12 seções detalhadas** cobrindo cada tela do app (Dashboard, Inbox, Projetos, etc.)
+- **Seção Onboarding** — WelcomeModal, TourOverlay, FirstStepsChecklist
+- **Busca Full-Text** — Pesquisa no conteúdo das seções com snippets destacados
+- **Conteúdo modularizado** em `src/data/wiki-sections.tsx`
+- **Acesso público** (ImmersiveRoute), TOC ativo com IntersectionObserver
+
+## 📊 Analytics Dashboard
 
 Estatísticas e métricas de produtividade:
 
