@@ -20,7 +20,7 @@ Sistema de produtividade pessoal com arquitetura modular de engines. Combina ges
 | PWA | vite-plugin-pwa + Service Worker |
 | Validação | Zod |
 
-### Engines Implementados (9)
+### Engines Implementados (12)
 
 | Engine | Função |
 |--------|--------|
