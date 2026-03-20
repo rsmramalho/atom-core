@@ -33,6 +33,9 @@ Sistema de produtividade pessoal com arquitetura modular de engines. Combina ges
 | **Reflection** | Journaling com prompts guiados e busca full-text |
 | **List** | Listas rápidas estilo Google Keep |
 | **Recurrence** | Tarefas recorrentes via RRULE |
+| **Smart Suggestions** | Sugestões heurísticas no Dashboard (6 regras) |
+| **Error Dashboard** | Monitoramento admin com gráficos e CSV |
+| **Wiki** | Super Manual interativo com busca full-text |
 
 ### Colaboração Multi-Usuário
 
