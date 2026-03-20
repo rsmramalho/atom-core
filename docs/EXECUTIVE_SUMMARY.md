@@ -84,6 +84,9 @@ App.tsx (QueryClient: staleTime 5min, retry 2)
 - **Onboarding:** Welcome modal + tour guiado + checklist gamificado
 - **Zod Validation:** Formulários validados com schemas centralizados
 - **Error Tracking:** Captura de crashes em produção via Edge Function + error_logs
+- **Smart Suggestions:** Sugestões heurísticas no Dashboard baseadas em padrões de uso
+- **Error Dashboard:** Admin panel com gráficos de evolução, filtros e export CSV
+- **Wiki Super Manual:** 12 seções detalhadas com busca full-text e docs de onboarding
 
 ### Qualidade de Código
 
