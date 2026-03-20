@@ -705,6 +705,9 @@ export function asTypedRow(row: ItemsRow): TypedItemsRow;
 - [x] **Error Boundaries por Rota** - Crash isolation (beta.1)
 - [x] **a11y Audit** - ARIA labels, landmarks, pinch-to-zoom (beta.1)
 - [x] **Error Tracking** - Captura de crashes em produção (beta.1)
+- [x] **Smart Suggestions** - Motor heurístico no Dashboard (beta.2)
+- [x] **Error Dashboard Admin** - Gráficos, filtros, CSV export (beta.2)
+- [x] **Wiki Super Manual** - 12 seções + busca full-text (beta.2)
 
 ### 🔲 Próximas Etapas
 
